@@ -145,6 +145,42 @@ class BrandRules:
                 "Akılcı bütçe, modern donanım ve Arkas 2. El garantisi.",
                 "Hayata renk katan pratik sürüş deneyimi."
             ]
+        },
+        "Skoda": {
+            "archetype": "Simply Clever & Akılcı Aile (The Sage / Everyman)",
+            "tone": "Zeki, geniş yaşam alanı odaklı, fonksiyonel, güvenilir ve konforlu",
+            "keywords": ["Simply Clever", "Geniş İç Hacim", "Akılcı Çözümler", "Aile Konforu", "Yüksek Güvenlik"],
+            "target_persona": "Geniş bagaj ve iç hacme değer veren, hayatı kolaylaştıran pratik çözümler arayan aileler",
+            "emotional_points": [
+                "Her yolculukta tüm aileniz için maksimum ferahlık ve konfor",
+                "Simply Clever akılcı detaylarla hayatı kolaylaştıran tasarım",
+                "Arkas 2. El ekspertiziyle tam şeffaflık ve sıfır risk"
+            ],
+            "accent_color": "#4BA82E",  # Skoda Green
+            "badge_icon": "🍀",
+            "hooks": [
+                "Akılcı çözümler ve geniş konfor: Skoda ayrıcalığı.",
+                "Ailenizin tüm ihtiyaçlarına tek araçla mükemmel yanıt.",
+                "Zeka dolu donanımlar ve Arkas 2. El güvencesi bir arada."
+            ]
+        },
+        "Ford": {
+            "archetype": "Güçlü & Dayanıklı Yol Arkadaşı (The Hero / Realist)",
+            "tone": "Sağlam, dinamik yol tutuşlu, dayanıklı ve güvenilir",
+            "keywords": ["Üstün Yol Tutuş", "EcoBoost Performans", "Dayanıklılık", "Sağlam Mühendislik"],
+            "target_persona": "Güçlü yol tutuş, sağlam gövde ve iş/aile hayatında yüksek dayanıklılık arayan sürücüler",
+            "emotional_points": [
+                "Efsanevi Ford yol tutuşuyla her virajda mutlak hakimiyet",
+                "Zorlu şartlara meydan okuyan sağlam ve dayanıklı yapı",
+                "Düşük işletme maliyeti ve yüksek ikinci el güvencesi"
+            ],
+            "accent_color": "#002C6C",  # Ford Blue
+            "badge_icon": "🚙",
+            "hooks": [
+                "Yollarda sağlamlık ve güven: Efsanevi Ford performansı.",
+                "Her yolculukta üstün yol tutuş ve tavizsiz dayanıklılık.",
+                "Güçlü yol arkadaşınız Arkas 2. El güvencesiyle sizi bekliyor."
+            ]
         }
     }
 

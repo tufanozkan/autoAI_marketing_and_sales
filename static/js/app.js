@@ -6,7 +6,7 @@ let currentBrand = "all";
 let currentBodyType = "all";
 let currentSearch = "";
 let currentModalTab = "safe";
-let currentModalPosterType = "post";
+let selectedPosterIndex = 0;
 
 // DOM Elements
 const postersGrid = document.getElementById("posters-grid");
@@ -32,8 +32,7 @@ const modalBrandTag = document.getElementById("modal-brand-tag");
 const modalVehicleTitle = document.getElementById("modal-vehicle-title");
 const modalSpecsSub = document.getElementById("modal-specs-sub");
 const modalCopyContainer = document.getElementById("modal-copy-container");
-const btnViewPost = document.getElementById("btn-view-post");
-const btnViewBanner = document.getElementById("btn-view-banner");
+const posterAnglesTabs = document.getElementById("poster-angles-tabs");
 const tabSafe = document.getElementById("tab-safe");
 const tabBold = document.getElementById("tab-bold");
 const tabStory = document.getElementById("tab-story");
@@ -111,11 +110,11 @@ async function loadBrands() {
 
 // Fetch Vehicles & Posters
 async function loadVehicles() {
-  resultsCount.innerText = "İlanlar ve afişler taranıyor...";
+  resultsCount.innerText = "Canlı katalogdan ilanlar taranıyor...";
   postersGrid.innerHTML = `
     <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--text-muted);">
       <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
-      <div>Veritabanından afişler yükleniyor...</div>
+      <div>PostgreSQL veritabanından araçlar ve çoklu açı afişleri yükleniyor...</div>
     </div>
   `;
 
@@ -140,7 +139,7 @@ async function loadVehicles() {
 
 // Render Posters Grid
 function renderPostersGrid() {
-  resultsCount.innerText = `${currentVehicles.length} araç afişi listelendi`;
+  resultsCount.innerText = `${currentVehicles.length} araç listelendi`;
   postersGrid.innerHTML = "";
 
   if (currentVehicles.length === 0) {
@@ -148,7 +147,7 @@ function renderPostersGrid() {
       <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-color);">
         <div style="font-size: 3rem; margin-bottom: 16px;">🚗</div>
         <h3 style="margin-bottom: 8px;">Henüz İlan veya Afiş Bulunamadı</h3>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Yukarıdaki "⚡ Scraper & AI Motorunu Çalıştır" butonuna basarak ilk ilanları ve afişleri üretebilirsiniz.</p>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Yukarıdaki "⚡ Scraper & AI Motorunu Çalıştır" butonuna basarak canlı Arkas ilanlarını ve afişlerini üretebilirsiniz.</p>
         <button onclick="runPipeline()" class="btn btn-primary">⚡ Şimdi Çalıştır</button>
       </div>
     `;
@@ -156,15 +155,16 @@ function renderPostersGrid() {
   }
 
   currentVehicles.forEach(vehicle => {
-    const postPoster = vehicle.posters.find(p => p.poster_type === "instagram_post") || vehicle.posters[0];
-    const posterImgUrl = postPoster ? postPoster.file_url : (vehicle.primary_image_url || "/static/placeholder.png");
+    const mainPoster = vehicle.posters.find(p => p.poster_type === "instagram_post") || vehicle.posters[0];
+    const posterImgUrl = mainPoster ? mainPoster.file_url : (vehicle.primary_image_url || "/static/placeholder.png");
+    const angleCount = vehicle.posters.length || 1;
 
     const card = document.createElement("div");
     card.className = "poster-card";
     card.innerHTML = `
       <div class="poster-preview-wrapper">
         <img class="poster-preview-img" src="${posterImgUrl}" alt="${vehicle.brand} ${vehicle.model}" loading="lazy">
-        <div class="poster-overlay-badge">4:5 Instagram Ready</div>
+        <div class="poster-overlay-badge">📸 ${angleCount} Farklı Açı Hazır</div>
       </div>
       <div class="poster-card-body">
         <div class="vehicle-meta-top">
@@ -180,7 +180,7 @@ function renderPostersGrid() {
         <div class="card-price-row">
           <div class="card-price">${formatCurrency(vehicle.price)}</div>
           <div class="card-actions">
-            <button class="btn-icon btn-view" title="Kreatif ve Metin Detayı">🔍</button>
+            <button class="btn-icon btn-view" title="Tüm Açıları ve Metinleri Gör">🔍</button>
             <a href="${posterImgUrl}" download="${vehicle.brand}_${vehicle.model}_afis.png" class="btn-icon" title="Afişi İndir">📥</a>
           </div>
         </div>
@@ -199,29 +199,56 @@ function renderPostersGrid() {
 function openModal(vehicle) {
   selectedVehicle = vehicle;
   currentModalTab = "safe";
-  currentModalPosterType = "post";
+  selectedPosterIndex = 0;
 
   modalBrandTag.innerText = vehicle.brand.toUpperCase();
   modalVehicleTitle.innerText = `${vehicle.brand} ${vehicle.model} ${vehicle.sub_model || ''}`;
   modalSpecsSub.innerText = `${vehicle.year} Model • ${formatKM(vehicle.km)} • ${vehicle.fuel_type} • ${vehicle.transmission} • ${formatCurrency(vehicle.price)}`;
 
+  renderPosterAnglesTabs();
   updateModalPoster();
   updateModalCopy();
 
   modal.classList.add("active");
 }
 
+function getAngleIcon(type) {
+  if (type === "instagram_post") return "🌟 Ana Dış Açı";
+  if (type === "detail_headlight") return "💡 Ön Far & Izgara";
+  if (type === "rear_profile") return "🏎️ Arka Dinamik Profil";
+  if (type === "interior_cockpit") return "🛋️ İç Mekan & Kokpit";
+  if (type === "banner") return "📱 16:9 Banner";
+  return "📸 Afiş";
+}
+
+function renderPosterAnglesTabs() {
+  posterAnglesTabs.innerHTML = "";
+  if (!selectedVehicle || !selectedVehicle.posters || selectedVehicle.posters.length === 0) return;
+
+  selectedVehicle.posters.forEach((poster, idx) => {
+    const btn = document.createElement("button");
+    btn.className = `poster-switch-btn ${idx === selectedPosterIndex ? 'active' : ''}`;
+    btn.style.fontSize = "0.78rem";
+    btn.style.padding = "6px 10px";
+    btn.innerText = getAngleIcon(poster.poster_type);
+    btn.addEventListener("click", () => {
+      selectedPosterIndex = idx;
+      document.querySelectorAll("#poster-angles-tabs .poster-switch-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      updateModalPoster();
+    });
+    posterAnglesTabs.appendChild(btn);
+  });
+}
+
 function updateModalPoster() {
-  if (!selectedVehicle) return;
-  const poster = selectedVehicle.posters.find(p => p.poster_type === (currentModalPosterType === "post" ? "instagram_post" : "banner")) || selectedVehicle.posters[0];
-  const url = poster ? poster.file_url : selectedVehicle.primary_image_url;
+  if (!selectedVehicle || !selectedVehicle.posters || selectedVehicle.posters.length === 0) return;
+  const poster = selectedVehicle.posters[selectedPosterIndex] || selectedVehicle.posters[0];
+  const url = poster.file_url;
   
   modalPosterImg.src = url;
   btnDownloadPoster.href = url;
-  btnDownloadPoster.download = `${selectedVehicle.brand}_${selectedVehicle.model}_${currentModalPosterType}.png`;
-
-  btnViewPost.classList.toggle("active", currentModalPosterType === "post");
-  btnViewBanner.classList.toggle("active", currentModalPosterType === "banner");
+  btnDownloadPoster.download = `${selectedVehicle.brand}_${selectedVehicle.model}_${poster.poster_type}.png`;
 }
 
 function updateModalCopy() {
@@ -256,17 +283,6 @@ function updateModalCopy() {
     }
   }
 }
-
-// Modal Event Listeners
-btnViewPost.addEventListener("click", () => {
-  currentModalPosterType = "post";
-  updateModalPoster();
-});
-
-btnViewBanner.addEventListener("click", () => {
-  currentModalPosterType = "banner";
-  updateModalPoster();
-});
 
 tabSafe.addEventListener("click", () => {
   currentModalTab = "safe";
@@ -309,9 +325,11 @@ btnRegenerateSingle.addEventListener("click", async () => {
     const res = await fetch(`/api/pipeline/generate-single/${selectedVehicle.id}`, { method: "POST" });
     const data = await res.json();
     if (data.status === "success") {
-      showToast("✨ Kreatif ve afişler yeniden üretildi!");
+      showToast("✨ Kreatif ve tüm açı afişleri yeniden üretildi!");
       const detailRes = await fetch(`/api/vehicles/${selectedVehicle.id}`);
       selectedVehicle = await detailRes.json();
+      selectedPosterIndex = 0;
+      renderPosterAnglesTabs();
       updateModalPoster();
       updateModalCopy();
       loadVehicles();
@@ -327,14 +345,14 @@ btnRegenerateSingle.addEventListener("click", async () => {
 // Run Pipeline (Scraper + Agent + Poster Engine)
 async function runPipeline() {
   btnRunPipeline.disabled = true;
-  btnRunPipeline.innerHTML = `<span>⏳ Taranıyor & Afişler Üretiliyor...</span>`;
-  showToast("🚀 Scraper ve AI Afiş motoru başlatıldı. Lütfen bekleyin...");
+  btnRunPipeline.innerHTML = `<span>⏳ Canlı İlanlar Çekiliyor & Afişler Üretiliyor...</span>`;
+  showToast("🚀 Canlı Arkas Scraper ve Çoklu Açı Afiş motoru başlatıldı. Lütfen bekleyin...");
 
   try {
     const res = await fetch("/api/pipeline/run", { method: "POST" });
     const data = await res.json();
     if (data.status === "success") {
-      showToast(`🎉 Tamamlandı! ${data.scrape_stats.total} ilan işlendi, ${data.posters_rendered} afiş üretildi.`);
+      showToast(`🎉 Tamamlandı! ${data.scrape_stats.total} canlı ilan çekildi, ${data.posters_rendered * 5} açı afişi üretildi.`);
       await loadBrands();
       await loadVehicles();
     }

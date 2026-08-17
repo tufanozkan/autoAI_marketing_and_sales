@@ -16,15 +16,16 @@
 
 ## 3. Mimari ve Modüler İş Akışı
 1. **Veritabanı Katmanı (`src/db/` & PostgreSQL 5432):** DBeaver ve dış GUI araçlarıyla doğrudan bağlanılabilir; `vehicles`, `creative_briefs`, `marketing_copies` ve `posters` tabloları aktiftir.
-2. **Ana Orkestratör (`main.py`):** Tek komutla (`python main.py`) sırasıyla tüm adımları tetikler veya bağımsız CLI bayraklarıyla (`--scrape-only`, `--generate-only`, `--web-only`) çalışır.
-3. **Web Scraper Modülü (`src/scraper/`):** İlanları çeker, normalize eder, SHA256 içerik hash'i ile mükerrerlik olmadan PostgreSQL'e kaydeder.
-4. **Pazarlama & Afiş Sub-Agent (`src/agent/`):** Marka ve segment arketip kurallarını (Volvo güvenliği, BMW sürüş hazzı, Mercedes prestiji vb.) işleyerek Safe/Bold reklam metinleri, kancalar ve yüksek çözünürlüklü afişler üretir.
-5. **Web Görsel Vitrini (`src/web/` & `static/`):** PostgreSQL'den beslenen marka/model/kasa tipi filtrelemeli, anlık arama destekli ve afiş indirme özellikli şık bir ızgara (grid) sunar.
+2. **Ana Orkestratör (`main.py`):** Tek komutla (`python main.py`) sırasıyla tüm adımları tetikler veya bağımsız CLI bayraklarıyla (`--reset-db`, `--scrape-only`, `--generate-only`, `--web-only`) çalışır.
+3. **Canlı Web Scraper Modülü (`src/scraper/`):** `https://www.arkasotomotiv2.com` üzerindeki gerçek ilanları ve orijinal araç fotoğraflarını (`panel/public/resimler/`) çeker, normalize eder, SHA256 içerik hash'i ile mükerrerlik olmadan PostgreSQL'e kaydeder.
+4. **Pazarlama & Çoklu Açı Afiş Sub-Agent (`src/agent/`):** Marka personası ve Safe/Bold reklam metinlerini oluşturur. Aynı aracın aynı renk ve tonunu koruyarak 5 farklı açıdan (Ana Dış Çekim, Ön Far Detayı, Arka Dinamik Profil, İç Mekan Kokpit, 16:9 Banner) afiş render eder.
+5. **Web Görsel Vitrini (`src/web/` & `static/`):** PostgreSQL'den beslenen marka/model/kasa tipi filtrelemeli, anlık arama destekli, çoklu açı sekmeli ve yüksek çözünürlüklü afiş indirme özellikli stüdyo sunar.
 
 ## 4. Dokümantasyon Standartları (`docs/`)
 * Yapılan tüm mimari kararlar ve geliştirmeler `docs/YYYY-MM-DD_konu.md` standardıyla detaylı şekilde arşivlenmektedir.
-* İlk MVP dokümantasyonu: `docs/2026-08-17_mvp_mimari_veri_akisi_ve_afis_motoru.md`
+* MVP Mimari & Veri Akışı: `docs/2026-08-17_mvp_mimari_veri_akisi_ve_afis_motoru.md`
+* Canlı Fotoğraf Çekimi & Çoklu Açı Afişleri: `docs/2026-08-17_canli_katalog_gorsel_cekimi_ve_coklu_aci_afisleri.md`
 
 ## 5. Güncel Durum ve Kararlar
-* **Mevcut Durum:** Sistem tamamen PostgreSQL 17 (localhost:5432) üzerinde çalışmakta, `.env` ayrıştırılmış değişkenleri desteklemekte, tüm gereksiz dosyalar temizlenmiş ve afişler kusursuz render edilmektedir.
-* **Sıradaki Adım:** İhtiyaç halinde LLM API entegrasyonları (Claude/OpenAI), sosyal medya dağıtım modülleri ve ek şablon varyantlarının geliştirilmesi.
+* **Mevcut Durum:** Sistem tamamen `https://www.arkasotomotiv2.com` canlı kataloğuna bağlıdır. Veritabanı sıfırlanarak orijinal araç fotoğraflarıyla yeniden doldurulmuş ve her araç için 5'er farklı açıda afiş üretilmiştir.
+* **Sıradaki Adım:** İhtiyaç halinde dinamik LLM API entegrasyonları, sosyal medya otomatik paylaşımı ve AI inpainting/arka plan dönüştürme modülleri.
