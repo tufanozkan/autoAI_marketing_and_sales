@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arkas 2. El Pazarlama AI - Kreatif Afiş & Vitrin Stüdyosu</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="brand-wrapper">
+      <div class="logo-badge">ARKAS 2. EL</div>
+      <div class="brand-title">
+        <h1>Pazarlama AI <span class="badge-sub">Kreatif Stüdyo</span></h1>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button id="btn-run-pipeline" class="btn btn-primary">
+        <span>⚡ Scraper & AI Motorunu Çalıştır</span>
+      </button>
+      <button id="btn-refresh" class="btn btn-secondary">
+        <span>🔄 Yenile</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Key Performance Indicators (KPIs) -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-info">
+          <div id="stat-vehicles" class="stat-value">0</div>
+          <div class="stat-label">Yayındaki Araçlar</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎨</div>
+        <div class="stat-info">
+          <div id="stat-posters" class="stat-value">0</div>
+          <div class="stat-label">Üretilen Afişler</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✍️</div>
+        <div class="stat-info">
+          <div id="stat-copies" class="stat-value">0</div>
+          <div class="stat-label">AI Reklam Metinleri</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏷️</div>
+        <div class="stat-info">
+          <div id="stat-brands" class="stat-value">0</div>
+          <div class="stat-label">Farklı Marka</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar: Search & Filters -->
+    <section class="toolbar">
+      <div class="search-box-wrapper">
+        <div class="search-input-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input" placeholder="Marka, model, özellik veya anahtar kelime ile ara...">
+        </div>
+        <select id="body-type-filter" class="filter-select">
+          <option value="all">Tüm Kasa Tipleri</option>
+          <option value="SUV">SUV</option>
+          <option value="Sedan">Sedan</option>
+          <option value="Hatchback">Hatchback</option>
+        </select>
+      </div>
+
+      <!-- Dynamic Brand Tabs -->
+      <div id="brand-tabs" class="brand-tabs">
+        <button class="brand-tab active" data-brand="all">Tümü</button>
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- Posters Section Header -->
+    <section class="section-header">
+      <h2><span>🖼️</span> Üretilen Pazarlama Afişleri & Kreatif Vitrini</h2>
+      <div id="results-count" style="font-size: 0.9rem; color: var(--text-muted);">Yükleniyor...</div>
+    </section>
+
+    <!-- Posters Grid Container -->
+    <section id="posters-grid" class="posters-grid">
+      <!-- Populated via JS -->
+    </section>
+  </main>
+
+  <!-- Interactive Creative Detail Modal -->
+  <div id="creative-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+      
+      <!-- Left: Poster Preview & Download -->
+      <div class="modal-left">
+        <div class="poster-switch-tabs">
+          <button id="btn-view-post" class="poster-switch-btn active">Instagram Post (4:5)</button>
+          <button id="btn-view-banner" class="poster-switch-btn">Web Banner (16:9)</button>
+        </div>
+        <img id="modal-poster-img" class="modal-poster-view" src="" alt="Afiş Önizleme">
+        <a id="btn-download-poster" class="btn btn-primary" style="width: 100%; justify-content: center;" href="" download="arkas_afis.png">
+          📥 Yüksek Çözünürlüklü Afişi İndir
+        </a>
+      </div>
+
+      <!-- Right: AI Copywriting, Story Frames, Specs -->
+      <div class="modal-right">
+        <div style="margin-bottom: 16px;">
+          <span id="modal-brand-tag" class="card-brand-tag"></span>
+          <h2 id="modal-vehicle-title" style="font-size: 1.4rem; font-weight: 800; margin-top: 4px;"></h2>
+          <div id="modal-specs-sub" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;"></div>
+        </div>
+
+        <div class="modal-tabs">
+          <button id="tab-safe" class="modal-tab active">🛡️ Kurumsal & Güvenli Metin</button>
+          <button id="tab-bold" class="modal-tab">🔥 Duygusal & Tutkulu Metin</button>
+          <button id="tab-story" class="modal-tab">📱 Hikaye (Story) Akışı</button>
+        </div>
+
+        <!-- Copy Content Container -->
+        <div id="modal-copy-container" class="copy-box"></div>
+
+        <div class="copy-actions">
+          <button id="btn-copy-text" class="btn btn-secondary">
+            <span>📋 Metni Kopyala</span>
+          </button>
+          <button id="btn-regenerate-single" class="btn btn-secondary">
+            <span>⚡ Yeniden Üret</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <span id="toast-icon">✓</span>
+    <span id="toast-message">İşlem başarıyla tamamlandı.</span>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
