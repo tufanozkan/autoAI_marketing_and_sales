@@ -1,0 +1,1 @@
+# arkas_2el_pazarlama_ai
