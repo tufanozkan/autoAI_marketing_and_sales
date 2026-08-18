@@ -19,10 +19,10 @@ class CustomerLead(Base):
     budget_max = Column(Float, nullable=True)
     focused_vehicle_id = Column(Integer, nullable=True)
     
-    chat_history = Column(JSON, default=list)  # [{"role": "user"|"assistant", "content": "...", "timestamp": "..."}]
-    conversation_summary = Column(Text, nullable=True)  # AI generated summary of what the customer is looking for
+    chat_history = Column(JSON, default=list)
+    conversation_summary = Column(Text, nullable=True)
     
-    status = Column(String(50), default="new")  # new, contacted, interested, closed
+    status = Column(String(50), default="new")
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
@@ -58,7 +58,9 @@ class Vehicle(Base):
     
     brand = Column(String(100), index=True, nullable=False)
     model = Column(String(100), index=True, nullable=False)
-    sub_model = Column(String(150), nullable=True)
+    package = Column(String(150), nullable=True)  # Donanım Paketi (örn: Elite, Plus Dark, Titanium, Style)
+    sub_model = Column(String(200), nullable=True)  # Versiyon / Motor bilgisi
+    
     year = Column(Integer, nullable=False)
     km = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
@@ -68,9 +70,20 @@ class Vehicle(Base):
     transmission = Column(String(50), nullable=True)
     body_type = Column(String(50), nullable=True)
     color = Column(String(50), nullable=True)
+    engine_power = Column(String(50), nullable=True)  # örn: 110 HP, 129 HP
+    engine_capacity = Column(String(50), nullable=True)  # örn: 999 cc, 1498 cc
     
-    features = Column(JSON, default=list)
+    # Detaylı Teknik Özellikler (Motor, Yakıt Tüketimi, Performans, Boyutlar, vb.)
+    technical_specs = Column(JSON, default=dict)
+    
+    # İlan Detayları Kısmındaki Özellikler (Konfor, Güvenlik, İç/Dış Donanım, Multimedya)
+    ad_features = Column(JSON, default=list)
+    
+    # Ekspertiz & Hasar Durumu (Boyalı parçalar, değişen parçalar, tramer bilgisi)
+    damage_expertise = Column(JSON, default=dict)
     expertise_note = Column(Text, nullable=True)
+    
+    # Orijinal İlan Fotoğrafları
     image_urls = Column(JSON, default=list)
     primary_image_url = Column(String(1000), nullable=True)
     
@@ -83,7 +96,6 @@ class Vehicle(Base):
     # Relationships
     briefs = relationship("CreativeBrief", back_populates="vehicle", cascade="all, delete-orphan")
     copies = relationship("MarketingCopy", back_populates="vehicle", cascade="all, delete-orphan")
-    posters = relationship("Poster", back_populates="vehicle", cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -93,6 +105,7 @@ class Vehicle(Base):
             "url": self.url,
             "brand": self.brand,
             "model": self.model,
+            "package": self.package,
             "sub_model": self.sub_model,
             "year": self.year,
             "km": self.km,
@@ -102,14 +115,19 @@ class Vehicle(Base):
             "transmission": self.transmission,
             "body_type": self.body_type,
             "color": self.color,
-            "features": self.features or [],
+            "engine_power": self.engine_power,
+            "engine_capacity": self.engine_capacity,
+            "technical_specs": self.technical_specs or {},
+            "ad_features": self.ad_features or [],
+            "features": self.ad_features or [],  # Backwards compatibility for UI
+            "damage_expertise": self.damage_expertise or {},
             "expertise_note": self.expertise_note,
             "image_urls": self.image_urls or [],
             "primary_image_url": self.primary_image_url,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "posters": [p.to_dict() for p in self.posters] if self.posters else [],
-            "copies": [c.to_dict() for c in self.copies] if self.copies else []
+            "copies": [c.to_dict() for c in self.copies] if self.copies else [],
+            "brief": self.briefs[0].to_dict() if self.briefs else None
         }
 
 
@@ -148,7 +166,7 @@ class MarketingCopy(Base):
     id = Column(Integer, primary_key=True, index=True)
     vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False)
     
-    variant = Column(String(20), default="safe")  # "safe" or "bold"
+    variant = Column(String(20), default="safe")  # "safe" (Dengeli / Profesyonel) or "bold" (İlgi Çekici / Cesur)
     headline = Column(String(255), nullable=False)
     hook = Column(String(255), nullable=False)
     body = Column(Text, nullable=False)
@@ -171,35 +189,5 @@ class MarketingCopy(Base):
             "cta": self.cta,
             "story_frames": self.story_frames,
             "hashtags": self.hashtags,
-            "created_at": self.created_at.isoformat() if self.created_at else None
-        }
-
-
-class Poster(Base):
-    __tablename__ = "posters"
-
-    id = Column(Integer, primary_key=True, index=True)
-    vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False)
-    
-    poster_type = Column(String(50), default="banner")
-    file_path = Column(String(500), nullable=False)
-    file_url = Column(String(500), nullable=False)
-    title = Column(String(255), nullable=False)
-    badge_text = Column(String(100), nullable=True)
-    theme_color = Column(String(50), default="#18181B")
-    
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-
-    vehicle = relationship("Vehicle", back_populates="posters")
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "vehicle_id": self.vehicle_id,
-            "poster_type": self.poster_type,
-            "file_url": self.file_url,
-            "title": self.title,
-            "badge_text": self.badge_text,
-            "theme_color": self.theme_color,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }

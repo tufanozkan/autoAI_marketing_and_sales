@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Car, Image as ImageIcon, FileText, Tag } from "lucide-react";
+import { Car, Sparkles, Users, Tag } from "lucide-react";
 import { StatsResponse } from "@/lib/types";
 
 interface StatsSectionProps {
@@ -12,7 +12,7 @@ interface StatsSectionProps {
 export function StatsSection({ stats, loading }: StatsSectionProps) {
   const items = [
     {
-      label: "Canlı Yayındaki Araçlar",
+      label: "Portföydeki Araçlar",
       value: stats?.total_vehicles ?? 0,
       icon: Car,
       color: "text-[#18181B]",
@@ -20,20 +20,20 @@ export function StatsSection({ stats, loading }: StatsSectionProps) {
       subText: "PostgreSQL Canlı Veri",
     },
     {
-      label: "Üretilen 5 Açılı Afişler",
-      value: stats?.total_posters ?? 0,
-      icon: ImageIcon,
+      label: "AI Reklam Kreatifleri",
+      value: stats?.total_copies ?? 0,
+      icon: Sparkles,
       color: "text-[#9C8262]",
       bg: "bg-[#F5F0E6]",
-      subText: "1080x1350 & 16:9 HD",
+      subText: "Dengeli / İlgi Çekici Metinler",
     },
     {
-      label: "AI Reklam Metinleri",
-      value: stats?.total_copies ?? 0,
-      icon: FileText,
-      color: "text-[#475569]",
-      bg: "bg-[#F1F5F9]",
-      subText: "Safe / Bold / Story",
+      label: "Kayıtlı Müşteri Talebi",
+      value: stats?.total_leads ?? 0,
+      icon: Users,
+      color: "text-[#1E40AF]",
+      bg: "bg-[#EFF6FF]",
+      subText: "AI Danışman Leadleri",
     },
     {
       label: "Katalog Markaları",
@@ -41,7 +41,7 @@ export function StatsSection({ stats, loading }: StatsSectionProps) {
       icon: Tag,
       color: "text-[#15803D]",
       bg: "bg-[#F0FDF4]",
-      subText: "Farklı Üretici",
+      subText: "Aktif Üreticiler",
     },
   ];
 

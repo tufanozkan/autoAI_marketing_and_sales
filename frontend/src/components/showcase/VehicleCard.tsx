@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle, Poster } from "@/lib/types";
-import { formatCurrency, formatKM, getAngleInfo } from "@/lib/utils";
-import { Download, Eye, Sparkles, Fuel, Gauge, Layers } from "lucide-react";
+import { Vehicle } from "@/lib/types";
+import { formatCurrency, formatKM } from "@/lib/utils";
+import { Sparkles, Fuel, Gauge, Layers, ShieldCheck, Zap } from "lucide-react";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -12,21 +12,12 @@ interface VehicleCardProps {
 }
 
 export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProps) {
-  const posters = vehicle.posters || [];
-  const [selectedAngleIndex, setSelectedAngleIndex] = useState(0);
+  const images = vehicle.image_urls && vehicle.image_urls.length > 0
+    ? vehicle.image_urls
+    : [vehicle.primary_image_url || "/static/placeholder.png"];
 
-  const currentPoster = posters[selectedAngleIndex] || posters[0];
-  const imageUrl = currentPoster?.file_url || vehicle.primary_image_url || "/static/placeholder.png";
-
-  const handleDownload = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = `${vehicle.brand}_${vehicle.model}_${currentPoster?.poster_type || "afis"}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const currentImageUrl = images[selectedPhotoIndex] || images[0];
 
   if (viewMode === "compact") {
     return (
@@ -37,14 +28,16 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-[#F0EDE6]">
             <img
-              src={imageUrl}
+              src={currentImageUrl}
               alt={`${vehicle.brand} ${vehicle.model}`}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
-            <span className="absolute bottom-1 right-1 rounded bg-[#18181B]/80 px-1.5 py-0.5 text-[9px] font-bold text-white">
-              {posters.length} Açı
-            </span>
+            {images.length > 1 && (
+              <span className="absolute bottom-1 right-1 rounded bg-[#18181B]/80 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                {images.length} Foto
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col">
@@ -53,6 +46,11 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
                 {vehicle.brand}
               </span>
               <span className="text-xs text-[#716D65]">• {vehicle.year} Model</span>
+              {vehicle.package && (
+                <span className="rounded bg-[#F0EDE6] px-1.5 py-0.5 text-[10px] font-semibold text-[#18181B]">
+                  {vehicle.package}
+                </span>
+              )}
             </div>
             <h4 className="text-sm font-bold text-[#18181B] group-hover:text-[#9C8262] transition-colors">
               {vehicle.model} {vehicle.sub_model || ""}
@@ -61,6 +59,7 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
               <span>{formatKM(vehicle.km)}</span>
               <span>{vehicle.fuel_type || "Benzin"}</span>
               <span>{vehicle.transmission || "Otomatik"}</span>
+              {vehicle.engine_power && <span>{vehicle.engine_power}</span>}
             </div>
           </div>
         </div>
@@ -70,42 +69,36 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
             <div className="text-base font-extrabold text-[#18181B]">
               {formatCurrency(vehicle.price)}
             </div>
-            <div className="text-[10px] text-[#15803D] font-medium">Arkas Güvencesiyle</div>
+            <div className="text-[10px] text-[#15803D] font-medium flex items-center justify-end gap-1">
+              <ShieldCheck className="h-3 w-3" />
+              <span>Arkas Güvenceli</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleDownload}
-              title="Aktif Afişi İndir"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] text-[#52525B] transition hover:bg-[#18181B] hover:text-white"
-            >
-              <Download className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => onOpenStudio(vehicle)}
-              className="flex items-center gap-1.5 rounded-lg bg-[#18181B] px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#27272A]"
-            >
-              <Eye className="h-3.5 w-3.5" />
-              <span>Stüdyo</span>
-            </button>
-          </div>
+          <button
+            onClick={() => onOpenStudio(vehicle)}
+            className="flex items-center gap-1.5 rounded-lg bg-[#18181B] px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#27272A]"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-[#C2A676]" />
+            <span>AI Kreatif & Detay</span>
+          </button>
         </div>
       </div>
     );
   }
 
-  // Standard Luxury Grid Poster Card
+  // Standard Luxury Grid Card
   return (
     <div
       onClick={() => onOpenStudio(vehicle)}
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#E6E2D8] bg-white shadow-xs luxury-card cursor-pointer"
     >
-      {/* Visual Image Container (4:5 Aspect Ratio) */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F0EDE6]">
+      {/* Visual Image Container (16:10 Aspect Ratio) */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F0EDE6]">
         <img
-          src={imageUrl}
+          src={currentImageUrl}
           alt={`${vehicle.brand} ${vehicle.model}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           loading="lazy"
         />
 
@@ -113,41 +106,32 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
         <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-1.5 rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-bold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
             <Layers className="h-3 w-3 text-[#9C8262]" />
-            <span>{posters.length || 1} Farklı Açı</span>
+            <span>{images.length} Orijinal Görsel</span>
           </div>
 
           <div className="flex items-center gap-1 rounded-md bg-[#18181B]/90 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white uppercase backdrop-blur-md">
-            <span>ARKAS AI</span>
+            <span>ARKAS 2. EL</span>
           </div>
         </div>
 
-        {/* Inline Multi-Angle Switcher Tabs on Card */}
-        {posters.length > 1 && (
+        {/* Photo Switcher Dots / Tabs */}
+        {images.length > 1 && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-1 rounded-lg bg-white/95 p-1 backdrop-blur-lg border border-[#E6E2D8] shadow-sm transition-opacity opacity-90 group-hover:opacity-100"
+            className="absolute bottom-2.5 left-3 right-3 flex items-center justify-center gap-1.5 rounded-lg bg-black/40 p-1 backdrop-blur-md transition-opacity opacity-0 group-hover:opacity-100"
           >
-            {posters.map((p, idx) => {
-              const info = getAngleInfo(p.poster_type);
-              const isActive = idx === selectedAngleIndex;
-              return (
-                <button
-                  key={p.id || idx}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedAngleIndex(idx);
-                  }}
-                  title={info.label}
-                  className={`flex-1 rounded py-1 text-[10px] font-semibold transition-all ${
-                    isActive
-                      ? "bg-[#18181B] text-white shadow-xs"
-                      : "text-[#716D65] hover:text-[#18181B] hover:bg-[#F0EDE6]"
-                  }`}
-                >
-                  {info.shortLabel}
-                </button>
-              );
-            })}
+            {images.slice(0, 6).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPhotoIndex(idx);
+                }}
+                className={`h-2 rounded-full transition-all ${
+                  idx === selectedPhotoIndex ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
+                }`}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -157,9 +141,16 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
         
         {/* Brand & Year Header */}
         <div className="flex items-center justify-between text-xs">
-          <span className="font-extrabold uppercase tracking-wider text-[#18181B]">
-            {vehicle.brand}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-extrabold uppercase tracking-wider text-[#18181B]">
+              {vehicle.brand}
+            </span>
+            {vehicle.package && (
+              <span className="rounded bg-[#F0EDE6] px-1.5 py-0.5 text-[10px] font-bold text-[#716D65]">
+                {vehicle.package}
+              </span>
+            )}
+          </div>
           <span className="font-medium text-[#716D65]">{vehicle.year} Model</span>
         </div>
 
@@ -194,18 +185,11 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
 
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={handleDownload}
-              title="Afişi İndir"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] text-[#52525B] transition hover:border-[#D5CFC2] hover:bg-[#18181B] hover:text-white active:scale-95"
-            >
-              <Download className="h-4 w-4" />
-            </button>
-            <button
               onClick={() => onOpenStudio(vehicle)}
               className="flex items-center gap-1.5 rounded-lg bg-[#18181B] px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-[#27272A] active:scale-95"
             >
               <Sparkles className="h-3.5 w-3.5 text-[#C2A676]" />
-              <span>Stüdyo</span>
+              <span>AI Metin & Detay</span>
             </button>
           </div>
         </div>

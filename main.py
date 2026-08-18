@@ -3,10 +3,10 @@
 Arkas 2. El Pazarlama AI - Ana Orkestratör (Main Orchestrator)
 
 Kullanım:
-    python main.py                # Scraper -> AI Pazarlama Ajanı -> Çoklu Açı Afiş Motoru -> Web Sunucusu
+    python main.py                # Scraper -> AI Pazarlama Ajanı -> Web Sunucusu
     python main.py --reset-db     # Veritabanını sıfırlar ve sıfırdan canlı verilerle çalıştırır
     python main.py --scrape-only  # Yalnızca web scraper çalıştırır ve veritabanına kaydeder
-    python main.py --generate-only# Yalnızca AI pazarlama brief/metin ve afişlerini üretir
+    python main.py --generate-only# Yalnızca AI pazarlama brief ve metinlerini üretir
     python main.py --web-only     # Yalnızca Web Vitrin Sunucusunu başlatır
 """
 
@@ -15,12 +15,11 @@ import shutil
 import argparse
 import logging
 import uvicorn
-from config import settings, POSTERS_DIR, BASE_DIR, FRONTEND_OUT_DIR
+from config import settings, BASE_DIR, FRONTEND_OUT_DIR
 from src.db.database import SessionLocal, init_db, engine
-from src.db.models import Base, Vehicle, CreativeBrief, MarketingCopy, Poster
+from src.db.models import Base, Vehicle, CreativeBrief, MarketingCopy, CustomerLead
 from src.scraper.arkas_scraper import ArkasScraper
 from src.agent.marketing_agent import MarketingAgent
-from src.agent.poster_engine import PosterEngine
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,49 +32,32 @@ def print_banner():
     banner = r"""
   ╔════════════════════════════════════════════════════════════════╗
   ║                 ARKAS 2. EL PAZARLAMA AI                       ║
-  ║       Web Scraper • AI Kreatif Ajanı • Afiş Motoru & Vitrin    ║
+  ║     Web Scraper • AI Metin Ajanı • Bilişsel AI Asistan & Vitrin║
   ╚════════════════════════════════════════════════════════════════╝
     """
     print(banner)
 
 def reset_database(db):
-    print("\n🧹 Veritabanı ve eski afişler sıfırlanıyor...")
-    # Drop all and recreate
+    print("\n🧹 Veritabanı sıfırlanıyor...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    
-    # Clean generated posters directory
-    if POSTERS_DIR.exists():
-        for f in POSTERS_DIR.glob("*.png"):
-            try:
-                f.unlink()
-            except Exception:
-                pass
-    print("      ✓ PostgreSQL tabloları ve afiş deposu başarıyla sıfırlandı.")
+    print("      ✓ PostgreSQL tabloları (vehicles, customer_leads, creative_briefs, marketing_copies) başarıyla sıfırlandı.")
 
 def run_scraper(db, limit=settings.MAX_SCRAPE_ITEMS):
-    print(f"\n[1/3] 🌐 Web Scraper Çalıştırılıyor ({settings.SCRAPER_BASE_URL})...")
+    print(f"\n[1/2] 🌐 Web Scraper Çalıştırılıyor ({settings.SCRAPER_BASE_URL})...")
     scraper = ArkasScraper()
     res = scraper.scrape_and_save(db, limit=limit)
     print(f"      ✓ İşlenen: {res['total_processed']} | Yeni: {res['new_added']} | Güncellenen: {res['updated']} | Atlanan (Mükerrer): {res['skipped_duplicate']}")
     return res
 
 def run_marketing_agent(db, limit=settings.MAX_SCRAPE_ITEMS):
-    print("\n[2/3] 🤖 AI Pazarlama & Kreatif Sub-Agent Çalıştırılıyor...")
+    print("\n[2/2] 🤖 AI Pazarlama & Kreatif Metin Ajanı Çalıştırılıyor...")
     agent = MarketingAgent(db)
     count = agent.process_all_pending(limit=limit)
-    print(f"      ✓ {count} araç için marka personası, Safe/Bold reklam metinleri ve kancalar oluşturuldu.")
-    return count
-
-def run_poster_engine(db, limit=settings.MAX_SCRAPE_ITEMS):
-    print("\n[3/3] 🎨 Yüksek Çözünürlüklü Çoklu Açı Afiş & Banner Motoru Çalıştırılıyor...")
-    poster_engine = PosterEngine(db)
-    count = poster_engine.render_all_pending(limit=limit)
-    print(f"      ✓ {count} araç için 5'er farklı açı afişi (Ön, Far Detay, Arka Profil, İç Mekan, Banner) başarıyla üretildi.")
+    print(f"      ✓ {count} araç için marka personası, Safe (Dengeli) & Bold (İlgi Çekici) reklam metinleri ve kancalar oluşturuldu.")
     return count
 
 def start_web_server(host=settings.WEB_HOST, port=settings.WEB_PORT):
-    from config import FRONTEND_OUT_DIR
     ui_type = "Next.js 15 Modern Stüdyo (App Router)" if FRONTEND_OUT_DIR.exists() else "Standart Statik Görsel Vitrini"
     print(f"\n🚀 Web Görsel Vitrini Başlatılıyor: http://localhost:{port}")
     print(f"   ⚡ Arayüz Motoru: {ui_type}")
@@ -95,9 +77,9 @@ def build_frontend():
 
 def main():
     parser = argparse.ArgumentParser(description="Arkas 2. El Pazarlama AI Orchestrator")
-    parser.add_argument("--reset-db", action="store_true", help="Tüm veritabanı tablolarını ve afişleri sıfırlar")
+    parser.add_argument("--reset-db", action="store_true", help="Tüm veritabanı tablolarını sıfırlar")
     parser.add_argument("--scrape-only", action="store_true", help="Yalnızca scraper çalıştırır")
-    parser.add_argument("--generate-only", action="store_true", help="Yalnızca AI metin ve afiş üretir")
+    parser.add_argument("--generate-only", action="store_true", help="Yalnızca AI reklam metinlerini üretir")
     parser.add_argument("--web-only", action="store_true", help="Yalnızca web sunucusunu başlatır")
     parser.add_argument("--no-web", action="store_true", help="İşlem tamamlandıktan sonra web sunucusunu başlatmadan çıkar")
     parser.add_argument("--build-frontend", action="store_true", help="Next.js arayüzünü derler (npm run build)")
@@ -121,23 +103,20 @@ def main():
             reset_database(db)
             run_scraper(db, limit=args.limit)
             run_marketing_agent(db, limit=args.limit)
-            run_poster_engine(db, limit=args.limit)
             if not args.no_web:
                 start_web_server(host=args.host, port=args.port)
             else:
-                print("\n✨ Veritabanı sıfırlama ve afiş üretimi tamamlandı. Çıkış yapılıyor.")
+                print("\n✨ Veritabanı sıfırlama ve metin üretimi tamamlandı. Çıkış yapılıyor.")
         elif args.scrape_only:
             run_scraper(db, limit=args.limit)
         elif args.generate_only:
             run_marketing_agent(db, limit=args.limit)
-            run_poster_engine(db, limit=args.limit)
         elif args.web_only:
             start_web_server(host=args.host, port=args.port)
         else:
             # Full Pipeline Execution
             run_scraper(db, limit=args.limit)
             run_marketing_agent(db, limit=args.limit)
-            run_poster_engine(db, limit=args.limit)
             if not args.no_web:
                 start_web_server(host=args.host, port=args.port)
             else:

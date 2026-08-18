@@ -4,12 +4,10 @@ from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
-POSTERS_DIR = STATIC_DIR / "generated_posters"
 FRONTEND_OUT_DIR = BASE_DIR / "frontend" / "out"
 
-# Ensure static and output directories exist
+# Ensure static directory exists
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
-POSTERS_DIR.mkdir(parents=True, exist_ok=True)
 
 class Settings(BaseSettings):
     APP_NAME: str = "Arkas 2. El Pazarlama AI"
@@ -28,25 +26,13 @@ class Settings(BaseSettings):
     )
     
     # Scraper Settings
-    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://www.arkas2el.com")
-    SCRAPER_TIMEOUT: int = 15
+    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://www.arkasotomotiv2.com")
+    SCRAPER_TIMEOUT: int = 20
     MAX_SCRAPE_ITEMS: int = int(os.getenv("MAX_SCRAPE_ITEMS", "50"))
     
     # Web Server Settings
     WEB_HOST: str = os.getenv("WEB_HOST", "0.0.0.0")
     WEB_PORT: int = int(os.getenv("WEB_PORT", "8000"))
-    
-    # Poster Generation Settings
-    POSTER_WIDTH: int = 1080
-    POSTER_HEIGHT: int = 1350  # 4:5 Instagram Portrait Format
-    BANNER_WIDTH: int = 1200
-    BANNER_HEIGHT: int = 630   # Web / Landscape Format
-    
-    # Brand Theme Colors
-    PRIMARY_COLOR: str = "#E30613"   # Arkas Red
-    NAVY_COLOR: str = "#002B49"      # Arkas Navy
-    DARK_BG: str = "#0F172A"         # Luxury Slate Dark
-    GOLD_ACCENT: str = "#D4AF37"     # Premium Gold
     
     class Config:
         env_file = ".env"

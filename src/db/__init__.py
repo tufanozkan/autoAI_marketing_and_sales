@@ -1,5 +1,5 @@
 from .database import engine, SessionLocal, get_db, init_db
-from .models import Base, Vehicle, CreativeBrief, MarketingCopy, Poster
+from .models import Base, Vehicle, CreativeBrief, MarketingCopy, CustomerLead
 
 __all__ = [
     "engine",
@@ -10,5 +10,5 @@ __all__ = [
     "Vehicle",
     "CreativeBrief",
     "MarketingCopy",
-    "Poster",
+    "CustomerLead",
 ]
