@@ -15,7 +15,7 @@ import shutil
 import argparse
 import logging
 import uvicorn
-from config import settings, POSTERS_DIR
+from config import settings, POSTERS_DIR, BASE_DIR, FRONTEND_OUT_DIR
 from src.db.database import SessionLocal, init_db, engine
 from src.db.models import Base, Vehicle, CreativeBrief, MarketingCopy, Poster
 from src.scraper.arkas_scraper import ArkasScraper
@@ -75,9 +75,23 @@ def run_poster_engine(db, limit=settings.MAX_SCRAPE_ITEMS):
     return count
 
 def start_web_server(host=settings.WEB_HOST, port=settings.WEB_PORT):
+    from config import FRONTEND_OUT_DIR
+    ui_type = "Next.js 15 Modern Stüdyo (App Router)" if FRONTEND_OUT_DIR.exists() else "Standart Statik Görsel Vitrini"
     print(f"\n🚀 Web Görsel Vitrini Başlatılıyor: http://localhost:{port}")
+    print(f"   ⚡ Arayüz Motoru: {ui_type}")
     print("   (Durdurmak için Ctrl+C tuşlarına basabilirsiniz)\n")
     uvicorn.run("src.web.server:app", host=host, port=port, reload=False)
+
+def build_frontend():
+    import subprocess
+    frontend_dir = BASE_DIR / "frontend"
+    if frontend_dir.exists():
+        print("\n📦 Next.js Frontend derleniyor (`npm run build`)...")
+        res = subprocess.run(["npm", "run", "build"], cwd=str(frontend_dir), capture_output=True, text=True)
+        if res.returncode == 0:
+            print("      ✓ Next.js Frontend başarıyla derlendi ve `frontend/out` klasörüne aktarıldı.")
+        else:
+            print(f"      ❌ Frontend derleme hatası:\n{res.stderr}")
 
 def main():
     parser = argparse.ArgumentParser(description="Arkas 2. El Pazarlama AI Orchestrator")
@@ -85,12 +99,18 @@ def main():
     parser.add_argument("--scrape-only", action="store_true", help="Yalnızca scraper çalıştırır")
     parser.add_argument("--generate-only", action="store_true", help="Yalnızca AI metin ve afiş üretir")
     parser.add_argument("--web-only", action="store_true", help="Yalnızca web sunucusunu başlatır")
+    parser.add_argument("--no-web", action="store_true", help="İşlem tamamlandıktan sonra web sunucusunu başlatmadan çıkar")
+    parser.add_argument("--build-frontend", action="store_true", help="Next.js arayüzünü derler (npm run build)")
     parser.add_argument("--limit", type=int, default=settings.MAX_SCRAPE_ITEMS, help="İşlenecek maksimum araç sayısı")
     parser.add_argument("--port", type=int, default=settings.WEB_PORT, help="Web sunucu portu")
     parser.add_argument("--host", type=str, default=settings.WEB_HOST, help="Web sunucu hostu")
 
     args = parser.parse_args()
     print_banner()
+
+    if args.build_frontend:
+        build_frontend()
+        return
 
     # Initialize Database Tables
     init_db()
@@ -102,7 +122,10 @@ def main():
             run_scraper(db, limit=args.limit)
             run_marketing_agent(db, limit=args.limit)
             run_poster_engine(db, limit=args.limit)
-            start_web_server(host=args.host, port=args.port)
+            if not args.no_web:
+                start_web_server(host=args.host, port=args.port)
+            else:
+                print("\n✨ Veritabanı sıfırlama ve afiş üretimi tamamlandı. Çıkış yapılıyor.")
         elif args.scrape_only:
             run_scraper(db, limit=args.limit)
         elif args.generate_only:
@@ -115,7 +138,10 @@ def main():
             run_scraper(db, limit=args.limit)
             run_marketing_agent(db, limit=args.limit)
             run_poster_engine(db, limit=args.limit)
-            start_web_server(host=args.host, port=args.port)
+            if not args.no_web:
+                start_web_server(host=args.host, port=args.port)
+            else:
+                print("\n✨ İşlem tamamlandı. Çıkış yapılıyor.")
     except KeyboardInterrupt:
         print("\n\n👋 Sistem güvenle kapatıldı.")
     finally:

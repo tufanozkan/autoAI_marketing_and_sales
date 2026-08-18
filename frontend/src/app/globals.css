@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Quiet Luxury Warm Palette (Bej, Krem, Gümüş, Antrasit) */
+    --bg-main: #F7F5F0;             /* Sıcak Mimari Bej / Keten */
+    --bg-surface: #FFFFFF;          /* Saf Alabaster Beyaz */
+    --bg-surface-subtle: #F0EDE6;   /* Yumuşak Taş Bej */
+    --bg-surface-elevated: #FCFBF9; /* Lüks Yükseltilmiş Kart */
+    --bg-surface-hover: #EBE7DE;    /* Hover Bej Tonu */
+    
+    --border-subtle: #E6E2D8;       /* İnce Gümüşi Bej Çerçeve */
+    --border-medium: #D5CFC2;       /* Belirgin Taş Çerçeve */
+    --border-focus: #1A1A1A;        /* Odak Çerçevesi */
+
+    --text-primary: #18181B;        /* Derin Lüks Kömür / Antrasit */
+    --text-secondary: #52525B;      /* Dengeli Grafit Gri */
+    --text-muted: #8E8A82;          /* Muted Taş Gri */
+    
+    --champagne: #C2A676;           /* İpeksi Şampanya / Sıcak Altın */
+    --champagne-light: #F4EFE6;     /* Açık Şampanya Zemin */
+    --silver: #E2E8F0;              /* Fırçalanmış Gümüş */
+    --charcoal: #1E232D;            /* Lüks Antrasit */
+    --arkas-burgundy: #9E1A22;      /* Sofistike Arkas Bordo-Kırmızı */
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  /* Custom Minimalist Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F7F5F0;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D5CFC2;
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #8E8A82;
+  }
+}
+
+/* Luxury Glass & Surface Utilities */
+.luxury-card {
+  background: #FFFFFF;
+  border: 1px solid #E6E2D8;
+  box-shadow: 0 4px 20px -2px rgba(24, 24, 27, 0.03), 0 2px 6px -1px rgba(24, 24, 27, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card:hover {
+  transform: translateY(-3px);
+  border-color: #D5CFC2;
+  box-shadow: 0 16px 32px -8px rgba(24, 24, 27, 0.08), 0 4px 12px -2px rgba(24, 24, 27, 0.03);
+}
+
+.glass-nav {
+  background: rgba(247, 245, 240, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(230, 226, 216, 0.8);
+}
+
+.luxury-pill {
+  background: #F0EDE6;
+  border: 1px solid #E6E2D8;
+  color: #52525B;
+  transition: all 0.2s ease;
+}
+
+.luxury-pill:hover {
+  background: #E5E0D5;
+  color: #18181B;
+}
+
+.luxury-pill.active {
+  background: #18181B;
+  border-color: #18181B;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(24, 24, 27, 0.15);
+}
+
+/* Shimmer Loading Animation */
+@keyframes shimmerWarm {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #F0EDE6 25%, #FAF9F6 50%, #F0EDE6 75%);
+  background-size: 200% 100%;
+  animation: shimmerWarm 1.6s infinite;
+}

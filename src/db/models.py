@@ -3,6 +3,51 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, 
 from sqlalchemy.orm import relationship
 from .database import Base
 
+class CustomerLead(Base):
+    __tablename__ = "customer_leads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(100), unique=True, index=True, nullable=True)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
+    full_name = Column(String(200), nullable=True)
+    phone = Column(String(50), nullable=True)
+    
+    interested_brand = Column(String(100), nullable=True)
+    interested_model = Column(String(100), nullable=True)
+    interested_body_type = Column(String(50), nullable=True)
+    budget_max = Column(Float, nullable=True)
+    focused_vehicle_id = Column(Integer, nullable=True)
+    
+    chat_history = Column(JSON, default=list)  # [{"role": "user"|"assistant", "content": "...", "timestamp": "..."}]
+    conversation_summary = Column(Text, nullable=True)  # AI generated summary of what the customer is looking for
+    
+    status = Column(String(50), default="new")  # new, contacted, interested, closed
+    
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "session_id": self.session_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "phone": self.phone,
+            "interested_brand": self.interested_brand,
+            "interested_model": self.interested_model,
+            "interested_body_type": self.interested_body_type,
+            "budget_max": self.budget_max,
+            "focused_vehicle_id": self.focused_vehicle_id,
+            "conversation_summary": self.conversation_summary,
+            "chat_history": self.chat_history or [],
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
+
+
 class Vehicle(Base):
     __tablename__ = "vehicles"
 
@@ -136,12 +181,12 @@ class Poster(Base):
     id = Column(Integer, primary_key=True, index=True)
     vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False)
     
-    poster_type = Column(String(50), default="instagram_post")  # "instagram_post", "story", "banner"
+    poster_type = Column(String(50), default="banner")
     file_path = Column(String(500), nullable=False)
     file_url = Column(String(500), nullable=False)
     title = Column(String(255), nullable=False)
     badge_text = Column(String(100), nullable=True)
-    theme_color = Column(String(50), default="#E30613")
+    theme_color = Column(String(50), default="#18181B")
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 

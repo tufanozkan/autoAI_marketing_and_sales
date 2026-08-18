@@ -7,17 +7,24 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 
-from config import settings, STATIC_DIR, POSTERS_DIR
+from config import settings, STATIC_DIR, POSTERS_DIR, FRONTEND_OUT_DIR
 from src.db.database import get_db, init_db
-from src.db.models import Vehicle, Poster, CreativeBrief, MarketingCopy
+from src.db.models import Vehicle, Poster, CreativeBrief, MarketingCopy, CustomerLead
 from src.scraper.arkas_scraper import ArkasScraper
 from src.agent.marketing_agent import MarketingAgent
 from src.agent.poster_engine import PosterEngine
+from src.agent.chatbot_agent import ChatbotAgent
+from pydantic import BaseModel
+
+class ChatRequest(BaseModel):
+    message: str
+    customer_id: Optional[int] = None
+    session_id: Optional[str] = None
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="1.0.0",
-    description="Arkas 2. El Pazarlama AI - Web Scraper, Afiş Motoru & Görsel Vitrini"
+    version="2.0.0",
+    description="Arkas 2. El Pazarlama AI - Web Scraper, Afiş Motoru & Modern Next.js Görsel Vitrini"
 )
 
 app.add_middleware(
@@ -28,7 +35,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static directory for images, CSS, JS
+# Mount Next.js _next static assets if exported
+if FRONTEND_OUT_DIR.exists() and (FRONTEND_OUT_DIR / "_next").exists():
+    app.mount("/_next", StaticFiles(directory=str(FRONTEND_OUT_DIR / "_next")), name="next_static")
+
+# Mount static directory for generated posters & legacy assets
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.on_event("startup")
@@ -37,10 +48,17 @@ def startup_event():
 
 @app.get("/")
 def read_root():
+    # 1. Prefer Next.js modern exported build
+    if FRONTEND_OUT_DIR.exists():
+        next_index = FRONTEND_OUT_DIR / "index.html"
+        if next_index.exists():
+            return FileResponse(str(next_index))
+    
+    # 2. Fallback to legacy static index.html
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file))
-    return {"message": "Arkas 2. El Pazarlama AI Backend Aktif. static/index.html bulunamadı."}
+    return {"message": "Arkas 2. El Pazarlama AI Backend Aktif."}
 
 @app.get("/api/stats")
 def get_stats(db: Session = Depends(get_db)):
@@ -162,3 +180,26 @@ def generate_single_creative(vehicle_id: int, db: Session = Depends(get_db)):
         "copies_count": len(agent_res["copies"]),
         "posters": [p.to_dict() for p in posters]
     }
+
+@app.post("/api/chat")
+def handle_chat(req: ChatRequest, db: Session = Depends(get_db)):
+    """
+    Arkas 2. El AI Danışman & Chatbot Endpoint
+    - Müşteri lead kaydı (Ad, Soyad, Telefon, Bütçe)
+    - Veritabanı sorgulama & Canlı Ağ araştırması
+    - Sayfayı anlık filtreleyen filter_action üretimi
+    """
+    agent = ChatbotAgent(db)
+    res = agent.process_message(
+        message=req.message,
+        customer_id=req.customer_id,
+        session_id=req.session_id
+    )
+    return res
+
+@app.get("/api/leads")
+def get_customer_leads(limit: int = 50, db: Session = Depends(get_db)):
+    """Returns list of captured customer leads and conversation summaries."""
+    leads = db.query(CustomerLead).order_by(CustomerLead.updated_at.desc()).limit(limit).all()
+    return [l.to_dict() for l in leads]
+

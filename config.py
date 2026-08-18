@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 POSTERS_DIR = STATIC_DIR / "generated_posters"
+FRONTEND_OUT_DIR = BASE_DIR / "frontend" / "out"
 
 # Ensure static and output directories exist
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
