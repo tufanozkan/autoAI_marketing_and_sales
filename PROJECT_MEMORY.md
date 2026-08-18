@@ -15,18 +15,15 @@
 * **Konfigürasyon:** `.env` (DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DATABASE_URL)
 
 ## 3. Mimari ve Modüler İş Akışı
-1. **Veritabanı Katmanı (`src/db/` & PostgreSQL 5432):**
-   - `vehicles`: `package`, `technical_specs` (JSON), `ad_features` (JSON), `damage_expertise` (JSON), `expertise_note`, `image_urls` (JSON), `primary_image_url`.
-   - `customer_leads`: `session_id` bazlı tekil müşteri kaydı, ad-soyad, telefon, bütçe, ilgilenilen araç ve konuşma özeti.
-   - `creative_briefs`: Marka arketipi, hedef persona, duygusal satış noktaları.
-   - `marketing_copies`: Safe & Bold varyantları, kancalar, gövde metinleri, CTA ve hashtagler.
-2. **Ana Orkestratör (`main.py`):** Scraper -> AI Marketing Agent -> Web Sunucusu.
-3. **Bilişsel AI Satış Danışmanı & Chatbot (`src/agent/chatbot_agent.py` & `/api/chat`):**
-   - Türkçe Varlık Tanıma (NER) ve cinsiyet hitap sözlüğü (Ceren Hanım / Tufan Bey / Sayın).
-   - Tekil `session_id` ile mükerrersiz lead kaydı.
-   - Bütçe esnetme (`5M kadar çıkart`) ve çapraz donanım önerisi (Skoda'dan kış paketli Volvo XC40'a geçiş ve sayfa filtreleme).
-4. **Modern Next.js Vitrin & Stüdyo (`frontend/` & `src/web/`):**
-   - Orijinal araç galerisi, teknik özellikler paneli, ekspertiz durumu ve AI reklam metin panosu.
+1. **Veritabanı Katmanı (`backend/db/` & PostgreSQL 5432):**
+   - 4 Tablolu Temiz Mimari: `vehicles`, `vehicle_images`, `creative_briefs`, `customer_leads`.
+   - `VehicleImage`: Araç detay fotoğrafları (`image_url`, `is_primary`, `display_order`, `caption`).
+2. **Kreatif & Metin Motoru (`backend/agent/marketing_agent.py`):**
+   - Marka personasına göre 3-tonlu metinler (`balanced_copy`, `professional_copy`, `engaging_copy`), 3 sahneli Instagram Story akışları ve etiketler doğrudan `creative_briefs` tablosuna yazılır.
+3. **Bilişsel AI Satış Danışmanı & Chatbot (`backend/agent/chatbot_agent.py` & `/api/chat`):**
+   - Türkçe NER, Hanım/Bey hitap kuralı, tekil `session_id` bazlı `customer_leads` güncellemesi, dinamik çapraz model önerisi, bütçe esnetme ve sayfa filtreleme aksiyonları (`filter_action`).
+4. **Modern Next.js Vitrin & Stüdyo (`frontend/` & `backend/web/`):**
+   - Quiet Luxury tasarım dili, 5 açılı görsel galerisi, 4 metin sekmesi, "Bu aracın görseli bulunmamaktadır" rozeti ve yüzen AI Danışman Widget'ı.
 
 ## 4. Dokümantasyon Standartları (`docs/`)
 * MVP Mimari & Veri Akışı: `docs/2026-08-17_mvp_mimari_veri_akisi_ve_afis_motoru.md`
@@ -37,7 +34,21 @@
 * Bilişsel AI Satış Danışmanı & Dinamik Araç Önerisi: `docs/2026-08-18_bilissel_ai_satis_danismani_ve_dinamik_arac_onerisi.md`
 * Türkçe İsim & Varlık Tanıma (NER) ve Doğru Hitap Mimarisi: `docs/2026-08-18_turkce_varlik_tanima_ve_dogru_hitap_sistemi.md`
 * Görsel Motoru Temizliği & Kapsamlı Araç Şeması Hazırlığı: `docs/2026-08-18_gorsel_motoru_temizligi_ve_detayli_arac_semasi_hazirligi.md`
+* Arkas Spoticar Veri Çıkarma (Parsing) & 3 Tonlu Metin Üretimi: `docs/2026-08-18_arkas_spoticar_veri_cikarma_ve_tonlu_metin_uretimi.md`
+* Donanımlar Sekmesi Kategorik Görünüm & İstemci Hatası Çözümü: `docs/2026-08-18_donanimlar_kategorik_gosterim_ve_hata_cozumu.md`
+* Canlı Envanter, %100 Gerçek KM & Fiyat ve Orijinal Fotoğraf Kazıma: `docs/2026-08-18_canli_envanter_gercek_km_fiyat_ve_orijinal_fotograf_kazima.md`
+* Sahibinden.com "Arkas Spoticar" Gerçek Canlı Veri Kazıma & 3-Tonlu Metin Üretimi: `docs/2026-08-18_sahibinden_arkas_spoticar_canli_kazima_ve_metin_uretimi.md`
+* Doğrudan Mağaza URL'si (`arkasspoticar.sahibinden.com`) 5 Araçlık Test & Görsel İyileştirmesi: `docs/2026-08-18_arkasspoticar_sahibinden_5_arac_testi_ve_gorsel_iyilestirmesi.md`
+* Yerel Görsel İndirme & Ekspertiz Düzeltmesi: `docs/2026-08-18_yerel_gorsel_indirme_ve_ekspertiz_duzeltmesi.md`
+* 4 Tablolu Yeni Şema, Vehicle Images Tablosu & Hafif Kazıma: `docs/2026-08-18_4_tablolu_yeni_sema_ve_vehicle_images_tablosu.md`
+* Spoticar.com.tr Arkas İzmir 5 Açılı Orijinal Galeri Entegrasyonu: `docs/2026-08-18_spoticar_com_tr_5_acili_orijinal_galeri_entegrasyonu.md`
+* Sahibinden Öncelikli Canlı Envanter & Spoticar CT1444T001 Görsel Eşleştirmesi: `docs/2026-08-18_sahibinden_oncelikli_spoticar_ct1444t001_eslestirmesi.md`
+* Spoticar CT1444T001 — Peugeot 408, Honda City & Fiat Egea Orijinal Görsel Yenilemesi: `docs/2026-08-18_spoticar_408_city_egea_gorsel_yenilemesi.md`
+* Sahibinden %100 Doğrulanmış Canlı İlan Verileri & Spoticar Görsel Eşleştirmesi: `docs/2026-08-18_sahibinden_kesin_dogrulanmis_5_arac_ve_spoticar_eslesmesi.md`
+* Mimari Refactor — `src/` Dizininden `backend/` Dizinine Geçiş: `docs/2026-08-18_src_dizininin_backend_olarak_yeniden_yapilandirilmasi.md`
+* Müşteri Odaklı Lüks Showroom Arayüzü Dönüşümü: `docs/2026-08-18_musteri_odakli_showroom_arayuzu_donusumu.md`
+* Yapay Zeka Satış Danışmanı Beyaz LED Işıklı Buton & Üst Menü Temizliği: `docs/2026-08-18_yapay_zeka_danismani_led_isikli_buton_ve_ust_menu_temizligi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
-* **Mevcut Durum:** Sentetik görsel üretim scriptleri ve tabloları temizlendi. `Vehicle` tablosu donanım paketi, teknik özellikler, ilan detay donanımları, hasar/ekspertiz durumu ve orijinal görsel listesiyle zenginleştirildi. Veritabanı sıfırdan oluşturuldu ve yeni veri kaynağı scraper'ı için hazır hale getirildi.
+* **Mevcut Durum:** Proje 5 araçlık test aşamasına geri alındı; C5 Aircross (25.000 KM), Peugeot 408 (9.000 KM), Honda City (50.000 KM), Fiat Egea Cross (38.000 KM), Peugeot 3008 (67.000 KM) araçlarının doğrulanmış canlı verileri, 5 açılı HD showroom fotoğrafları ve 3-tonlu reklam briefleri aktiftir.
 * **Kural:** Her mimari ve işlevsel güncellemeden sonra `PROJECT_MEMORY.md`, `.antigravity_rules.md`, `.cursorrules.md`, `.github/copilot-instructions.md`, `README.md` ve ilgili `docs/` belgesi eksiksiz güncellenmek zorundadır.

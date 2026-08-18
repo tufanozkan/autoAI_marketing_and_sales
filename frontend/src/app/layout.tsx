@@ -24,6 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr" className={`${plusJakarta.variable}`}>
+      <head>
+        <meta name="referrer" content="no-referrer" />
+      </head>
       <body className="min-h-screen bg-[#F7F5F0] text-[#18181B] font-sans antialiased selection:bg-[#18181B] selection:text-[#F7F5F0]">
         {children}
       </body>

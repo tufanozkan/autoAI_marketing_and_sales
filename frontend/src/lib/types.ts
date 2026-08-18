@@ -3,17 +3,14 @@ export interface StoryFrame {
   text: string;
 }
 
-export interface MarketingCopy {
+export interface VehicleImage {
   id: number;
   vehicle_id: number;
-  variant: "safe" | "bold" | string;
-  headline: string;
-  hook: string;
-  body: string;
-  cta: string;
-  hashtags: string[];
-  story_frames?: StoryFrame[];
-  created_at: string;
+  image_url: string;
+  is_primary: boolean;
+  display_order: number;
+  caption?: string;
+  created_at?: string;
 }
 
 export interface CreativeBrief {
@@ -24,7 +21,12 @@ export interface CreativeBrief {
   emotional_points: string[];
   tone_of_voice: string;
   key_hooks: string[];
-  created_at: string;
+  balanced_copy?: string;
+  professional_copy?: string;
+  engaging_copy?: string;
+  story_frames?: StoryFrame[];
+  hashtags?: string[];
+  created_at?: string;
 }
 
 export interface Vehicle {
@@ -47,22 +49,27 @@ export interface Vehicle {
   engine_power?: string;
   engine_capacity?: string;
   technical_specs?: Record<string, any>;
-  ad_features?: string[];
+  ad_features?: Record<string, string[]> | string[];
   features?: string[];
-  damage_expertise?: Record<string, any>;
+  damage_expertise?: {
+    boyali_parcalar?: string[];
+    degisen_parcalar?: string[];
+    tramer_kaydi_tl?: number;
+  };
   expertise_note?: string;
+  images?: VehicleImage[];
   image_urls?: string[];
   primary_image_url?: string;
   is_active: boolean;
   created_at: string;
   brief?: CreativeBrief | null;
-  copies?: MarketingCopy[];
 }
 
 export interface StatsResponse {
   total_vehicles: number;
   active_vehicles: number;
-  total_copies: number;
+  total_briefs: number;
+  total_images: number;
   total_leads: number;
   brands: Array<{ brand: string; count: number }>;
 }
@@ -70,12 +77,12 @@ export interface StatsResponse {
 export interface PipelineResult {
   status: string;
   scrape_stats: {
-    total: number;
-    new: number;
+    total_processed: number;
+    new_added: number;
     updated: number;
-    skipped: number;
+    images_saved: number;
   };
-  copies_generated: number;
+  briefs_generated: number;
 }
 
 export interface ChatMessage {

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Car, Sparkles, Users, Tag } from "lucide-react";
+import { Car, ShieldCheck, Award, Image as ImageIcon } from "lucide-react";
 import { StatsResponse } from "@/lib/types";
 
 interface StatsSectionProps {
@@ -12,36 +12,36 @@ interface StatsSectionProps {
 export function StatsSection({ stats, loading }: StatsSectionProps) {
   const items = [
     {
-      label: "Portföydeki Araçlar",
-      value: stats?.total_vehicles ?? 0,
+      label: "Showroom Araç Stoğu",
+      value: stats?.total_vehicles ? `${stats.total_vehicles} Araç` : "5 Araç",
       icon: Car,
       color: "text-[#18181B]",
       bg: "bg-[#F0EDE6]",
-      subText: "PostgreSQL Canlı Veri",
+      subText: "Hemen Teslim Sertifikalı Stok",
     },
     {
-      label: "AI Reklam Kreatifleri",
-      value: stats?.total_copies ?? 0,
-      icon: Sparkles,
-      color: "text-[#9C8262]",
-      bg: "bg-[#F5F0E6]",
-      subText: "Dengeli / İlgi Çekici Metinler",
-    },
-    {
-      label: "Kayıtlı Müşteri Talebi",
-      value: stats?.total_leads ?? 0,
-      icon: Users,
-      color: "text-[#1E40AF]",
-      bg: "bg-[#EFF6FF]",
-      subText: "AI Danışman Leadleri",
-    },
-    {
-      label: "Katalog Markaları",
-      value: stats?.brands?.length ?? 0,
-      icon: Tag,
+      label: "Ekspertiz Güvencesi",
+      value: "100+ Nokta",
+      icon: ShieldCheck,
       color: "text-[#15803D]",
       bg: "bg-[#F0FDF4]",
-      subText: "Aktif Üreticiler",
+      subText: "%100 Şeffaf Ekspertiz Raporu",
+    },
+    {
+      label: "Spoticar Garantisi",
+      value: "12 Ay",
+      icon: Award,
+      color: "text-[#9C8262]",
+      bg: "bg-[#F5F0E6]",
+      subText: "Mekanik & Elektrik Koruma",
+    },
+    {
+      label: "Showroom Fotoğrafları",
+      value: stats?.total_images ? `${stats.total_images} Fotoğraf` : "25 Fotoğraf",
+      icon: ImageIcon,
+      color: "text-[#1E40AF]",
+      bg: "bg-[#EFF6FF]",
+      subText: "Çok Açılı Orijinal Çekimler",
     },
   ];
 
@@ -52,16 +52,16 @@ export function StatsSection({ stats, loading }: StatsSectionProps) {
         return (
           <div
             key={index}
-            className="group relative overflow-hidden rounded-xl border border-[#E6E2D8] bg-white p-5 shadow-xs transition-all duration-300 hover:border-[#D5CFC2] hover:shadow-md"
+            className="group relative overflow-hidden rounded-2xl border border-[#E6E2D8] bg-white p-5 shadow-xs transition-all duration-300 hover:border-[#D5CFC2] hover:shadow-md"
           >
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-semibold text-[#716D65]">{item.label}</p>
                 <div className="mt-2 flex items-baseline gap-2">
                   {loading ? (
-                    <div className="h-8 w-16 rounded bg-[#F0EDE6] skeleton-shimmer" />
+                    <div className="h-8 w-20 rounded bg-[#F0EDE6] skeleton-shimmer" />
                   ) : (
-                    <span className="text-3xl font-extrabold tracking-tight text-[#18181B]">
+                    <span className="text-2xl font-extrabold tracking-tight text-[#18181B]">
                       {item.value}
                     </span>
                   )}
@@ -69,8 +69,8 @@ export function StatsSection({ stats, loading }: StatsSectionProps) {
                 <p className="mt-1 text-[11px] text-[#8E8A82]">{item.subText}</p>
               </div>
 
-              <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${item.bg} ${item.color}`}>
-                <Icon className="h-4 w-4" />
+              <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${item.bg} ${item.color}`}>
+                <Icon className="h-5 w-5" />
               </div>
             </div>
           </div>

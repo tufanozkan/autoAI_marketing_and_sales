@@ -15,10 +15,13 @@ Transform raw vehicle listing data into high-converting marketing copy and activ
 The system:
 
 1. Collects comprehensive vehicle information from external listing sources.
-2. Stores and organizes vehicle data in a structured PostgreSQL 17 database (`vehicles`, `customer_leads`, `marketing_copies`, `creative_briefs`).
-3. Enriches vehicle records with marketing context and brand archetypes.
-4. Generates persuasive advertising content (Safe / Kurumsal & Bold / Tutkulu copy variants, Instagram Stories).
-5. Provides an intelligent, human-like **Cognitive AI Sales Consultant** (`ChatbotAgent`) with Turkish NER (Hanım/Bey/Sayın), session deduplication, direct equipment Q&A, budget expansion, and dynamic cross-vehicle recommendations.
+2. Stores and organizes vehicle data in a structured PostgreSQL 17 database (`vehicles`, `vehicle_images`, `creative_briefs`, `customer_leads`).
+3. Modular Architecture:
+   - `backend/db/`: Database session management and SQLAlchemy ORM models.
+   - `backend/scraper/`: Listing scrapers, hardware normalization and content hashing.
+   - `backend/agent/`: Cognitive AI sales consultant (`ChatbotAgent`) and marketing copy generator (`MarketingAgent`).
+   - `backend/web/`: FastAPI REST endpoints and Next.js static asset mounts.
+   - `frontend/`: Next.js 15 UI showroom and floating AI assistant widget.
 6. Dispatches real-time page filter actions from the chatbot.
 
 ---

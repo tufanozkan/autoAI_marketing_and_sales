@@ -26,8 +26,9 @@ class Settings(BaseSettings):
     )
     
     # Scraper Settings
-    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://www.arkasotomotiv2.com")
-    SCRAPER_TIMEOUT: int = 20
+    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://arkasspoticar.sahibinden.com")
+    SPOTI_CAR_URL: str = os.getenv("SPOTI_CAR_URL", "https://www.spoticar.com.tr/ikinci-el-araclar?filters[3][pointofsale]=CT1444T001")
+    SCRAPER_TIMEOUT: int = int(os.getenv("SCRAPER_TIMEOUT", "10"))
     MAX_SCRAPE_ITEMS: int = int(os.getenv("MAX_SCRAPE_ITEMS", "50"))
     
     # Web Server Settings

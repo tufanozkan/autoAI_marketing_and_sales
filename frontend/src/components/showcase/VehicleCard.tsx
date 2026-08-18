@@ -95,43 +95,59 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
     >
       {/* Visual Image Container (16:10 Aspect Ratio) */}
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F0EDE6]">
-        <img
-          src={currentImageUrl}
-          alt={`${vehicle.brand} ${vehicle.model}`}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          loading="lazy"
-        />
+        {vehicle.primary_image_url ? (
+          <>
+            <img
+              src={currentImageUrl}
+              alt={`${vehicle.brand} ${vehicle.model}`}
+              referrerPolicy="no-referrer"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+            {/* Top Badges */}
+            <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
+              <div className="flex items-center gap-1.5 rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-bold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
+                <Layers className="h-3 w-3 text-[#9C8262]" />
+                <span>{images.length} Orijinal Görsel</span>
+              </div>
 
-        {/* Top Badges */}
-        <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-1.5 rounded-md bg-white/90 px-2.5 py-1 text-[11px] font-bold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
-            <Layers className="h-3 w-3 text-[#9C8262]" />
-            <span>{images.length} Orijinal Görsel</span>
-          </div>
+              <div className="flex items-center gap-1 rounded-md bg-[#18181B]/90 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white uppercase backdrop-blur-md">
+                <span>ARKAS 2. EL</span>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-1 rounded-md bg-[#18181B]/90 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white uppercase backdrop-blur-md">
-            <span>ARKAS 2. EL</span>
-          </div>
-        </div>
-
-        {/* Photo Switcher Dots / Tabs */}
-        {images.length > 1 && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="absolute bottom-2.5 left-3 right-3 flex items-center justify-center gap-1.5 rounded-lg bg-black/40 p-1 backdrop-blur-md transition-opacity opacity-0 group-hover:opacity-100"
-          >
-            {images.slice(0, 6).map((_, idx) => (
-              <button
-                key={idx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedPhotoIndex(idx);
-                }}
-                className={`h-2 rounded-full transition-all ${
-                  idx === selectedPhotoIndex ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
-                }`}
-              />
-            ))}
+            {/* Photo Switcher Dots / Tabs */}
+            {images.length > 1 && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="absolute bottom-2.5 left-3 right-3 flex items-center justify-center gap-1.5 rounded-lg bg-black/40 p-1 backdrop-blur-md transition-opacity opacity-0 group-hover:opacity-100"
+              >
+                {images.slice(0, 6).map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedPhotoIndex(idx);
+                    }}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === selectedPhotoIndex ? "w-6 bg-white" : "w-2 bg-white/50 hover:bg-white/80"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center bg-[#EAE6DD] p-6 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#DCD6C9] text-[#716D65] mb-2">
+              <Layers className="h-6 w-6 text-[#8E8A82]" />
+            </div>
+            <span className="text-xs font-bold text-[#18181B]">
+              Bu aracın görseli bulunmamaktadır
+            </span>
+            <span className="mt-1 text-[10px] text-[#716D65]">
+              Arkas Spoticar 100+ Nokta Kontrollü
+            </span>
           </div>
         )}
       </div>

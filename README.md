@@ -25,23 +25,24 @@ arkas_2el_pazarlama_ai/
 │   ├── 2026-08-18_bilissel_ai_satis_danismani_ve_dinamik_arac_onerisi.md
 │   ├── 2026-08-18_turkce_varlik_tanima_ve_dogru_hitap_sistemi.md
 │   └── 2026-08-18_gorsel_motoru_temizligi_ve_detayli_arac_semasi_hazirligi.md
-├── src/
-│   ├── db/                     # Veritabanı katmanı
-│   │   ├── database.py         # SQLAlchemy engine, connection pool ve session yönetimi
-│   │   └── models.py           # Vehicle, CustomerLead, CreativeBrief, MarketingCopy ORM modelleri
-│   ├── scraper/                # Veri toplama ve normalizasyon
-│   │   ├── arkas_scraper.py    # Detaylı veri toplayıcı
-│   │   └── normalizer.py       # Fiyat, KM, teknik özellik ve donanım temizleyici
-│   ├── agent/                  # Pazarlama metin & Bilişsel AI Asistan
-│   │   ├── brand_rules.py      # Marka arketip kuralları (Volvo, BMW, Mercedes, Peugeot vb.)
-│   │   ├── marketing_agent.py  # Persona, Safe (Dengeli) & Bold (İlgi Çekici) metinleri ve kancalar
-│   │   └── chatbot_agent.py    # Bilişsel AI Satış Danışmanı (NER, Hitap, Bütçe Esnetme, Çapraz Öneri)
-│   └── web/                    # Web sunucusu & REST API
-│       └── server.py           # FastAPI REST API (/api/chat, /api/leads, /api/vehicles vb.) ve Next.js mount
-└── frontend/                   # Next.js 15 Modern Lüks Vitrin ve Stüdyo (App Router)
+├── backend/
+│   ├── agent/                  # AI Pazarlama Metin Motoru (MarketingAgent) & Bilişsel AI Danışman (ChatbotAgent)
+│   │   ├── brand_rules.py      # Marka arketip kuralları
+│   │   ├── chatbot_agent.py    # Türkçe NER, oturum tekilleştirme, RAG & niyet motoru
+│   │   └── marketing_agent.py  # 3-tonlu (Dengeli, Kurumsal, İlgi Çekici) metin & Story akışı motoru
+│   ├── db/                     # PostgreSQL bağlantısı & SQLAlchemy ORM modelleri
+│   │   ├── database.py         # SessionLocal & Engine konfigürasyonu
+│   │   └── models.py           # Vehicle, VehicleImage, CreativeBrief, CustomerLead ORM modelleri
+│   ├── scraper/                # Canlı ilan veri toplama & donanım normalizasyonu
+│   │   ├── arkas_scraper.py    # Temel web scraper
+│   │   ├── normalizer.py       # Donanım ve teknik alan temizliği
+│   │   └── sahibinden_scraper.py# Sahibinden mağaza kazıma & Spoticar S3 görsel eşleştirici
+│   └── web/                    # FastAPI REST API & Next.js Statik Mount
+│       └── server.py           # /api/chat, /api/leads, /api/vehicles, /api/stats, /static mount
+└── frontend/                   # Next.js 15 (React 19, TypeScript, Tailwind CSS v4) Vitrin & Studio
     ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
     ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
-    └── out/                    # Statik export çıktısı (FastAPI tarafından servis edilir)
+    └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
 ```
 
 ---
@@ -105,3 +106,17 @@ Tüm mimari detaylar ve kronolojik kararlar `docs/` klasöründe saklanmaktadır
 * [2026-08-18 Bilişsel AI Satış Danışmanı ve Dinamik Araç Önerisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_bilissel_ai_satis_danismani_ve_dinamik_arac_onerisi.md)
 * [2026-08-18 Türkçe İsim & Varlık Tanıma (NER) ve Doğru Hitap Mimarisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_turkce_varlik_tanima_ve_dogru_hitap_sistemi.md)
 * [2026-08-18 Görsel Motoru Temizliği ve Kapsamlı Araç Şeması Hazırlığı](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_gorsel_motoru_temizligi_ve_detayli_arac_semasi_hazirligi.md)
+* [2026-08-18 Arkas Spoticar Veri Çıkarma (Parsing) & 3 Tonlu Metin Üretimi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_arkas_spoticar_veri_cikarma_ve_tonlu_metin_uretimi.md)
+* [2026-08-18 Donanımlar Sekmesi Kategorik Görünüm & İstemci Hatası Çözümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_donanimlar_kategorik_gosterim_ve_hata_cozumu.md)
+* [2026-08-18 Canlı Envanter, %100 Gerçek KM & Fiyat ve Orijinal Fotoğraf Kazıma](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_canli_envanter_gercek_km_fiyat_ve_orijinal_fotograf_kazima.md)
+* [2026-08-18 Sahibinden.com "Arkas Spoticar" Gerçek Canlı Veri Kazıma & 3-Tonlu Metin Üretimi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_arkas_spoticar_canli_kazima_ve_metin_uretimi.md)
+* [2026-08-18 Doğrudan Mağaza URL'si (arkasspoticar.sahibinden.com) 5 Araçlık Test & Görsel İyileştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_arkasspoticar_sahibinden_5_arac_testi_ve_gorsel_iyilestirmesi.md)
+* [2026-08-18 Yerel Görsel İndirme & Ekspertiz Düzeltmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_yerel_gorsel_indirme_ve_ekspertiz_duzeltmesi.md)
+* [2026-08-18 4 Tablolu Yeni Şema, Vehicle Images Tablosu & Hafif Kazıma](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_4_tablolu_yeni_sema_ve_vehicle_images_tablosu.md)
+* [2026-08-18 Spoticar.com.tr Arkas İzmir 5 Açılı Orijinal Galeri Entegrasyonu](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_spoticar_com_tr_5_acili_orijinal_galeri_entegrasyonu.md)
+* [2026-08-18 Sahibinden Öncelikli Canlı Envanter & Spoticar CT1444T001 Görsel Eşleştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_oncelikli_spoticar_ct1444t001_eslestirmesi.md)
+* [2026-08-18 Spoticar CT1444T001 — Peugeot 408, Honda City & Fiat Egea Orijinal Görsel Yenilemesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_spoticar_408_city_egea_gorsel_yenilemesi.md)
+* [2026-08-18 Sahibinden %100 Doğrulanmış Canlı İlan Verileri & Spoticar Görsel Eşleştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_kesin_dogrulanmis_5_arac_ve_spoticar_eslesmesi.md)
+* [2026-08-18 Mimari Refactor — src Dizininden backend Dizinine Geçiş](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_src_dizininin_backend_olarak_yeniden_yapilandirilmasi.md)
+* [2026-08-18 Müşteri Odaklı Lüks Showroom Arayüzü Dönüşümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_musteri_odakli_showroom_arayuzu_donusumu.md)
+* [2026-08-18 Yapay Zeka Satış Danışmanı Beyaz LED Işıklı Buton & Üst Menü Temizliği](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_yapay_zeka_danismani_led_isikli_buton_ve_ust_menu_temizligi.md)

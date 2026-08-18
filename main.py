@@ -16,10 +16,10 @@ import argparse
 import logging
 import uvicorn
 from config import settings, BASE_DIR, FRONTEND_OUT_DIR
-from src.db.database import SessionLocal, init_db, engine
-from src.db.models import Base, Vehicle, CreativeBrief, MarketingCopy, CustomerLead
-from src.scraper.arkas_scraper import ArkasScraper
-from src.agent.marketing_agent import MarketingAgent
+from backend.db.database import SessionLocal, init_db, engine
+from backend.db.models import Base, Vehicle, VehicleImage, CreativeBrief, CustomerLead
+from backend.scraper.arkas_scraper import ArkasScraper
+from backend.agent.marketing_agent import MarketingAgent
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,7 +41,7 @@ def reset_database(db):
     print("\n🧹 Veritabanı sıfırlanıyor...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    print("      ✓ PostgreSQL tabloları (vehicles, customer_leads, creative_briefs, marketing_copies) başarıyla sıfırlandı.")
+    print("      ✓ PostgreSQL tabloları (vehicles, vehicle_images, creative_briefs, customer_leads) başarıyla sıfırlandı.")
 
 def run_scraper(db, limit=settings.MAX_SCRAPE_ITEMS):
     print(f"\n[1/2] 🌐 Web Scraper Çalıştırılıyor ({settings.SCRAPER_BASE_URL})...")
@@ -62,7 +62,7 @@ def start_web_server(host=settings.WEB_HOST, port=settings.WEB_PORT):
     print(f"\n🚀 Web Görsel Vitrini Başlatılıyor: http://localhost:{port}")
     print(f"   ⚡ Arayüz Motoru: {ui_type}")
     print("   (Durdurmak için Ctrl+C tuşlarına basabilirsiniz)\n")
-    uvicorn.run("src.web.server:app", host=host, port=port, reload=False)
+    uvicorn.run("backend.web.server:app", host=host, port=port, reload=False)
 
 def build_frontend():
     import subprocess

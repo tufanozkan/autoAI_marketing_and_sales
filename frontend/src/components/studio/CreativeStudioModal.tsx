@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Vehicle, MarketingCopy } from "@/lib/types";
+import { Vehicle } from "@/lib/types";
 import { formatCurrency, formatKM } from "@/lib/utils";
 import {
   X,
@@ -18,7 +18,11 @@ import {
   Gauge,
   FileCheck2,
   ListChecks,
-  AlertCircle
+  AlertCircle,
+  Armchair,
+  Smartphone,
+  Sparkle,
+  Briefcase
 } from "lucide-react";
 
 interface CreativeStudioModalProps {
@@ -37,20 +41,19 @@ export function CreativeStudioModal({
 }: CreativeStudioModalProps) {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<"marketing" | "tech" | "expertise" | "features">("marketing");
-  const [copyVariant, setCopyVariant] = useState<"safe" | "bold" | "story">("safe");
+  const [copyVariant, setCopyVariant] = useState<"balanced" | "professional" | "engaging" | "story">("balanced");
   const [isCopied, setIsCopied] = useState(false);
 
   if (!isOpen || !vehicle) return null;
 
   const images = vehicle.image_urls && vehicle.image_urls.length > 0
     ? vehicle.image_urls
-    : [vehicle.primary_image_url || "/static/placeholder.png"];
+    : (vehicle.images && vehicle.images.length > 0
+        ? vehicle.images.map(img => img.image_url)
+        : [vehicle.primary_image_url || "/static/placeholder.png"]);
 
   const currentImageUrl = images[selectedPhotoIndex] || images[0];
-  const copies = vehicle.copies || [];
-
-  const safeCopy = copies.find((c) => c.variant === "safe");
-  const boldCopy = copies.find((c) => c.variant === "bold");
+  const brief = vehicle.brief;
 
   const handleCopyText = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -60,19 +63,154 @@ export function CreativeStudioModal({
   };
 
   const getCurrentCopyText = (): string => {
-    if (copyVariant === "safe" && safeCopy) {
-      return `${safeCopy.headline}\n\n${safeCopy.body}\n\n${safeCopy.cta}\n\n${(safeCopy.hashtags || []).join(" ")}`;
+    if (!brief) return "AI reklam metni henüz oluşturulmadı.";
+
+    if (copyVariant === "balanced") {
+      return brief.balanced_copy || "Dengeli reklam metni bulunamadı.";
     }
-    if (copyVariant === "bold" && boldCopy) {
-      return `${boldCopy.headline}\n\n${boldCopy.body}\n\n${boldCopy.cta}\n\n${(boldCopy.hashtags || []).join(" ")}`;
+    if (copyVariant === "professional") {
+      return brief.professional_copy || "Kurumsal reklam metni bulunamadı.";
+    }
+    if (copyVariant === "engaging") {
+      return brief.engaging_copy || "İlgi çekici reklam metni bulunamadı.";
     }
     if (copyVariant === "story") {
-      const copy = safeCopy || boldCopy;
-      if (copy?.story_frames && copy.story_frames.length > 0) {
-        return copy.story_frames.map((f) => `🎬 Sahne ${f.scene}:\n${f.text}`).join("\n\n────────────────\n\n");
+      if (brief.story_frames && brief.story_frames.length > 0) {
+        return brief.story_frames.map((f) => `🎬 Sahne ${f.scene}:\n${f.text}`).join("\n\n────────────────\n\n");
       }
     }
-    return "AI reklam metni henüz oluşturulmadı.";
+    return "Reklam metni hazır değil.";
+  };
+
+  // Helper to extract ad features whether object or array
+  const renderAdFeatures = () => {
+    const rawFeatures = vehicle.ad_features || vehicle.features;
+
+    if (!rawFeatures) {
+      return (
+        <div className="p-3 text-xs text-[#716D65] bg-[#F7F5F0] rounded-lg border border-[#E6E2D8]">
+          Donanım bilgisi belirtilmemiş.
+        </div>
+      );
+    }
+
+    // If it's a categorized dictionary: { konfor: [...], guvenlik: [...], multimedya: [...] }
+    if (typeof rawFeatures === "object" && !Array.isArray(rawFeatures)) {
+      const categoryTitles: Record<string, { label: string; icon: any }> = {
+        konfor: { label: "Konfor & Kolaylık", icon: Armchair },
+        guvenlik: { label: "Güvenlik & Sürüş Asistanları", icon: Shield },
+        multimedya: { label: "Multimedya & Eğlence", icon: Smartphone },
+        ic_donanim: { label: "İç Donanım & Tasarım", icon: Sparkles },
+        dis_donanim: { label: "Dış Donanım & Işıklandırma", icon: Sparkle },
+      };
+
+      const entries = Object.entries(rawFeatures).filter(([_, items]) => Array.isArray(items) && items.length > 0);
+
+      if (entries.length === 0) {
+        return (
+          <div className="p-3 text-xs text-[#716D65] bg-[#F7F5F0] rounded-lg border border-[#E6E2D8]">
+            Detaylı donanım listesi bulunamadı.
+          </div>
+        );
+      }
+
+      return (
+        <div className="space-y-4">
+          {entries.map(([catKey, items]) => {
+            const catMeta = categoryTitles[catKey] || { label: catKey.toUpperCase(), icon: ListChecks };
+            const Icon = catMeta.icon;
+            return (
+              <div key={catKey} className="rounded-xl border border-[#E6E2D8] bg-[#F7F5F0] p-3.5">
+                <div className="flex items-center gap-2 font-bold text-xs text-[#18181B] mb-2.5 pb-1.5 border-b border-[#E6E2D8]">
+                  <Icon className="h-3.5 w-3.5 text-[#9C8262]" />
+                  <span>{catMeta.label} ({items.length})</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {items.map((feat: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-2 rounded-lg bg-white p-2 text-[11px] font-medium text-[#18181B] border border-[#E6E2D8]/60 shadow-2xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#15803D] shrink-0" />
+                      <span className="truncate">{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // If it's a flat array of strings
+    if (Array.isArray(rawFeatures)) {
+      return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {rawFeatures.map((feat, idx) => (
+            <div key={idx} className="flex items-center gap-1.5 rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] p-2 text-[11px] font-medium text-[#18181B]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#9C8262]" />
+              <span className="truncate">{String(feat)}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  // Helper to extract damage / expertise info
+  const renderDamageExpertise = () => {
+    const damage = vehicle.damage_expertise || {};
+    const boyali = Array.isArray(damage.boyali_parcalar) ? damage.boyali_parcalar : [];
+    const degisen = Array.isArray(damage.degisen_parcalar) ? damage.degisen_parcalar : [];
+    const tramer = typeof damage.tramer_kaydi_tl === "number" ? damage.tramer_kaydi_tl : 0;
+
+    const isFlawless = boyali.length === 0 && degisen.length === 0 && tramer === 0;
+
+    return (
+      <div className="space-y-3.5">
+        <div className="rounded-xl border border-[#D1E7DD] bg-[#F0FDF4] p-4 text-[#0F5132]">
+          <div className="flex items-center gap-2 font-bold text-sm">
+            <FileCheck2 className="h-4 w-4 text-[#15803D]" />
+            <span>Arkas Spoticar 100+ Nokta Kontrolü ve Garanti</span>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-[#146C43]">
+            {vehicle.expertise_note || "Arkas Spoticar 100+ Nokta Kontrolünden geçmiştir. Kilometre ve mekanik garantisi altındadır."}
+          </p>
+        </div>
+
+        {isFlawless ? (
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#B8E2C8] bg-[#E8F8F0] p-4 text-xs font-bold text-[#0F5132]">
+            <Check className="h-5 w-5 text-[#15803D]" />
+            <span>Bu araç tamamen HATASIZ, BOYASIZ ve DEĞİŞENSİZDİR. (Tramer Kaydı: 0 TL)</span>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-[#E6E2D8] bg-[#F7F5F0] p-4 space-y-2.5">
+            <h4 className="font-bold text-xs text-[#18181B] pb-1 border-b border-[#E6E2D8]">Hasar ve Ekspertiz Raporu:</h4>
+            
+            <div className="flex justify-between text-xs py-1 border-b border-[#E6E2D8]/60">
+              <span className="text-[#716D65]">Boyalı Parçalar:</span>
+              <span className="font-semibold text-[#18181B] text-right">
+                {boyali.length > 0 ? boyali.join(", ") : "Yok (Boyasız)"}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-xs py-1 border-b border-[#E6E2D8]/60">
+              <span className="text-[#716D65]">Değişen Parçalar:</span>
+              <span className="font-semibold text-[#18181B] text-right">
+                {degisen.length > 0 ? degisen.join(", ") : "Yok (Değişensiz)"}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-xs py-1">
+              <span className="text-[#716D65]">Tramer Hasar Kaydı:</span>
+              <span className="font-bold text-[#18181B]">
+                {tramer > 0 ? `${tramer.toLocaleString("tr-TR")} TL` : "0 TL (Kayıt Yok)"}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -104,19 +242,36 @@ export function CreativeStudioModal({
 
           {/* Large Main Photo Display */}
           <div className="relative flex flex-1 items-center justify-center overflow-hidden rounded-xl bg-[#EBE7DE] border border-[#E6E2D8] min-h-[280px] lg:min-h-[420px]">
-            <img
-              src={currentImageUrl}
-              alt={`${vehicle.brand} ${vehicle.model}`}
-              className="max-h-[440px] w-full h-full object-cover rounded-lg shadow-md transition-all"
-            />
+            {vehicle.primary_image_url ? (
+              <>
+                <img
+                  src={currentImageUrl}
+                  alt={`${vehicle.brand} ${vehicle.model}`}
+                  referrerPolicy="no-referrer"
+                  className="max-h-[440px] w-full h-full object-cover rounded-lg shadow-md transition-all"
+                />
 
-            <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
-              <span className="h-2 w-2 rounded-full bg-[#15803D]" />
-              <span>Arkas 2. El Sertifikalı Fotoğraf</span>
-            </div>
+                <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
+                  <span className="h-2 w-2 rounded-full bg-[#15803D]" />
+                  <span>Arkas Spoticar Sertifikalı Fotoğraf</span>
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center bg-[#EAE6DD] p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#DCD6C9] text-[#716D65] mb-3">
+                  <Layers className="h-8 w-8 text-[#8E8A82]" />
+                </div>
+                <h4 className="text-sm font-extrabold text-[#18181B]">
+                  Bu aracın görseli bulunmamaktadır
+                </h4>
+                <p className="mt-1.5 max-w-xs text-xs text-[#716D65] leading-relaxed">
+                  Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup detaylı teknik ve ekspertiz bilgileri sağ tarafta yer almaktadır.
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip (ul.classifiedDetailThumbList / image_0, image_1...) */}
           {images.length > 1 && (
             <div className="mt-3.5 flex gap-2 overflow-x-auto pb-1">
               {images.map((img, idx) => (
@@ -129,7 +284,15 @@ export function CreativeStudioModal({
                       : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="thumbnail" className="h-full w-full object-cover" />
+                  <img
+                    src={img}
+                    alt={`image_${idx}`}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80";
+                    }}
+                    className="h-full w-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -237,7 +400,7 @@ export function CreativeStudioModal({
                   : "text-[#716D65] hover:text-[#18181B]"
               }`}
             >
-              <ListChecks className="h-3.5 w-3.5" />
+              <ListChecks className="h-3.5 w-3.5 text-[#9C8262]" />
               <span>Donanımlar</span>
             </button>
           </div>
@@ -245,29 +408,41 @@ export function CreativeStudioModal({
           {/* TAB 1: AI Marketing Copy */}
           {activeTab === "marketing" && (
             <div className="mt-4">
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 <button
-                  onClick={() => setCopyVariant("safe")}
+                  onClick={() => setCopyVariant("balanced")}
                   className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
-                    copyVariant === "safe"
+                    copyVariant === "balanced"
                       ? "bg-[#F0EDE6] text-[#18181B] font-bold border border-[#D5CFC2]"
                       : "text-[#716D65] hover:text-[#18181B]"
                   }`}
                 >
                   <Shield className="h-3.5 w-3.5 text-[#18181B]" />
-                  <span>Dengeli & Profesyonel</span>
+                  <span>Dengeli & Şeffaf</span>
                 </button>
 
                 <button
-                  onClick={() => setCopyVariant("bold")}
+                  onClick={() => setCopyVariant("professional")}
                   className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
-                    copyVariant === "bold"
+                    copyVariant === "professional"
+                      ? "bg-[#F0EDE6] text-[#18181B] font-bold border border-[#D5CFC2]"
+                      : "text-[#716D65] hover:text-[#18181B]"
+                  }`}
+                >
+                  <Briefcase className="h-3.5 w-3.5 text-[#18181B]" />
+                  <span>Kurumsal & Profesyonel</span>
+                </button>
+
+                <button
+                  onClick={() => setCopyVariant("engaging")}
+                  className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-all ${
+                    copyVariant === "engaging"
                       ? "bg-[#F0EDE6] text-[#18181B] font-bold border border-[#D5CFC2]"
                       : "text-[#716D65] hover:text-[#18181B]"
                   }`}
                 >
                   <Flame className="h-3.5 w-3.5 text-[#C2A676]" />
-                  <span>İlgi Çekici & Cesur</span>
+                  <span>İlgi Çekici & Enerjik</span>
                 </button>
 
                 <button
@@ -312,94 +487,33 @@ export function CreativeStudioModal({
 
           {/* TAB 2: Technical Specifications */}
           {activeTab === "tech" && (
-            <div className="mt-4 space-y-2.5 text-xs">
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-lg bg-[#F7F5F0] p-3 border border-[#E6E2D8]">
-                  <span className="text-[#8E8A82] block text-[11px]">Motor & Güç</span>
-                  <span className="font-bold text-[#18181B] mt-0.5 block">{vehicle.engine_power || "110 HP"} • {vehicle.engine_capacity || "999 cc"}</span>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {Object.entries(vehicle.technical_specs || {}).map(([key, val]) => (
+                <div key={key} className="flex flex-col rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] p-3 text-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#716D65]">
+                    {key.replace(/_/g, " ")}
+                  </span>
+                  <span className="mt-1 font-bold text-[#18181B]">{String(val)}</span>
                 </div>
-                <div className="rounded-lg bg-[#F7F5F0] p-3 border border-[#E6E2D8]">
-                  <span className="text-[#8E8A82] block text-[11px]">Şanzıman & Çekiş</span>
-                  <span className="font-bold text-[#18181B] mt-0.5 block">{vehicle.transmission || "Otomatik"} • Önden Çekiş</span>
-                </div>
-                <div className="rounded-lg bg-[#F7F5F0] p-3 border border-[#E6E2D8]">
-                  <span className="text-[#8E8A82] block text-[11px]">Yakıt Türü</span>
-                  <span className="font-bold text-[#18181B] mt-0.5 block">{vehicle.fuel_type || "Benzin"}</span>
-                </div>
-                <div className="rounded-lg bg-[#F7F5F0] p-3 border border-[#E6E2D8]">
-                  <span className="text-[#8E8A82] block text-[11px]">Kasa Tipi & Renk</span>
-                  <span className="font-bold text-[#18181B] mt-0.5 block">{vehicle.body_type || "SUV"} • {vehicle.color || "Beyaz"}</span>
-                </div>
-              </div>
-
-              {vehicle.technical_specs && Object.keys(vehicle.technical_specs).length > 0 && (
-                <div className="mt-3 rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] p-3.5">
-                  <h4 className="font-bold text-[#18181B] mb-2">Detaylı Teknik Tablo:</h4>
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    {Object.entries(vehicle.technical_specs).map(([key, val]) => (
-                      <div key={key} className="flex justify-between border-b border-[#E6E2D8] py-1">
-                        <span className="text-[#716D65] capitalize">{key}:</span>
-                        <span className="font-semibold text-[#18181B]">{String(val)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
           )}
 
-          {/* TAB 3: Expertise & Damage Report */}
+          {/* TAB 3: Damage & Expertise Report */}
           {activeTab === "expertise" && (
-            <div className="mt-4 space-y-3 text-xs">
-              <div className="rounded-xl border border-[#D1E7DD] bg-[#F0FDF4] p-4 text-[#0F5132]">
-                <div className="flex items-center gap-2 font-bold text-sm">
-                  <FileCheck2 className="h-4 w-4 text-[#15803D]" />
-                  <span>Arkas 2. El Güvence & Ekspertiz Durumu</span>
-                </div>
-                <p className="mt-2 text-xs leading-relaxed text-[#146C43]">
-                  {vehicle.expertise_note || "Arkas 2. El 100+ Nokta Kontrolünden geçmiştir. Kilometre ve ekspertiz garantilidir."}
-                </p>
-              </div>
-
-              {vehicle.damage_expertise && Object.keys(vehicle.damage_expertise).length > 0 ? (
-                <div className="rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] p-3.5">
-                  <h4 className="font-bold text-[#18181B] mb-2">Hasar & Tramer Raporu:</h4>
-                  <div className="space-y-1.5 text-[11px]">
-                    {Object.entries(vehicle.damage_expertise).map(([part, status]) => (
-                      <div key={part} className="flex justify-between border-b border-[#E6E2D8] py-1">
-                        <span className="text-[#716D65]">{part}</span>
-                        <span className="font-semibold text-[#18181B]">{String(status)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-xs text-[#716D65] p-3 bg-[#F7F5F0] rounded-lg border border-[#E6E2D8]">
-                  <AlertCircle className="h-4 w-4 text-[#9C8262]" />
-                  <span>Bu araç için değişen veya boyalı parça bilgisi bulunmamaktadır (Hatasız / Orijinal).</span>
-                </div>
-              )}
+            <div className="mt-4">
+              {renderDamageExpertise()}
             </div>
           )}
 
-          {/* TAB 4: Equipment & Features */}
+          {/* TAB 4: Categorized Features */}
           {activeTab === "features" && (
-            <div className="mt-4 space-y-3 text-xs">
-              <h4 className="font-bold text-[#18181B]">İlan Detaylarındaki Donanım Listesi:</h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {(vehicle.ad_features && vehicle.ad_features.length > 0 ? vehicle.ad_features : (vehicle.features || ["Yetkili Servis Bakımlı", "Ekspertiz Garantili", "Yedek Anahtar"]))
-                  .map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 rounded-lg border border-[#E6E2D8] bg-[#F7F5F0] p-2 text-[11px] font-medium text-[#18181B]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#9C8262]" />
-                      <span className="truncate">{feat}</span>
-                    </div>
-                  ))}
-              </div>
+            <div className="mt-4">
+              {renderAdFeatures()}
             </div>
           )}
 
         </div>
-
       </div>
     </div>
   );

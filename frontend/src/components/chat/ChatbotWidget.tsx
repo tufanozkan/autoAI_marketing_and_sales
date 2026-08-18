@@ -157,26 +157,37 @@ export function ChatbotWidget({
 
   return (
     <>
-      {/* Floating Trigger Button on Bottom Right */}
+      {/* Floating Large Luxury Trigger Button on Bottom Right */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-6 z-40 animate-in fade-in zoom-in-75 duration-200">
+        <div className="fixed bottom-7 right-7 z-40 animate-in fade-in zoom-in-75 duration-300">
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 rounded-full border border-[#D5CFC2] bg-[#18181B] px-5 py-3 text-xs font-bold text-white shadow-xl transition-all hover:scale-105 hover:bg-[#27272A] hover:shadow-2xl"
+            className="group relative flex items-center gap-4 rounded-2xl border border-white/30 bg-[#121214] px-6 py-4 text-left text-white transition-all duration-300 hover:scale-105 hover:border-white hover:bg-[#1C1C20] shadow-[0_8px_30px_rgba(0,0,0,0.4),0_0_20px_rgba(255,255,255,0.25)] hover:shadow-[0_0_45px_rgba(255,255,255,0.9),0_0_90px_rgba(255,255,255,0.45)]"
           >
-            {/* Soft Breathing Ambient Ring */}
-            <span className="absolute -inset-1 rounded-full bg-[#C2A676]/30 blur-sm animate-pulse" />
+            {/* Radiant White LED Halo & Ambient Backlight */}
+            <span className="absolute -inset-1.5 rounded-2xl bg-white/20 blur-lg transition-all duration-300 group-hover:bg-white/50 group-hover:blur-xl animate-pulse -z-10" />
             
-            <div className="relative flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[#C2A676]">
-              <Sparkles className="h-3.5 w-3.5" />
+            {/* Glowing Icon & Status Dot */}
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-white/20 to-white/5 border border-white/30 text-[#E5C07B] shadow-inner transition-transform group-hover:scale-110">
+              <Sparkles className="h-6 w-6 text-[#E5C07B]" />
+              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E] opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#22C55E] border-2 border-[#121214]" />
+              </span>
             </div>
 
-            <div className="relative flex flex-col text-left">
-              <span className="text-[10px] text-[#C2A676] font-extrabold uppercase tracking-wider">
-                Yapay Zeka Danışmanı
-              </span>
-              <span className="text-xs font-semibold text-[#F7F5F0]">
-                {customerName ? `Merhaba, ${customerName}` : "Araç Bul & Soru Sor"}
+            {/* Prominent Label & Call to Action */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-black tracking-wider uppercase text-[#E5C07B]">
+                  Yapay Zeka Satış Danışmanı
+                </span>
+                <span className="rounded-full bg-[#22C55E]/20 px-1.5 py-0.2 text-[9px] font-bold text-[#4ADE80] border border-[#22C55E]/40">
+                  Çevrimiçi
+                </span>
+              </div>
+              <span className="text-sm font-extrabold text-white tracking-tight drop-shadow-xs">
+                {customerName ? `Merhaba, ${customerName}` : "Hemen Araç Bul & Bilgi Al 💬"}
               </span>
             </div>
           </button>

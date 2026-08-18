@@ -6,17 +6,11 @@ import { StatsSection } from "@/components/showcase/StatsSection";
 import { FilterToolbar } from "@/components/showcase/FilterToolbar";
 import { VehicleCard } from "@/components/showcase/VehicleCard";
 import { CreativeStudioModal } from "@/components/studio/CreativeStudioModal";
-import { PipelineProgressModal } from "@/components/studio/PipelineProgressModal";
 import { ToastNotification } from "@/components/ui/ToastNotification";
 import { ChatbotWidget } from "@/components/chat/ChatbotWidget";
-import {
-  fetchVehicles,
-  fetchStats,
-  fetchBrands,
-  runFullPipeline,
-} from "@/lib/api";
+import { fetchVehicles, fetchStats, fetchBrands } from "@/lib/api";
 import { Vehicle, StatsResponse, FilterAction } from "@/lib/types";
-import { Sparkles, Layers, Zap, Car } from "lucide-react";
+import { ShieldCheck, Award, Car, RotateCcw } from "lucide-react";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -34,9 +28,6 @@ export default function Home() {
   // Modals & Popups
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isStudioOpen, setIsStudioOpen] = useState(false);
-  const [pipelineModalOpen, setPipelineModalOpen] = useState(false);
-  const [pipelineStep, setPipelineStep] = useState<"idle" | "running" | "completed" | "error">("idle");
-  const [pipelineSummary, setPipelineSummary] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -121,33 +112,6 @@ export default function Home() {
     }
   };
 
-  // Run Full Pipeline
-  const handleRunPipeline = async () => {
-    setPipelineModalOpen(true);
-    setPipelineStep("running");
-    showToast("🚀 Canlı Arkas Scraper ve AI Danışman veritabanı güncelleniyor...");
-
-    try {
-      const res = await runFullPipeline();
-      if (res.status === "success") {
-        setPipelineStep("completed");
-        setPipelineSummary(
-          `Toplam ${res.scrape_stats.total} canlı ilan tarandı, reklam metinleri ve vitrin hazırlandı.`
-        );
-        showToast("🎉 İşlem başarıyla tamamlandı!");
-        await loadInitialData();
-        await loadVehiclesData();
-      } else {
-        setPipelineStep("error");
-        setPipelineSummary("İşlem tamamlanamadı.");
-      }
-    } catch (err) {
-      setPipelineStep("error");
-      setPipelineSummary("Pipeline çalıştırılırken bir sunucu hatası oluştu.");
-      showToast("❌ Pipeline çalıştırma hatası.");
-    }
-  };
-
   const handleOpenStudio = (v: Vehicle) => {
     setSelectedVehicle(v);
     setIsStudioOpen(true);
@@ -161,50 +125,55 @@ export default function Home() {
     loadInitialData();
   };
 
+  const handleClearFilters = () => {
+    setSearch("");
+    setBrand("all");
+    setBodyType("all");
+    setMaxPrice(null);
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-[#F7F5F0] text-[#18181B]">
-      {/* Top Navbar */}
+      {/* Top Showroom Navbar */}
       <Navbar
-        onRunPipeline={handleRunPipeline}
         onRefresh={() => {
           loadInitialData();
           loadVehiclesData();
-          showToast("🔄 Veriler yenilendi.");
+          showToast("🔄 Showroom araç listesi güncellendi.");
         }}
-        isRunningPipeline={pipelineStep === "running"}
         onOpenSearchFocus={() => searchInputRef.current?.focus()}
       />
 
-      {/* Main Container */}
+      {/* Main Showroom Container */}
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8 sm:px-6 lg:px-8">
         
-        {/* Editorial Hero Header */}
+        {/* Editorial Showroom Hero Header */}
         <section className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E6E2D8] pb-7">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#D5CFC2] bg-[#EAE6DD] px-3 py-1 text-xs font-semibold text-[#716D65] mb-3">
-              <Sparkles className="h-3.5 w-3.5 text-[#9C8262]" />
-              <span>Yapay Zeka Destekli Otomotiv Danışmanı & Kreatif Vitrini</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#D5CFC2] bg-[#EAE6DD] px-3.5 py-1 text-xs font-bold text-[#716D65] mb-3">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#15803D]" />
+              <span>Arkas Spoticar Güvencesiyle 100+ Nokta Kontrollü Araçlar</span>
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#18181B] leading-tight">
-              Arkas 2. El Pazarlama & İlan Vitrini
+              Sertifikalı 2. El Otomobil Showroomu
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-[#716D65] leading-relaxed">
-              Doğrudan Arkas kataloğundan çekilen orijinal araç fotoğrafları, 16:9 geniş bannerlar, sosyal medya metinleri ve sayfayı anlık yöneten akıllı AI danışmanı.
+            <p className="mt-2.5 text-xs sm:text-sm text-[#716D65] leading-relaxed">
+              Arkas Otomotiv güvencesiyle detaylı ekspertiz kontrolünden geçmiş, 12 ay garantili ve hemen teslime hazır ikinci el araçlarımızı çok açılı orijinal showroom fotoğraflarıyla inceleyin.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-[#E6E2D8] bg-white p-3 text-right shadow-xs">
-              <div className="text-[11px] font-semibold text-[#8E8A82]">Veritabanı Durumu</div>
+            <div className="rounded-2xl border border-[#E6E2D8] bg-white p-3.5 text-right shadow-xs">
+              <div className="text-[11px] font-semibold text-[#8E8A82]">Showroom Durumu</div>
               <div className="flex items-center gap-2 mt-0.5 justify-end">
                 <span className="h-2 w-2 rounded-full bg-[#15803D] animate-pulse" />
-                <span className="text-xs font-bold text-[#18181B]">PostgreSQL 17 Aktif</span>
+                <span className="text-xs font-bold text-[#18181B]">Canlı & Güncel Stok</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats KPIs */}
+        {/* Showroom Trust Stats */}
         <div className="mb-8">
           <StatsSection stats={stats} loading={loadingStats} />
         </div>
@@ -226,24 +195,25 @@ export default function Home() {
           />
         </div>
 
-        {/* Showcase Header & Count */}
+        {/* Showcase Header & Active Filter Badges */}
         <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-[#9C8262]" />
-            <h2 className="text-base sm:text-lg font-bold text-[#18181B]">
-              Yayındaki Araçlar & Kreatifler
+          <div className="flex items-center gap-2.5">
+            <Award className="h-4 w-4 text-[#9C8262]" />
+            <h2 className="text-base sm:text-lg font-extrabold text-[#18181B]">
+              Seçkin Showroom Araçları
             </h2>
-            <span className="rounded-full bg-[#EAE6DD] px-2.5 py-0.5 text-xs font-semibold text-[#716D65] border border-[#D5CFC2]">
-              {vehicles.length} Araç
+            <span className="rounded-full bg-[#EAE6DD] px-2.5 py-0.5 text-xs font-bold text-[#716D65] border border-[#D5CFC2]">
+              {vehicles.length} Araç Listeleniyor
             </span>
           </div>
 
-          {maxPrice && (
+          {(search || brand !== "all" || bodyType !== "all" || maxPrice !== null) && (
             <button
-              onClick={() => setMaxPrice(null)}
-              className="text-xs text-[#9C8262] font-semibold hover:underline"
+              onClick={handleClearFilters}
+              className="flex items-center gap-1.5 text-xs text-[#9C8262] font-bold hover:underline"
             >
-              Fiyat Filtresini Temizle ({maxPrice.toLocaleString("tr-TR")} TL)
+              <RotateCcw className="h-3 w-3" />
+              <span>Filtreleri Temizle</span>
             </button>
           )}
         </div>
@@ -263,18 +233,16 @@ export default function Home() {
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F0EDE6] text-[#8E8A82]">
               <Car className="h-8 w-8" />
             </div>
-            <h3 className="mt-4 text-lg font-bold text-[#18181B]">İlan Bulunamadı</h3>
-            <p className="mt-1.5 max-w-md text-xs text-[#716D65]">
-              {search || brand !== "all" || bodyType !== "all" || maxPrice !== null
-                ? "Arama kriterlerinize uygun araç bulunamadı. Filtreleri temizleyerek tekrar deneyin veya AI Danışmana danışın."
-                : "Canlı Arkas kataloğunu taramak için aşağıdaki butona basın."}
+            <h3 className="mt-4 text-lg font-bold text-[#18181B]">Aradığınız Kriterlerde Araç Bulunamadı</h3>
+            <p className="mt-1.5 max-w-md text-xs text-[#716D65] leading-relaxed">
+              Filtreleri temizleyerek tüm portföyü görüntüleyebilir veya sağ alttaki AI Danışmanımıza aradığınız bütçe ve modeli sorabilirsiniz.
             </p>
             <button
-              onClick={handleRunPipeline}
+              onClick={handleClearFilters}
               className="mt-5 flex items-center gap-2 rounded-xl bg-[#18181B] px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-[#27272A]"
             >
-              <Zap className="h-4 w-4 text-[#C2A676]" />
-              <span>Scraper & AI Motorunu Başlat</span>
+              <RotateCcw className="h-3.5 w-3.5 text-[#C2A676]" />
+              <span>Tüm Araçları Göster</span>
             </button>
           </div>
         ) : (
@@ -297,7 +265,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* Flagship Creative Studio Modal */}
+      {/* Vehicle Showroom Detail & Inspection Modal */}
       <CreativeStudioModal
         vehicle={selectedVehicle}
         isOpen={isStudioOpen}
@@ -306,15 +274,7 @@ export default function Home() {
         showToast={showToast}
       />
 
-      {/* Real-time Pipeline Progress Modal */}
-      <PipelineProgressModal
-        isOpen={pipelineModalOpen}
-        step={pipelineStep}
-        summary={pipelineSummary}
-        onClose={() => setPipelineModalOpen(false)}
-      />
-
-      {/* AI Danışman Chatbot Widget (Floating on Bottom Right) */}
+      {/* AI Sales Advisor Floating Widget */}
       <ChatbotWidget
         onApplyFilter={handleApplyFilterFromAI}
         showToast={showToast}

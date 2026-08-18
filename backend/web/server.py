@@ -8,11 +8,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 
 from config import settings, STATIC_DIR, FRONTEND_OUT_DIR
-from src.db.database import get_db, init_db
-from src.db.models import Vehicle, CreativeBrief, MarketingCopy, CustomerLead
-from src.scraper.arkas_scraper import ArkasScraper
-from src.agent.marketing_agent import MarketingAgent
-from src.agent.chatbot_agent import ChatbotAgent
+from backend.db.database import get_db, init_db
+from backend.db.models import Vehicle, VehicleImage, CreativeBrief, CustomerLead
+from backend.scraper.arkas_scraper import ArkasScraper
+from backend.agent.marketing_agent import MarketingAgent
+from backend.agent.chatbot_agent import ChatbotAgent
 from pydantic import BaseModel
 
 class ChatRequest(BaseModel):
@@ -38,7 +38,7 @@ app.add_middleware(
 if FRONTEND_OUT_DIR.exists() and (FRONTEND_OUT_DIR / "_next").exists():
     app.mount("/_next", StaticFiles(directory=str(FRONTEND_OUT_DIR / "_next")), name="next_static")
 
-# Mount static directory for general assets
+# Mount static directory for vehicle images and general assets
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 @app.on_event("startup")
@@ -61,7 +61,8 @@ def read_root():
 def get_stats(db: Session = Depends(get_db)):
     total_vehicles = db.query(Vehicle).count()
     active_vehicles = db.query(Vehicle).filter(Vehicle.is_active == True).count()
-    total_copies = db.query(MarketingCopy).count()
+    total_briefs = db.query(CreativeBrief).count()
+    total_images = db.query(VehicleImage).count()
     total_leads = db.query(CustomerLead).count()
     
     brands_count = db.query(Vehicle.brand, func.count(Vehicle.id)).group_by(Vehicle.brand).all()
@@ -70,7 +71,8 @@ def get_stats(db: Session = Depends(get_db)):
     return {
         "total_vehicles": total_vehicles,
         "active_vehicles": active_vehicles,
-        "total_copies": total_copies,
+        "total_briefs": total_briefs,
+        "total_images": total_images,
         "total_leads": total_leads,
         "brands": brands_stats
     }
@@ -82,11 +84,11 @@ def get_brands(db: Session = Depends(get_db)):
 
 @app.get("/api/vehicles")
 def get_vehicles(
-    brand: Optional[str] = Query(None),
-    body_type: Optional[str] = Query(None),
-    search: Optional[str] = Query(None),
-    min_price: Optional[float] = Query(None),
-    max_price: Optional[float] = Query(None),
+    brand: Optional[str] = None,
+    body_type: Optional[str] = None,
+    search: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(Vehicle).filter(Vehicle.is_active == True)
@@ -120,13 +122,7 @@ def get_vehicle_detail(vehicle_id: int, db: Session = Depends(get_db)):
     if not vehicle:
         raise HTTPException(status_code=404, detail="Araç bulunamadı.")
     
-    brief = db.query(CreativeBrief).filter(CreativeBrief.vehicle_id == vehicle_id).first()
-    copies = db.query(MarketingCopy).filter(MarketingCopy.vehicle_id == vehicle_id).all()
-
-    data = vehicle.to_dict()
-    data["brief"] = brief.to_dict() if brief else None
-    data["copies"] = [c.to_dict() for c in copies]
-    return data
+    return vehicle.to_dict()
 
 @app.post("/api/pipeline/run")
 def trigger_pipeline(db: Session = Depends(get_db)):
@@ -135,17 +131,12 @@ def trigger_pipeline(db: Session = Depends(get_db)):
     scrape_res = scraper.scrape_and_save(db, limit=settings.MAX_SCRAPE_ITEMS)
 
     agent = MarketingAgent(db)
-    copies_generated = agent.process_all_pending(limit=settings.MAX_SCRAPE_ITEMS)
+    briefs_generated = agent.process_all_pending(limit=settings.MAX_SCRAPE_ITEMS)
 
     return {
         "status": "success",
-        "scrape_stats": {
-            "total": scrape_res["total_processed"],
-            "new": scrape_res["new_added"],
-            "updated": scrape_res["updated"],
-            "skipped": scrape_res["skipped_duplicate"]
-        },
-        "copies_generated": copies_generated
+        "scrape_stats": scrape_res,
+        "briefs_generated": briefs_generated
     }
 
 @app.post("/api/chat")
@@ -163,8 +154,3 @@ def chat_with_agent(req: ChatRequest, db: Session = Depends(get_db)):
         session_id=req.session_id
     )
     return response
-
-@app.get("/api/leads")
-def get_leads(db: Session = Depends(get_db)):
-    leads = db.query(CustomerLead).order_by(CustomerLead.created_at.desc()).all()
-    return [l.to_dict() for l in leads]

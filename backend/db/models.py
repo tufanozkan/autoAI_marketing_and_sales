@@ -1,0 +1,208 @@
+from datetime import datetime
+from typing import List, Optional, Dict, Any
+from sqlalchemy import (
+    Column, Integer, String, Float, Boolean, DateTime,
+    Text, ForeignKey, JSON
+)
+from sqlalchemy.orm import relationship
+from .database import Base
+
+class Vehicle(Base):
+    """
+    Arkas Spoticar 2. El Araç Modeli:
+    - Teknik Özellikler, Donanımlar (5 Boyutlu), Ekspertiz & Hasar Raporu
+    - 'images' ilişkisi ile VehicleImage tablosuna bağlanır (1-to-N)
+    - 'brief' ilişkisi ile CreativeBrief tablosuna bağlanır (1-to-1)
+    """
+    __tablename__ = "vehicles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    external_id = Column(String(100), unique=True, index=True, nullable=False)
+    source = Column(String(100), default="Sahibinden Arkas Spoticar")
+    url = Column(String(500), nullable=True)
+
+    # Core specs
+    brand = Column(String(100), index=True, nullable=False)
+    model = Column(String(100), index=True, nullable=False)
+    package = Column(String(200), nullable=True)
+    sub_model = Column(String(200), nullable=True)
+    year = Column(Integer, index=True, nullable=False)
+    km = Column(Integer, index=True, nullable=False)
+    price = Column(Float, index=True, nullable=False)
+    currency = Column(String(10), default="TL")
+
+    # Additional attributes
+    fuel_type = Column(String(50), nullable=True)
+    transmission = Column(String(50), nullable=True)
+    body_type = Column(String(50), nullable=True)
+    color = Column(String(50), nullable=True)
+    engine_power = Column(String(50), nullable=True)
+    engine_capacity = Column(String(50), nullable=True)
+
+    # Rich JSON attributes
+    technical_specs = Column(JSON, default=dict)
+    ad_features = Column(JSON, default=dict)
+    damage_expertise = Column(JSON, default=dict)
+    expertise_note = Column(Text, nullable=True)
+
+    # Primary Cover Image
+    primary_image_url = Column(String(500), nullable=True)
+
+    # Metadata & Tracking
+    content_hash = Column(String(64), nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    images = relationship("VehicleImage", back_populates="vehicle", cascade="all, delete-orphan", order_by="VehicleImage.display_order")
+    brief = relationship("CreativeBrief", back_populates="vehicle", uselist=False, cascade="all, delete-orphan")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "external_id": self.external_id,
+            "source": self.source,
+            "url": self.url,
+            "brand": self.brand,
+            "model": self.model,
+            "package": self.package,
+            "sub_model": self.sub_model,
+            "year": self.year,
+            "km": self.km,
+            "price": self.price,
+            "currency": self.currency,
+            "fuel_type": self.fuel_type,
+            "transmission": self.transmission,
+            "body_type": self.body_type,
+            "color": self.color,
+            "engine_power": self.engine_power,
+            "engine_capacity": self.engine_capacity,
+            "technical_specs": self.technical_specs or {},
+            "ad_features": self.ad_features or {},
+            "damage_expertise": self.damage_expertise or {},
+            "expertise_note": self.expertise_note,
+            "primary_image_url": self.primary_image_url,
+            "images": [img.to_dict() for img in self.images] if self.images else [],
+            "image_urls": [img.image_url for img in self.images] if self.images else ([self.primary_image_url] if self.primary_image_url else []),
+            "brief": self.brief.to_dict() if self.brief else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+class VehicleImage(Base):
+    """
+    Araca ait tüm görsellerin tutulduğu tablo (ul.classifiedDetailThumbList / image_0, image_1...)
+    """
+    __tablename__ = "vehicle_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), nullable=False, index=True)
+    image_url = Column(String(500), nullable=False)
+    is_primary = Column(Boolean, default=False)
+    display_order = Column(Integer, default=0)
+    caption = Column(String(200), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    vehicle = relationship("Vehicle", back_populates="images")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "vehicle_id": self.vehicle_id,
+            "image_url": self.image_url,
+            "is_primary": self.is_primary,
+            "display_order": self.display_order,
+            "caption": self.caption,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+class CreativeBrief(Base):
+    """
+    Her araca özel stratejik analiz, persona ve üretilen 3-tonlu reklam metinleri:
+    - balanced_copy (Dengeli / Şeffaf)
+    - professional_copy (Kurumsal / Saygın)
+    - engaging_copy (İlgi Çekici / Enerjik)
+    - story_frames (Instagram Story Akışı)
+    """
+    __tablename__ = "creative_briefs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="CASCADE"), unique=True, nullable=False)
+    brand_archetype = Column(String(100), nullable=False)
+    target_persona = Column(String(150), nullable=False)
+    emotional_points = Column(JSON, default=list)
+    tone_of_voice = Column(String(100), nullable=False)
+    key_hooks = Column(JSON, default=list)
+
+    # Generated copy texts for 3 tones
+    balanced_copy = Column(Text, nullable=True)
+    professional_copy = Column(Text, nullable=True)
+    engaging_copy = Column(Text, nullable=True)
+    story_frames = Column(JSON, default=list)
+    hashtags = Column(JSON, default=list)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    vehicle = relationship("Vehicle", back_populates="brief")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "vehicle_id": self.vehicle_id,
+            "brand_archetype": self.brand_archetype,
+            "target_persona": self.target_persona,
+            "emotional_points": self.emotional_points,
+            "tone_of_voice": self.tone_of_voice,
+            "key_hooks": self.key_hooks,
+            "balanced_copy": self.balanced_copy,
+            "professional_copy": self.professional_copy,
+            "engaging_copy": self.engaging_copy,
+            "story_frames": self.story_frames,
+            "hashtags": self.hashtags,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+class CustomerLead(Base):
+    """
+    Bilişsel AI Satış Danışmanı Müşteri Takip Tablosu
+    """
+    __tablename__ = "customer_leads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(100), unique=True, index=True, nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
+    full_name = Column(String(200), nullable=True)
+    phone = Column(String(50), nullable=True)
+    interested_brand = Column(String(100), nullable=True)
+    interested_model = Column(String(100), nullable=True)
+    interested_body_type = Column(String(50), nullable=True)
+    budget_max = Column(Float, nullable=True)
+    focused_vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="SET NULL"), nullable=True)
+    chat_history = Column(JSON, default=list)
+    conversation_summary = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "session_id": self.session_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "phone": self.phone,
+            "interested_brand": self.interested_brand,
+            "interested_model": self.interested_model,
+            "interested_body_type": self.interested_body_type,
+            "budget_max": self.budget_max,
+            "focused_vehicle_id": self.focused_vehicle_id,
+            "chat_history": self.chat_history or [],
+            "conversation_summary": self.conversation_summary,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
