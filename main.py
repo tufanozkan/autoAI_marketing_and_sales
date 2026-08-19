@@ -62,7 +62,7 @@ def start_web_server(host=settings.WEB_HOST, port=settings.WEB_PORT):
     print(f"\n🚀 Web Görsel Vitrini Başlatılıyor: http://localhost:{port}")
     print(f"   ⚡ Arayüz Motoru: {ui_type}")
     print("   (Durdurmak için Ctrl+C tuşlarına basabilirsiniz)\n")
-    uvicorn.run("backend.web.server:app", host=host, port=port, reload=False)
+    uvicorn.run("backend.web.server:app", host=host, port=port, reload=True)
 
 def build_frontend():
     import subprocess

@@ -1,0 +1,214 @@
+import logging
+from typing import List, Optional, Dict, Any, Tuple
+from sqlalchemy.orm import Session
+from backend.db.models import Vehicle
+from .search_engine import VehicleSearchEngine
+from .nlu import norm
+
+logger = logging.getLogger(__name__)
+
+class ChatbotTools:
+    @staticmethod
+    def answer_general_faq(query_text: str, salutation: str) -> Optional[str]:
+        q = norm(query_text)
+        sal = f"{salutation}, " if salutation else "Değerli Müşterimiz, "
+
+        # 1. Trade-in (Takas)
+        if any(w in q for w in ["takas", "eski arac", "aracimi vermek", "takasa", "degerleme", "değerleme"]):
+            return (
+                f"{sal}Arkas Spoticar olarak mevcut aracınız için şeffaf, hızlı ve güvenilir **takas desteği** sunuyoruz.\n\n"
+                f"🔄 Dilerseniz aracınızın **marka, model, yıl, kilometre ve hasar durumunu** buradan paylaşırsanız anında ön değerlendirme yapabilir veya sizi Gaziemir showroomumuzda ücretsiz ekspertiz için ağırlayabiliriz!"
+            )
+
+        # 2. Credit / Financing (Kredi & Taksit)
+        if any(w in q for w in ["kredi", "finansman", "taksit", "pesinat", "peşinat", "faiz", "oran", "vade", "banka"]):
+            return (
+                f"{sal}Arkas Otomotiv güvencesi ve anlaşmalı bankalarımızla ikinci el araçlarımızda cazip faizli **taşıt kredisi ve esnek finansman çözümleri** sağlıyoruz.\n\n"
+                f"💳 Araç bedelinin model yılına göre %70'ine kadar kredi kullandırabilmekteyiz. İlgilendiğiniz model için peşinat ve aylık taksit planı çıkarmamı ister misiniz?"
+            )
+
+        # 3. Location / Hours
+        if any(w in q for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "gaziemir", "izmir", "saat kacta", "saat kaçta", "calisma saatleri", "çalışma saatleri", "acik mi", "açık mı"]):
+            return (
+                f"{sal}Arkas Spoticar Showroomumuz **İzmir Gaziemir** lokasyonunda hizmet vermektedir.\n\n"
+                f"📍 **Adres:** Akçay Caddesi No: 284 Gaziemir / İZMİR\n"
+                f"🕒 **Çalışma Saatleri:** Pazartesi - Cumartesi: 08:30 - 18:30 | Pazar: 11:00 - 17:00\n\n"
+                f"Araçlarımızı yakından incelemek ve kahvemiz eşliğinde test sürüşü yapmak için dilediğiniz zaman bekleriz!"
+            )
+
+        # 4. Appointment / Test Drive
+        if any(w in q for w in ["randevu", "test surusu", "test sürüşü", "gelip gorebilir miyim", "gelip görebilir miyim", "ne zaman gelebilirim"]):
+            return (
+                f"{sal}Arkas Spoticar showroomumuzda test sürüşü ve danışman randevunuzu memnuniyetle planlayabiliriz!\n\n"
+                f"📅 Size en uygun gün ve saat aralığını veya iletişim numaranızı paylaşırsanız, satış danışmanımız aracınızı hazır ederek sizi karşılayacaktır."
+            )
+
+        # 5. Warranty & Inspection
+        if any(w in q for w in ["garanti suresi", "garanti süresi", "kac ay garanti", "guvence", "güvence", "100 nokta", "kac nokta"]):
+            return (
+                f"{sal}Arkas Spoticar bünyesindeki tüm araçlarımız **100+ Nokta Kapsamlı Teknik Kontrolden** geçmektedir.\n\n"
+                f"🛡️ Araçlarımız **12 Aya Kadar Sınırsız Kilometre Garantisi**, 7/24 Yol Yardımı ve Şeffaf Ekspertiz Raporu güvencesiyle teslim edilmektedir."
+            )
+
+        return None
+
+    @staticmethod
+    def answer_vehicle_aspects(vehicle: Vehicle, aspects: List[str], salutation: str, db: Session) -> str:
+        model_name = f"{vehicle.brand} {vehicle.model} {vehicle.package or vehicle.sub_model or ''}".strip()
+        km_str = f"{vehicle.km:,.0f} KM".replace(",", ".")
+        price_str = f"{vehicle.price:,.0f} {vehicle.currency}".replace(",", ".")
+        sal = f"{salutation}, " if salutation else "Değerli Müşterimiz, "
+
+        tech = vehicle.technical_specs or {}
+        damage = vehicle.damage_expertise or {}
+        ad_feat = vehicle.ad_features or {}
+
+        # Flatten ad features
+        flat_feats = []
+        for cat_items in ad_feat.values():
+            if isinstance(cat_items, list):
+                flat_feats.extend(cat_items)
+            elif isinstance(cat_items, str):
+                flat_feats.append(cat_items)
+
+        # Check multi-aspect
+        if len(aspects) >= 2:
+            bullets = []
+            if "price" in aspects:
+                bullets.append(f"• 💰 **Fiyat:** {price_str}")
+            if "mileage" in aspects:
+                bullets.append(f"• 📍 **Kilometre:** {km_str} (Orijinal Garantili)")
+            if "transmission" in aspects:
+                trans = vehicle.transmission or tech.get("sanziman", "Tam Otomatik")
+                bullets.append(f"• ⚙️ **Şanzıman:** {trans}")
+            if "fuel" in aspects or "engine" in aspects:
+                fuel = vehicle.fuel_type or ("Dizel" if "bluehdi" in norm(vehicle.package or "") else "Benzin")
+                hp = tech.get("motor_gucu_hp") or vehicle.engine_power or "130 HP"
+                cons = tech.get("yakit_tuketimi_lt", "4.9 lt / 100 km")
+                bullets.append(f"• ⛽ **Yakıt & Motor:** {fuel} | {hp} Güç | Ortalama Tüketim: {cons}")
+            if "trunk" in aspects:
+                bagaj = tech.get("bagaj_hacmi_lt", "500+ Litre")
+                bullets.append(f"• 🧳 **Bagaj Hacmi:** {bagaj}")
+            if "sunroof" in aspects:
+                has_sunroof = VehicleSearchEngine._vehicle_has_feature(vehicle, "sunroof")
+                bullets.append(f"• ☀️ **Cam Tavan:** {'Panoramik Açılabilir Cam Tavan Mevcut' if has_sunroof else 'Bu araçta cam tavan bulunmuyor'}")
+            if "expertise" in aspects:
+                boyali = damage.get("boyali_parcalar", [])
+                degisen = damage.get("degisen_parcalar", [])
+                tramer = damage.get("tramer_kaydi_tl", 0)
+                if not boyali and not degisen and (tramer == 0 or not tramer):
+                    bullets.append("• 🛡️ **Ekspertiz:** Hatasız, Boyasız, Tramer Kaydı Yok (0 TL)")
+                else:
+                    bullets.append(f"• 🛡️ **Ekspertiz:** Boyalı: {len(boyali)} parça, Değişen: {len(degisen)} parça")
+
+            return (
+                f"{sal}incelediğimiz **{model_name}** ({vehicle.year}) aracımız hakkında merak ettiğiniz detaylar:\n\n"
+                + "\n".join(bullets)
+                + "\n\nAracımızı Gaziemir showroomumuzda test sürüşüyle deneyimlemek ister misiniz?"
+            )
+
+        # Single aspect details
+        if "transmission" in aspects:
+            trans = vehicle.transmission or tech.get("sanziman", "Tam Otomatik")
+            return (
+                f"{sal}incelediğimiz {vehicle.year} model **{model_name}** aracımız **{trans}** şanzımana sahiptir. "
+                f"Vites geçişleri son derece pürüzsüz ve konforludur."
+            )
+
+        if "mileage" in aspects:
+            return (
+                f"{sal}incelediğimiz **{model_name}** aracımız yalnızca **{km_str}**'dedir. "
+                f"Orijinal kilometre garantilidir ve Arkas Spoticar güvencesindedir."
+            )
+
+        if "price" in aspects:
+            return (
+                f"{sal}**{model_name}** aracımızın güncel satış fiyatı **{price_str}**'dir. "
+                f"Arkas Spoticar güvencesiyle takas, kredi ve avantajlı finansman seçeneklerimiz mevcuttur."
+            )
+
+        if "trunk" in aspects:
+            bagaj = tech.get("bagaj_hacmi_lt", "500+ Litre")
+            return (
+                f"{sal}**{model_name}** aracımızın bagaj kapasitesi **{bagaj}**'dir. "
+                f"Geniş yükleme alanı ve katlanabilir koltuklarıyla son derece fonksiyoneldir."
+            )
+
+        if "sunroof" in aspects:
+            has_sunroof = VehicleSearchEngine._vehicle_has_feature(vehicle, "sunroof")
+            if has_sunroof:
+                return (
+                    f"{sal}evet! İncelediğimiz **{model_name}** aracımızda **Panoramik Açılabilir Cam Tavan & Elektrikli Güneşlik** mevcuttur. "
+                    f"Ferah ve aydınlık bir sürüş deneyimi sunar."
+                )
+            else:
+                alt = VehicleSearchEngine.find_cross_alternative_with_feature(db, vehicle.id, "sunroof")
+                alt_txt = f" Ancak portföyümüzdeki **{alt.brand} {alt.model} {alt.package or ''}** modelimizde Panoramik Açılabilir Cam Tavan mevcuttur." if alt else ""
+                return (
+                    f"{sal}incelediğimiz **{model_name}** modelimizde cam tavan bulunmamaktadır.{alt_txt} "
+                    f"Dilerseniz cam tavanlı alternatiflerimizi detaylandırabilirim!"
+                )
+
+        if "heating" in aspects:
+            has_heat = VehicleSearchEngine._vehicle_has_feature(vehicle, "seat_heating")
+            if has_heat:
+                return f"{sal}evet! **{model_name}** aracımızda konfor artıran **Koltuk Isıtma** donanımı mevcuttur."
+            else:
+                alt = VehicleSearchEngine.find_cross_alternative_with_feature(db, vehicle.id, "seat_heating")
+                alt_txt = f" Ancak stoklarımızdaki **{alt.brand} {alt.model}** modelimizde Advanced Comfort Masajlı & Isıtmalı Koltuklar mevcuttur." if alt else ""
+                return f"{sal}incelediğimiz **{model_name}** modelimizde koltuk ısıtma özelliği bulunmamaktadır.{alt_txt}"
+
+        if "fuel" in aspects or "engine" in aspects:
+            fuel = vehicle.fuel_type or ("Dizel" if "bluehdi" in norm(vehicle.package or "") else "Benzin")
+            hp = tech.get("motor_gucu_hp") or vehicle.engine_power or "130 HP"
+            tork = tech.get("tork_nm", "300 Nm")
+            cons = tech.get("yakit_tuketimi_lt", "4.9 lt / 100 km")
+            acc = tech.get("hizlanma_0_100")
+            acc_str = f"\n🏎️ 0-100 km/s Hızlanma: **{acc}**" if acc else ""
+            return (
+                f"{sal}**{model_name}** ({fuel}) teknik performans detayları:\n\n"
+                f"⚡ Motor Gücü & Tork: **{hp}** güç | **{tork}** tork\n"
+                f"⛽ Ortalama Yakıt Tüketimi: **{cons}** ile son derece ekonomiktir.{acc_str}"
+            )
+
+        if "expertise" in aspects:
+            boyali = damage.get("boyali_parcalar", [])
+            degisen = damage.get("degisen_parcalar", [])
+            tramer = damage.get("tramer_kaydi_tl", 0)
+
+            if not boyali and not degisen and (tramer == 0 or not tramer):
+                exp_detail = "• Boyalı Parça: **Yok (Tamamen Orijinal)**\n• Değişen Parça: **Yok (Hatasız)**\n• Tramer Hasar Kaydı: **Yok (0 TL)**"
+            else:
+                b_str = ", ".join(boyali) if boyali else "Yok"
+                d_str = ", ".join(degisen) if degisen else "Yok"
+                t_str = f"{tramer:,.0f} TL".replace(",", ".") if tramer else "0 TL"
+                exp_detail = f"• Boyalı Parçalar: **{b_str}**\n• Değişen Parçalar: **{d_str}**\n• Tramer Hasar Kaydı: **{t_str}**"
+
+            note = vehicle.expertise_note or "Arkas Spoticar 100+ Nokta Kontrolü ve 12 Ay Garantisi Kapsamındadır."
+            return (
+                f"{sal}**{model_name}** ekspertiz durumu:\n\n"
+                f"{exp_detail}\n\n"
+                f"🛡️ {note}"
+            )
+
+        if "equipment" in aspects:
+            categories = [
+                ("✨ Konfor & Teknoloji", ad_feat.get("konfor", [])),
+                ("🛡️ Güvenlik & Sürüş Asistanları", ad_feat.get("guvenlik", [])),
+                ("📱 Multimedya & Bağlantı", ad_feat.get("multimedya", [])),
+                ("🚘 Dış & İç Tasarım", (ad_feat.get("dis_donanim", [])[:3] + ad_feat.get("ic_donanim", [])[:2]))
+            ]
+            lines = []
+            for cat_title, items in categories:
+                if items:
+                    lines.append(f"**{cat_title}:**")
+                    for it in items[:4]:
+                        lines.append(f"• {it}")
+                    lines.append("")
+
+            if lines:
+                return f"{sal}incelediğimiz **{model_name}** aracımızın öne çıkan donanımları:\n\n" + "\n".join(lines).strip()
+            else:
+                return f"{sal}incelediğimiz **{model_name}** aracımız zengin donanım paketi, dijital kokpiti ve güvenlik asistanlarıyla donatılmıştır."
+
+        return f"{sal}**{model_name}** ({vehicle.year}) aracımız {km_str} mesafede olup güncel liste fiyatı {price_str}'dir."

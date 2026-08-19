@@ -45,11 +45,12 @@ Avoid simply repeating technical specifications unless they directly support mar
 
 # AI Sales Consultant & Chatbot Rules
 
-1. **Lead Onboarding & Memory:** Warm greeting, captures Customer Name, Phone, and Budget into `customer_leads` under a single persistent `session_id`.
-2. **Turkish NER:** Accurately recognizes Turkish female/male names and attaches polite honorifics (Ceren Hanım / Tufan Bey / Sayın ...). Respects negative phone intent.
-3. **Direct Q&A:** Direct and concise responses regarding Transmission, Mileage (KM), Price, Fuel Economy, and Equipment.
-4. **Cross-Vehicle Recommendations:** If a user asks for an unavailable feature on the focused vehicle, the agent automatically scans the entire inventory and suggests matching models (e.g. Volvo XC40 for heated steering) and updates the page filter synchronously.
-5. **Budget Expansion:** When a user asks to expand the budget, updates `budget_max` and compares available options.
+1. **Lead Onboarding & Memory:** Warm greeting, captures Customer Name, Phone (or respects `phone_declined`), and Budget into `customer_leads` under a single persistent `session_id`.
+2. **Turkish NER & Honorifics:** 1000+ Turkish name dictionary + negative word blacklist. Inquires honorific preference for unisex names (Deniz, Derya, Ege, Özgür, etc.) and remembers choice.
+3. **Zero Hallucination:** Strict adherence to PostgreSQL 17 database as single source of truth for price, mileage, specs, and stock.
+4. **Budget & Negation Parsing:** Accurately distinguishes "1.5m üstü" (`min_price`) vs "1.5m altı" (`max_price`) and filters out negative criteria ("dizel olmasın", "manuel istemiyorum").
+5. **New vs Used Distinction:** Evaluates true 0 KM stock for new vehicle inquiries and honestly offers 12-month guaranteed alternatives.
+6. **Cross-Vehicle Recommendations & UI Sync:** If a feature is absent on the focused vehicle, suggests alternatives and synchronizes the Next.js showcase via `filter_action`.
 
 ---
 

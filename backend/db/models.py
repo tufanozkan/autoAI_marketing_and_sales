@@ -178,11 +178,20 @@ class CustomerLead(Base):
     last_name = Column(String(100), nullable=True)
     full_name = Column(String(200), nullable=True)
     phone = Column(String(50), nullable=True)
+    phone_declined = Column(Boolean, default=False)
+    honorific_preference = Column(String(20), nullable=True)  # "BEY", "HANIM", "SAYIN"
+
+    # Active Preferences
     interested_brand = Column(String(100), nullable=True)
     interested_model = Column(String(100), nullable=True)
     interested_body_type = Column(String(50), nullable=True)
+    budget_min = Column(Float, nullable=True)
     budget_max = Column(Float, nullable=True)
     focused_vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="SET NULL"), nullable=True)
+
+    # Conversation State Persistence
+    active_filters = Column(JSON, default=dict)
+    conversation_state_json = Column(JSON, default=dict)
     chat_history = Column(JSON, default=list)
     conversation_summary = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -196,11 +205,16 @@ class CustomerLead(Base):
             "last_name": self.last_name,
             "full_name": self.full_name,
             "phone": self.phone,
+            "phone_declined": bool(self.phone_declined),
+            "honorific_preference": self.honorific_preference,
             "interested_brand": self.interested_brand,
             "interested_model": self.interested_model,
             "interested_body_type": self.interested_body_type,
+            "budget_min": self.budget_min,
             "budget_max": self.budget_max,
             "focused_vehicle_id": self.focused_vehicle_id,
+            "active_filters": self.active_filters or {},
+            "conversation_state_json": self.conversation_state_json or {},
             "chat_history": self.chat_history or [],
             "conversation_summary": self.conversation_summary,
             "created_at": self.created_at.isoformat() if self.created_at else None,

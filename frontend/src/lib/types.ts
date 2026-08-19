@@ -92,32 +92,104 @@ export interface ChatMessage {
   timestamp?: string;
 }
 
+export interface VehicleFilters {
+  brand: string;
+  model: string | null;
+  body_type: string;
+  search: string;
+  min_price: number | null;
+  max_price: number | null;
+  min_km: number | null;
+  max_km: number | null;
+  fuel_type: string | null;
+  transmission: string | null;
+  features: string[];
+  is_new: boolean | null;
+}
+
+export const DEFAULT_VEHICLE_FILTERS: VehicleFilters = {
+  brand: "all",
+  model: null,
+  body_type: "all",
+  search: "",
+  min_price: null,
+  max_price: null,
+  min_km: null,
+  max_km: null,
+  fuel_type: null,
+  transmission: null,
+  features: [],
+  is_new: null,
+};
+
+export function createEmptyVehicleFilters(): VehicleFilters {
+  return {
+    brand: "all",
+    model: null,
+    body_type: "all",
+    search: "",
+    min_price: null,
+    max_price: null,
+    min_km: null,
+    max_km: null,
+    fuel_type: null,
+    transmission: null,
+    features: [],
+    is_new: null,
+  };
+}
+
+export type ChatActionType = "FILTER_VEHICLES" | "RESET_VEHICLE_FILTERS";
+
+export interface ChatAction {
+  type: ChatActionType;
+  filters?: Partial<VehicleFilters>;
+}
+
 export interface FilterAction {
+  type?: ChatActionType;
   brand?: string;
+  model?: string;
   body_type?: string;
-  max_price?: number;
+  min_price?: number | null;
+  max_price?: number | null;
+  min_km?: number | null;
+  max_km?: number | null;
+  fuel_type?: string;
+  transmission?: string;
+  features?: string[];
+  is_new?: boolean;
   search?: string;
+  reset?: boolean;
 }
 
 export interface ChatResponse {
   reply: string;
   customer_id: number;
   customer_name?: string;
+  action?: ChatAction | null;
   filter_action?: FilterAction | null;
   matched_vehicles?: Vehicle[];
+  conversation_state?: Record<string, any>;
 }
 
 export interface CustomerLead {
   id: number;
+  session_id?: string;
   first_name?: string;
   last_name?: string;
   full_name?: string;
   phone?: string;
+  phone_declined?: boolean;
+  honorific_preference?: string;
   interested_brand?: string;
   interested_model?: string;
   interested_body_type?: string;
+  budget_min?: number;
   budget_max?: number;
   focused_vehicle_id?: number;
+  active_filters?: Record<string, any>;
+  conversation_state_json?: Record<string, any>;
   conversation_summary?: string;
   created_at: string;
 }

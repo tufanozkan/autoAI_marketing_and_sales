@@ -28,10 +28,17 @@ arkas_2el_pazarlama_ai/
 ├── backend/
 │   ├── agent/                  # AI Pazarlama Metin Motoru (MarketingAgent) & Bilişsel AI Danışman (ChatbotAgent)
 │   │   ├── brand_rules.py      # Marka arketip kuralları
-│   │   ├── chatbot_agent.py    # Türkçe NER, oturum tekilleştirme, RAG & niyet motoru
+│   │   ├── chatbot_agent.py    # Facade & Geriye dönük uyumluluk köprüsü
+│   │   ├── chatbot/            # Modüler Bilişsel AI Satış Danışmanı Motoru
+│   │   │   ├── state.py        # Pydantic State, Criteria, ActionOffer şemaları
+│   │   │   ├── nlu.py          # Türkçe NER, Unisex Hitap, Bütçe & Negation ayrıştırıcı
+│   │   │   ├── search_engine.py# Parametrik PostgreSQL & JSONB donanım arama motoru
+│   │   │   ├── tools.py        # Araç soru-cevap, SSS ve çapraz öneri araçları
+│   │   │   ├── planner.py      # Bilişsel niyet planlayıcı ve yanıt orkestratörü
+│   │   │   └── agent.py        # ChatbotAgent sınıfı
 │   │   └── marketing_agent.py  # 3-tonlu (Dengeli, Kurumsal, İlgi Çekici) metin & Story akışı motoru
 │   ├── db/                     # PostgreSQL bağlantısı & SQLAlchemy ORM modelleri
-│   │   ├── database.py         # SessionLocal & Engine konfigürasyonu
+│   │   ├── database.py         # SessionLocal & Otomatik migrasyon
 │   │   └── models.py           # Vehicle, VehicleImage, CreativeBrief, CustomerLead ORM modelleri
 │   ├── scraper/                # Canlı ilan veri toplama & donanım normalizasyonu
 │   │   ├── arkas_scraper.py    # Temel web scraper
@@ -69,11 +76,13 @@ python main.py
 
 ## 🤖 Bilişsel AI Satış Danışmanı Özellikleri
 
-* **Türkçe Varlık Tanıma (NER) & Doğru Hitap:** Müşteri isimlerini (Ceren Hanım, Tufan Bey) ve negatif telefon niyetlerini kusursuz anlar.
-* **Lead Yakalama & Tekil Oturum:** Müşterinin ad, soyad ve tercihlerini tek bir oturum kaydında (`session_id`) tutar.
-* **Doğrudan İnsansı Q&A:** Vites, kilometre, ekspertiz ve yakıt sorularına şablon değil samimi ve net yanıtlar verir.
-* **Bütçe Esnetme (Budget Expansion):** *"Fiyat aralığını 5m kadar çıkart"* dendiğinde bütçeyi günceller, portföydeki tüm araçları donanım ayrıcalıklarıyla sunar.
-* **Çapraz Donanım Önerisi:** Odaktaki araçta olmayan bir donanım istendiğinde tüm portföyü tarayıp bu donanıma sahip modele geçer ve sayfayı anında filtreler.
+* **Sıfır Halüsinasyon Prensibi (Zero-Hallucination):** Fiyat, kilometre veya donanım uydurulmaz. PostgreSQL 17 tek ve mutlak gerçeklik kaynağıdır.
+* **Gelişmiş Türkçe Varlık Tanıma (NER):** 1000+ isim sözlüğü ve negatif kelime filtresi. "Ceren ben ama numaramı vermiyorum" gibi karmaşık cümleleri tek seferde çözer.
+* **Unisex İsim Hitap Yönetimi:** Deniz, Derya, Ege, Özgür gibi unisex isimlerde varsayım yapmaz; kullanıcıya Bey/Hanım tercihini sorar ve oturum boyunca hatırlar.
+* **Gelişmiş Bütçe ve Olumsuzlama:** "1.5m üstü" (`min_price`), "1.5m altı" (`max_price`), "dizel olmasın", "manuel istemiyorum" gibi karmaşık Türkçe niyetleri doğru ayrıştırır.
+* **Gerçek Sıfır / 2. El Ayrımı:** "Yeni/sıfır araç" talebinde gerçek 0 KM stok kontrolü yapar.
+* **Lead Yakalama & Tekil Oturum:** Tekil `session_id` ile `customer_leads` kaydını günceller.
+* **Dinamik Çapraz Öneri & Vitrin Filtreleme:** Eksik donanımlarda alternatif araç sunar, onaylandığında vitrini senkronize filtreler (`filter_action`).
 
 ---
 
@@ -89,7 +98,7 @@ python main.py
 
 ### PostgreSQL Tabloları
 * `vehicles` : İlan kimliği, marka, model, paket, yıl, km, fiyat, `technical_specs` (JSON), `ad_features` (JSON), `damage_expertise` (JSON), `image_urls` (JSON) ve SHA256 hash'i.
-* `customer_leads` : Müşteri iletişim bilgileri, ilgilenilen marka/kasa, bütçe, tam sohbet dökümü ve AI sohbet özeti.
+* `customer_leads` : Müşteri iletişim bilgileri, telefon reddi, hitap tercihi, bütçe aralığı, aktif filtreler, JSON sohbet durumu ve AI özeti.
 * `creative_briefs` : Marka arketipi, hedef persona, duygusal satış noktaları ve kancalar.
 * `marketing_copies` : Instagram post/hikaye metinleri, başlıklar, CTA ve hashtagler (Safe & Bold).
 
@@ -120,3 +129,7 @@ Tüm mimari detaylar ve kronolojik kararlar `docs/` klasöründe saklanmaktadır
 * [2026-08-18 Mimari Refactor — src Dizininden backend Dizinine Geçiş](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_src_dizininin_backend_olarak_yeniden_yapilandirilmasi.md)
 * [2026-08-18 Müşteri Odaklı Lüks Showroom Arayüzü Dönüşümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_musteri_odakli_showroom_arayuzu_donusumu.md)
 * [2026-08-18 Yapay Zeka Satış Danışmanı Beyaz LED Işıklı Buton & Üst Menü Temizliği](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_yapay_zeka_danismani_led_isikli_buton_ve_ust_menu_temizligi.md)
+* [2026-08-19 Chatbot Kapsamlı Testleri ve Bilişsel Danışman İyileştirmeleri](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_chatbot_testleri_ve_akilli_danisman_hata_duzeltmeleri.md)
+* [2026-08-19 Türkçe Unisex ve Kapsamlı İsim Tanıma Mimarisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_turkce_unisex_ve_genisletilmis_isim_tanima_mimarisi.md)
+* [2026-08-19 Production AI Satış Danışmanı & Bilişsel Mimari Raporu](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_production_ai_satis_danismani_ve_bilissel_mimari.md)
+* [🌟 Arkas AI Yönetim Kurulu & Yatırımcı Sunumu (Pitch Deck & Script)](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/ARKAS_AI_PROJE_SUNUMU.md)

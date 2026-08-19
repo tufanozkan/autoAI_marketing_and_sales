@@ -35,6 +35,21 @@ def init_db():
     from .models import Base
     try:
         Base.metadata.create_all(bind=engine)
+        # Ensure new columns exist on customer_leads table
+        with engine.begin() as conn:
+            from sqlalchemy import text
+            cols_to_add = [
+                ("phone_declined", "BOOLEAN DEFAULT FALSE"),
+                ("honorific_preference", "VARCHAR(20)"),
+                ("budget_min", "DOUBLE PRECISION"),
+                ("active_filters", "JSON DEFAULT '{}'::json"),
+                ("conversation_state_json", "JSON DEFAULT '{}'::json"),
+            ]
+            for col_name, col_type in cols_to_add:
+                try:
+                    conn.execute(text(f"ALTER TABLE customer_leads ADD COLUMN IF NOT EXISTS {col_name} {col_type};"))
+                except Exception as ex:
+                    logger.debug(f"Column {col_name} check/migration note: {ex}")
         logger.info(f"Connected to database: {settings.DATABASE_URL.split('@')[-1] if '@' in settings.DATABASE_URL else settings.DATABASE_URL}")
     except Exception as e:
         logger.error(f"Database initialization error: {e}")

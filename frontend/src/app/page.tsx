@@ -9,17 +9,21 @@ import { CreativeStudioModal } from "@/components/studio/CreativeStudioModal";
 import { ToastNotification } from "@/components/ui/ToastNotification";
 import { ChatbotWidget } from "@/components/chat/ChatbotWidget";
 import { fetchVehicles, fetchStats, fetchBrands } from "@/lib/api";
-import { Vehicle, StatsResponse, FilterAction } from "@/lib/types";
+import {
+  Vehicle,
+  StatsResponse,
+  FilterAction,
+  ChatAction,
+  VehicleFilters,
+  createEmptyVehicleFilters,
+} from "@/lib/types";
 import { ShieldCheck, Award, Car, RotateCcw } from "lucide-react";
 
 export default function Home() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [brandsList, setBrandsList] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
-  const [brand, setBrand] = useState("all");
-  const [bodyType, setBodyType] = useState("all");
-  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [filters, setFilters] = useState<VehicleFilters>(createEmptyVehicleFilters());
   const [viewMode, setViewMode] = useState<"grid" | "compact">("grid");
 
   const [loadingVehicles, setLoadingVehicles] = useState(true);
@@ -54,14 +58,27 @@ export default function Home() {
   }, []);
 
   // Load Vehicles based on filters
-  const loadVehiclesData = useCallback(async () => {
+  const loadVehiclesData = useCallback(async (currentFilters: VehicleFilters = filters) => {
     setLoadingVehicles(true);
     try {
       const data = await fetchVehicles({
-        search: search.trim() || undefined,
-        brand: brand !== "all" ? brand : undefined,
-        bodyType: bodyType !== "all" ? bodyType : undefined,
-        max_price: maxPrice !== null ? maxPrice : undefined,
+        search: currentFilters.search.trim() || undefined,
+        brand: currentFilters.brand !== "all" ? currentFilters.brand : undefined,
+        model: currentFilters.model || undefined,
+        body_type: currentFilters.body_type !== "all" ? currentFilters.body_type : undefined,
+        min_price: currentFilters.min_price !== null ? currentFilters.min_price : undefined,
+        max_price: currentFilters.max_price !== null ? currentFilters.max_price : undefined,
+        min_km: currentFilters.min_km !== null ? currentFilters.min_km : undefined,
+        max_km: currentFilters.max_km !== null ? currentFilters.max_km : undefined,
+        fuel_type: currentFilters.fuel_type || undefined,
+        transmission: currentFilters.transmission || undefined,
+        feature:
+          currentFilters.features.length > 0
+            ? currentFilters.features[0] === "sunroof"
+              ? "cam tavan"
+              : currentFilters.features[0]
+            : undefined,
+        is_new: currentFilters.is_new !== null ? currentFilters.is_new : undefined,
       });
       setVehicles(data);
     } catch (err) {
@@ -70,15 +87,15 @@ export default function Home() {
     } finally {
       setLoadingVehicles(false);
     }
-  }, [search, brand, bodyType, maxPrice, showToast]);
+  }, [filters, showToast]);
 
-  // Handle Search Debounce
+  // Handle Search & Filter Debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadVehiclesData();
+      loadVehiclesData(filters);
     }, 250);
     return () => clearTimeout(timer);
-  }, [search, brand, bodyType, maxPrice, loadVehiclesData]);
+  }, [filters, loadVehiclesData]);
 
   useEffect(() => {
     loadInitialData();
@@ -96,21 +113,37 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const handleClearFilters = useCallback(() => {
+    const empty = createEmptyVehicleFilters();
+    setFilters(empty);
+    loadVehiclesData(empty);
+  }, [loadVehiclesData]);
+
   // AI Chatbot Page Filter Action Handler
-  const handleApplyFilterFromAI = (action: FilterAction) => {
-    if (action.brand && action.brand !== "all") {
-      setBrand(action.brand);
+  const handleApplyFilterFromAI = useCallback((action: FilterAction | ChatAction) => {
+    if (action.type === "RESET_VEHICLE_FILTERS" || ("reset" in action && action.reset)) {
+      handleClearFilters();
+      return;
     }
-    if (action.body_type && action.body_type !== "all") {
-      setBodyType(action.body_type);
-    }
-    if (action.max_price) {
-      setMaxPrice(action.max_price);
-    }
-    if (action.search) {
-      setSearch(action.search);
-    }
-  };
+
+    setFilters((prev) => {
+      const next: VehicleFilters = { ...prev };
+      const a = action as FilterAction;
+      if (a.brand !== undefined) next.brand = a.brand;
+      if (a.model !== undefined) next.model = a.model || null;
+      if (a.body_type !== undefined) next.body_type = a.body_type;
+      if (a.min_price !== undefined) next.min_price = a.min_price;
+      if (a.max_price !== undefined) next.max_price = a.max_price;
+      if (a.min_km !== undefined) next.min_km = a.min_km;
+      if (a.max_km !== undefined) next.max_km = a.max_km;
+      if (a.fuel_type !== undefined) next.fuel_type = a.fuel_type || null;
+      if (a.transmission !== undefined) next.transmission = a.transmission || null;
+      if (a.features !== undefined) next.features = a.features;
+      if (a.is_new !== undefined) next.is_new = a.is_new;
+      if (a.search !== undefined) next.search = a.search;
+      return next;
+    });
+  }, [handleClearFilters]);
 
   const handleOpenStudio = (v: Vehicle) => {
     setSelectedVehicle(v);
@@ -125,12 +158,14 @@ export default function Home() {
     loadInitialData();
   };
 
-  const handleClearFilters = () => {
-    setSearch("");
-    setBrand("all");
-    setBodyType("all");
-    setMaxPrice(null);
-  };
+  const hasActiveFilters =
+    filters.search !== "" ||
+    filters.brand !== "all" ||
+    filters.body_type !== "all" ||
+    filters.min_price !== null ||
+    filters.max_price !== null ||
+    filters.features.length > 0 ||
+    filters.model !== null;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F7F5F0] text-[#18181B]">
@@ -181,12 +216,18 @@ export default function Home() {
         {/* Filters Toolbar */}
         <div className="mb-8">
           <FilterToolbar
-            search={search}
-            onSearchChange={setSearch}
-            brand={brand}
-            onBrandChange={setBrand}
-            bodyType={bodyType}
-            onBodyTypeChange={setBodyType}
+            search={filters.search}
+            onSearchChange={(val) =>
+              setFilters((prev) => ({ ...prev, search: val }))
+            }
+            brand={filters.brand}
+            onBrandChange={(val) =>
+              setFilters((prev) => ({ ...prev, brand: val }))
+            }
+            bodyType={filters.body_type}
+            onBodyTypeChange={(val) =>
+              setFilters((prev) => ({ ...prev, body_type: val }))
+            }
             brandsList={brandsList}
             totalCount={stats?.total_vehicles || vehicles.length}
             viewMode={viewMode}
@@ -207,7 +248,7 @@ export default function Home() {
             </span>
           </div>
 
-          {(search || brand !== "all" || bodyType !== "all" || maxPrice !== null) && (
+          {hasActiveFilters && (
             <button
               onClick={handleClearFilters}
               className="flex items-center gap-1.5 text-xs text-[#9C8262] font-bold hover:underline"
@@ -277,6 +318,7 @@ export default function Home() {
       {/* AI Sales Advisor Floating Widget */}
       <ChatbotWidget
         onApplyFilter={handleApplyFilterFromAI}
+        onResetFilters={handleClearFilters}
         showToast={showToast}
         onOpenVehicleStudio={handleOpenStudio}
       />

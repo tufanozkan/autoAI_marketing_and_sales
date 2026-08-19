@@ -20,6 +20,10 @@ class ChatRequest(BaseModel):
     customer_id: Optional[int] = None
     session_id: Optional[str] = None
 
+class ResetChatRequest(BaseModel):
+    customer_id: Optional[int] = None
+    session_id: Optional[str] = None
+
 app = FastAPI(
     title=settings.APP_NAME,
     version="3.0.0",
@@ -85,18 +89,39 @@ def get_brands(db: Session = Depends(get_db)):
 @app.get("/api/vehicles")
 def get_vehicles(
     brand: Optional[str] = None,
+    model: Optional[str] = None,
     body_type: Optional[str] = None,
     search: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
+    min_km: Optional[int] = None,
+    max_km: Optional[int] = None,
+    fuel_type: Optional[str] = None,
+    transmission: Optional[str] = None,
+    feature: Optional[str] = None,
+    is_new: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(Vehicle).filter(Vehicle.is_active == True)
 
     if brand and brand != "all":
         query = query.filter(Vehicle.brand.ilike(f"%{brand}%"))
+    if model:
+        query = query.filter(Vehicle.model.ilike(f"%{model}%"))
     if body_type and body_type != "all":
-        query = query.filter(Vehicle.body_type.ilike(f"%{body_type}%"))
+        if body_type.upper() == "SUV":
+            query = query.filter(
+                or_(
+                    Vehicle.body_type.ilike("%SUV%"),
+                    Vehicle.body_type.ilike("%Crossover%"),
+                    Vehicle.model.ilike("%Cross%"),
+                    Vehicle.model.ilike("%3008%"),
+                    Vehicle.model.ilike("%C5%"),
+                    Vehicle.model.ilike("%408%")
+                )
+            )
+        else:
+            query = query.filter(Vehicle.body_type.ilike(f"%{body_type}%"))
     if search:
         search_term = f"%{search}%"
         query = query.filter(
@@ -112,9 +137,46 @@ def get_vehicles(
         query = query.filter(Vehicle.price >= min_price)
     if max_price is not None:
         query = query.filter(Vehicle.price <= max_price)
+    if min_km is not None:
+        query = query.filter(Vehicle.km >= min_km)
+    if max_km is not None:
+        query = query.filter(Vehicle.km <= max_km)
+    if fuel_type:
+        query = query.filter(Vehicle.fuel_type.ilike(f"%{fuel_type}%"))
+    if transmission:
+        if transmission.lower() == "automatic":
+            query = query.filter(or_(
+                Vehicle.transmission.ilike("%otomatik%"),
+                Vehicle.transmission.ilike("%eat8%"),
+                Vehicle.transmission.ilike("%cvt%"),
+                Vehicle.transmission.ilike("%dct%")
+            ))
+        elif transmission.lower() == "manual":
+            query = query.filter(Vehicle.transmission.ilike("%manuel%"))
+    if is_new:
+        query = query.filter(Vehicle.km == 0)
 
     vehicles = query.order_by(Vehicle.price.desc()).all()
+
+    if feature:
+        feat_norm = feature.lower()
+        filtered = []
+        for v in vehicles:
+            ad_feat = v.ad_features or {}
+            flat = []
+            for items in ad_feat.values():
+                if isinstance(items, list): flat.extend(items)
+                elif isinstance(items, str): flat.append(items)
+            if any(feat_norm in f.lower() for f in flat):
+                filtered.append(v)
+        return [v.to_dict() for v in filtered]
+
     return [v.to_dict() for v in vehicles]
+
+@app.get("/api/leads")
+def get_leads(db: Session = Depends(get_db)):
+    leads = db.query(CustomerLead).order_by(CustomerLead.updated_at.desc()).all()
+    return [l.to_dict() for l in leads]
 
 @app.get("/api/vehicles/{vehicle_id}")
 def get_vehicle_detail(vehicle_id: int, db: Session = Depends(get_db)):
@@ -150,6 +212,18 @@ def chat_with_agent(req: ChatRequest, db: Session = Depends(get_db)):
     agent = ChatbotAgent(db)
     response = agent.process_message(
         message=req.message,
+        customer_id=req.customer_id,
+        session_id=req.session_id
+    )
+    return response
+
+@app.post("/api/chat/reset")
+def reset_chat(req: ResetChatRequest, db: Session = Depends(get_db)):
+    """
+    Explicit Conversation & Vehicle Filter Reset Endpoint.
+    """
+    agent = ChatbotAgent(db)
+    response = agent.reset_session(
         customer_id=req.customer_id,
         session_id=req.session_id
     )

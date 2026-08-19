@@ -48,7 +48,16 @@
 * Mimari Refactor — `src/` Dizininden `backend/` Dizinine Geçiş: `docs/2026-08-18_src_dizininin_backend_olarak_yeniden_yapilandirilmasi.md`
 * Müşteri Odaklı Lüks Showroom Arayüzü Dönüşümü: `docs/2026-08-18_musteri_odakli_showroom_arayuzu_donusumu.md`
 * Yapay Zeka Satış Danışmanı Beyaz LED Işıklı Buton & Üst Menü Temizliği: `docs/2026-08-18_yapay_zeka_danismani_led_isikli_buton_ve_ust_menu_temizligi.md`
+* Yönetim Kurulu & Pitch Deck Sunumu: `docs/ARKAS_AI_PROJE_SUNUMU.md`
+* Chatbot Kapsamlı Testleri ve Bilişsel Danışman İyileştirmeleri: `docs/2026-08-19_chatbot_testleri_ve_akilli_danisman_hata_duzeltmeleri.md`
+* Türkçe Unisex ve Kapsamlı İsim Tanıma (NER) Mimarisi: `docs/2026-08-19_turkce_unisex_ve_genisletilmis_isim_tanima_mimarisi.md`
+* Production AI Satış Danışmanı & Bilişsel Mimari Raporu: `docs/2026-08-19_production_ai_satis_danismani_ve_bilissel_mimari.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
-* **Mevcut Durum:** Proje 5 araçlık test aşamasına geri alındı; C5 Aircross (25.000 KM), Peugeot 408 (9.000 KM), Honda City (50.000 KM), Fiat Egea Cross (38.000 KM), Peugeot 3008 (67.000 KM) araçlarının doğrulanmış canlı verileri, 5 açılı HD showroom fotoğrafları ve 3-tonlu reklam briefleri aktiftir.
+* **Mevcut Durum:** 
+  - AI Satış Danışmanı monolitik yapıdan modüler `backend/agent/chatbot/` bilişsel mimarisine (`state.py`, `nlu.py`, `search_engine.py`, `tools.py`, `planner.py`, `agent.py`) dönüştürülmüştür.
+  - PostgreSQL 17 `CustomerLead` tablosuna `phone_declined`, `honorific_preference`, `budget_min`, `budget_max`, `active_filters`, `conversation_state_json` sütunları eklenmiş ve otomatik migrasyon devreye alınmıştır.
+  - Türkçe NER, Unisex hitap tercihi sorma/hatırlama, Bütçe alt/üst/aralık ayrıştırma, Olumsuzlama (negation) kontrolü, Sıfır/2. el ayrımı, Çapraz donanım önerisi ve Next.js `filter_action` senkronizasyonu tamamlanmıştır.
+  - 53 adet unittest ve konuşma akış testi ile %100 doğruluk sağlanmıştır (`tests_chatbot.py`, `tests_chatbot_suite.py`).
+  - Next.js 15 prodüksiyon derlemesi (`npm run build`) başarıyla tamamlanmıştır.
 * **Kural:** Her mimari ve işlevsel güncellemeden sonra `PROJECT_MEMORY.md`, `.antigravity_rules.md`, `.cursorrules.md`, `.github/copilot-instructions.md`, `README.md` ve ilgili `docs/` belgesi eksiksiz güncellenmek zorundadır.

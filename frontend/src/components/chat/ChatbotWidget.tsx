@@ -14,18 +14,20 @@ import {
   ShieldCheck,
   Phone,
 } from "lucide-react";
-import { ChatMessage, FilterAction, Vehicle } from "@/lib/types";
-import { sendChatMessage } from "@/lib/api";
+import { ChatMessage, FilterAction, ChatAction, Vehicle } from "@/lib/types";
+import { sendChatMessage, resetChatSession } from "@/lib/api";
 import { formatCurrency, formatKM } from "@/lib/utils";
 
 interface ChatbotWidgetProps {
-  onApplyFilter: (action: FilterAction) => void;
+  onApplyFilter: (action: FilterAction | ChatAction) => void;
+  onResetFilters: () => void;
   showToast: (msg: string) => void;
   onOpenVehicleStudio?: (vehicle: Vehicle) => void;
 }
 
 export function ChatbotWidget({
   onApplyFilter,
+  onResetFilters,
   showToast,
   onOpenVehicleStudio,
 }: ChatbotWidgetProps) {
@@ -96,7 +98,7 @@ export function ChatbotWidget({
       if (res.customer_id) {
         setCustomerId(res.customer_id);
       }
-      if (res.customer_name) {
+      if (res.customer_name !== undefined) {
         setCustomerName(res.customer_name);
       }
 
@@ -109,8 +111,22 @@ export function ChatbotWidget({
 
       setMessages((prev) => [...prev, botMsg]);
 
-      // If AI generated a page filter action, execute it on the main page
-      if (res.filter_action) {
+      // Check if action or filter_action is a reset action
+      const isResetAction =
+        res.action?.type === "RESET_VEHICLE_FILTERS" ||
+        res.filter_action?.type === "RESET_VEHICLE_FILTERS" ||
+        Boolean(res.filter_action?.reset);
+
+      if (isResetAction) {
+        onResetFilters();
+        if (!res.customer_name) {
+          setCustomerName("");
+        }
+        showToast("🔄 Sohbet ve tüm filtreler sıfırlandı!");
+      } else if (res.action) {
+        onApplyFilter(res.action);
+        showToast("🎯 AI Danışman sayfadaki ilanları güncelledi!");
+      } else if (res.filter_action) {
         onApplyFilter(res.filter_action);
         showToast("🎯 AI Danışman sayfadaki ilanları güncelledi!");
       }
@@ -128,7 +144,14 @@ export function ChatbotWidget({
     }
   };
 
-  const handleResetChat = () => {
+  const handleResetChat = async () => {
+    const oldSession = sessionId;
+    const oldCustomer = customerId;
+
+    // 1. Reset frontend filters immediately
+    onResetFilters();
+
+    // 2. Clear local chat state & new session
     const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     if (typeof window !== "undefined") {
       sessionStorage.setItem("arkas_ai_session_id", newId);
@@ -144,15 +167,25 @@ export function ChatbotWidget({
           "Sohbet sıfırlandı. Merhaba! Size nasıl hitap etmemizi istersiniz? Adınızı, soyadınızı ve ilgilendiğiniz araç kriterlerini iletebilirsiniz.",
       },
     ]);
-    showToast("🔄 Sohbet sıfırlandı.");
+    showToast("🔄 Sohbet ve araç filtreleri sıfırlandı.");
+
+    // 3. Notify backend
+    try {
+      if (oldSession || oldCustomer) {
+        await resetChatSession(oldCustomer, oldSession);
+      }
+    } catch {
+      // Non-blocking
+    }
   };
 
   const quickChips = [
-    "1.5M TL altı SUV'lar",
-    "Skoda Kamiq km ve vites",
-    "Kamiq koltuk ısıtma var mı?",
-    "Volvo XC40 özellikleri",
-    "Ekspertiz ve garanti durumu",
+    "1.5M TL altı araçlar",
+    "C5 Aircross cam tavan var mı?",
+    "Peugeot 408 km ve yakıt",
+    "Honda City fiyat ve motor",
+    "Egea Cross ekspertiz durumu",
+    "Takas ve kredi imkanları",
   ];
 
   return (
