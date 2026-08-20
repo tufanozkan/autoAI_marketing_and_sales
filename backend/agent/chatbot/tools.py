@@ -36,14 +36,7 @@ class ChatbotTools:
                 f"Araçlarımızı yakından incelemek ve kahvemiz eşliğinde test sürüşü yapmak için dilediğiniz zaman bekleriz!"
             )
 
-        # 4. Appointment / Test Drive
-        if any(w in q for w in ["randevu", "test surusu", "test sürüşü", "gelip gorebilir miyim", "gelip görebilir miyim", "ne zaman gelebilirim"]):
-            return (
-                f"{sal}Arkas Spoticar showroomumuzda test sürüşü ve danışman randevunuzu memnuniyetle planlayabiliriz!\n\n"
-                f"📅 Size en uygun gün ve saat aralığını veya iletişim numaranızı paylaşırsanız, satış danışmanımız aracınızı hazır ederek sizi karşılayacaktır."
-            )
-
-        # 5. Warranty & Inspection
+        # 4. Warranty & Inspection
         if any(w in q for w in ["garanti suresi", "garanti süresi", "kac ay garanti", "guvence", "güvence", "100 nokta", "kac nokta"]):
             return (
                 f"{sal}Arkas Spoticar bünyesindeki tüm araçlarımız **100+ Nokta Kapsamlı Teknik Kontrolden** geçmektedir.\n\n"

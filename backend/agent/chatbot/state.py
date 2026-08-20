@@ -74,6 +74,9 @@ class ConversationState(BaseModel):
     conversation_stage: str = "DISCOVERY"
     question_aspects: List[str] = Field(default_factory=list)
     intents: List[str] = Field(default_factory=list)
+    appointment_pending: bool = False
+    last_appointment_id: Optional[int] = None
+    appointment_datetime_text: Optional[str] = None
 
     def reset_all(self):
         self.customer = CustomerContext()
@@ -85,3 +88,6 @@ class ConversationState(BaseModel):
         self.conversation_stage = "DISCOVERY"
         self.question_aspects = []
         self.intents = ["CONVERSATION_RESET"]
+        self.appointment_pending = False
+        self.last_appointment_id = None
+        self.appointment_datetime_text = None

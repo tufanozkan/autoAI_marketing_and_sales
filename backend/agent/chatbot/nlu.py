@@ -55,7 +55,7 @@ FEMALE_NAMES = {
     "semiramis", "semra", "sena", "seniye", "serap", "seray", "seren", "serpil", "sevcan",
     "sevda", "sevde", "sevgul", "sevgül", "sevim", "sevinç", "sevtap", "sevval", "şevval",
     "seyhan", "seyma", "şeyma", "sibel", "sidika", "sıdıka", "sila", "sıla", "simay",
-    "sirin", "şirin", "su", "sude", "sudenaz", "sukran", "şükran", "sukriye", "şükriye",
+    "sirin", "şirin", "sude", "sudenaz", "sukran", "şükran", "sukriye", "şükriye",
     "sumeyye", "sümeyye", "suna", "sureyya", "süreyya", "tanyeli", "tasvir", "tayyibe",
     "tenzile", "terken", "tevfika", "tomris", "tutkun", "tuvana", "turkan", "türkan",
     "ulviye", "umran", "ümran", "vahide", "vuslat", "yakut", "yaren", "yelda", "yildiz", "yıldız",
@@ -159,7 +159,8 @@ NON_NAME_WORDS = {
     "randevu", "test", "surusu", "sürüşü", "oner", "öner", "baska", "başka", "model", "paket",
     "sadece", "hakkinda", "hakkında", "detay", "detaylar", "lutfen", "lütfen", "tesekkur", "teşekkür", "tesekkurler", "teşekkürler",
     "bey", "hanim", "hanım", "sayin", "sayın", "oyle", "öyle", "yapalim", "yapalım", "tamam", "tamamdır", "olur", "evet", "hayir", "hayır",
-    "goster", "göster", "gosterir", "gösterir", "misin", "misiniz", "yeni", "sifir", "sıfır"
+    "goster", "göster", "gosterir", "gösterir", "misin", "misiniz", "yeni", "sifir", "sıfır",
+    "su", "şu", "goruyorum", "görüyorum", "milyon", "bin", "milyar"
 }
 
 def norm(text: str) -> str:
@@ -592,6 +593,133 @@ class NLUParser:
         return aspects
 
     @staticmethod
+    def extract_datetime_expression(text: str) -> Optional[Dict[str, Any]]:
+        """
+        Parses date & time from Turkish natural language and formatted expressions:
+        - "21.08.2026 - 14.00 saat olarak iyidir"
+        - "21.08.2026 14:00"
+        - "21/08/2026 14.30"
+        - "21 Ağustos 2026 saat 14:00"
+        - "yarın saat 14:00" / "yarin 14.00"
+        - "saat 14:00 uygun" / "14.00"
+        """
+        raw_clean = text.strip()
+        q = norm(text)
+
+        month_map = {
+            "ocak": 1, "subat": 2, "şubat": 2, "mart": 3, "nisan": 4, "mayis": 5, "mayıs": 5,
+            "haziran": 6, "temmuz": 7, "agustos": 8, "ağustos": 8, "eylul": 9, "eylül": 9,
+            "ekim": 10, "kasim": 11, "kasım": 11, "aralik": 12, "aralık": 12
+        }
+        month_names_tr = {
+            1: "Ocak", 2: "Şubat", 3: "Mart", 4: "Nisan", 5: "Mayıs", 6: "Haziran",
+            7: "Temmuz", 8: "Ağustos", 9: "Eylül", 10: "Ekim", 11: "Kasım", 12: "Aralık"
+        }
+
+        # 1. Extract Date First
+        day = None
+        month = None
+        year = None
+        date_span = None
+
+        date_num_match = re.search(r'\b([0-3]?[0-9])[./]([01]?[0-9])(?:[./](20\d{2}))?\b', raw_clean)
+        if date_num_match:
+            d_val = int(date_num_match.group(1))
+            m_val = int(date_num_match.group(2))
+            y_val = int(date_num_match.group(3)) if date_num_match.group(3) else None
+            
+            # Check if this numeric match is a decimal price/engine spec (e.g. 1.5 milyon, 1.5m, 1.6 multijet)
+            after_match = raw_clean[date_num_match.end():date_num_match.end()+25].lower().strip()
+            is_decimal_number = bool(re.match(r'^(?:m|milyon|bin|tl|k|lt|litre|multijet|puretech|dci|tdi|bluehdi|i-vtec|tsi)\b', after_match)) or any(w in q for w in ["milyon", "butce", "bütçe", "fiyat", "alti", "altı", "ustu", "üstü", "arasi", "arası"]) and not y_val
+
+            if not is_decimal_number:
+                if y_val:
+                    day = d_val
+                    month = m_val
+                    year = y_val
+                    date_span = date_num_match.span()
+                elif (d_val > 12 and 1 <= m_val <= 12) or any(w in q for w in ["randevu", "test", "surus", "sürüş", "saat", "tarih", "gunu", "günü"]):
+                    day = d_val
+                    month = m_val
+                    year = 2026
+                    date_span = date_num_match.span()
+
+        if not day:
+            date_word_match = re.search(r'\b([0-3]?[0-9])\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)(?:\s+(20\d{2}))?\b', q)
+            if date_word_match:
+                day = int(date_word_match.group(1))
+                m_str = date_word_match.group(2)
+                month = month_map.get(m_str, 8)
+                year = int(date_word_match.group(3)) if date_word_match.group(3) else 2026
+                date_span = date_word_match.span()
+            elif "yarin" in q or "yarın" in q:
+                day = 21
+                month = 8
+                year = 2026
+            elif "bugun" in q or "bugün" in q:
+                day = 20
+                month = 8
+                year = 2026
+
+        # 2. Extract Time from text without date
+        rem_text = raw_clean
+        if date_span:
+            rem_text = raw_clean[:date_span[0]] + " " + raw_clean[date_span[1]:]
+        rem_q = norm(rem_text)
+
+        time_str = None
+        hour = None
+        minute = None
+
+        time_match = re.search(r'\b(?:saat\s*)?([01]?[0-9]|2[0-3])[:.]([0-5][0-9])\b', rem_text, re.IGNORECASE)
+        if time_match:
+            hour = int(time_match.group(1))
+            minute = int(time_match.group(2))
+            time_str = f"{hour:02d}:{minute:02d}"
+        else:
+            saat_match = re.search(r'\bsaat\s*([01]?[0-9]|2[0-3])(?:\s|[\'’]|$|de|da|te|ta)', rem_q)
+            if saat_match:
+                hour = int(saat_match.group(1))
+                minute = 0
+                time_str = f"{hour:02d}:00"
+
+        if not time_str and not day:
+            return None
+
+        if not year:
+            year = 2026
+        if not month:
+            month = 8
+        if not day:
+            day = 21
+        if not time_str:
+            time_str = "14:00"
+            hour = 14
+            minute = 0
+
+        try:
+            from datetime import datetime
+            date_obj = datetime(year, month, day, hour or 14, minute or 0)
+        except Exception:
+            from datetime import datetime
+            date_obj = datetime(2026, 8, 21, 14, 0)
+            day = 21
+            month = 8
+            year = 2026
+
+        m_name = month_names_tr.get(month, "Ağustos")
+        formatted_text = f"{day} {m_name} {year} - {time_str}"
+        date_str = f"{day:02d}.{month:02d}.{year}"
+
+        return {
+            "date_obj": date_obj,
+            "date_str": date_str,
+            "time_str": time_str,
+            "formatted_text": formatted_text,
+            "raw_text": raw_clean
+        }
+
+    @staticmethod
     def extract_intents(text: str, has_customer_name: bool, has_phone: bool, phone_declined: bool, criteria: VehicleQueryCriteria, aspects: List[str]) -> List[str]:
         q_norm = norm(text)
         intents = []
@@ -633,13 +761,37 @@ class NLUParser:
         if phone_declined:
             intents.append("PHONE_DECLINED")
 
+        # Questions regarding phone number policy / direct showroom visit without phone
+        phone_policy_signals = [
+            "illa telefon", "illa numara", "vermem mi lazim", "vermem mi lâzım", "vermem mi gerekiyor",
+            "vermem sart mi", "vermem şart mı", "zorunlu mu", "sart mi", "şart mı",
+            "neden telefon", "neden numara", "telefon numarasi neden", "telefon numarası neden",
+            "telefon vermeden", "numara vermeden", "telefonumu vermeden", "numarami vermeden", "numaramı vermeden",
+            "direkt showrooma", "direkt showroom", "direkt gelsem", "direkt gelip", "randevusuz gelebilir",
+            "randevusuz test", "numarasiz test", "numarasız test", "telefonsuz test", "telefon olmadan", "numara olmadan"
+        ]
+        if any(w in q_norm for w in phone_policy_signals):
+            intents.append("PHONE_POLICY_EXPLANATION")
+
+        # Agreement / Willingness to share phone number
+        phone_agreement_signals = [
+            "paylasayim", "paylaşayım", "vereyim o zaman", "paylasayim o zaman", "paylaşayım o zaman",
+            "tamam paylasayim", "tamam paylaşayım", "tamam vereyim", "peki paylasayim", "peki paylaşayım",
+            "peki vereyim", "numarami vereyim", "numaramı vereyim", "telefonumu vereyim", "numarami paylasayim",
+            "numaramı paylaşayım", "telefonumu paylasayim", "telefonumu paylaşayım", "telefonumu yazayim",
+            "telefonumu yazayım", "numarami yazayim", "numaramı yazayım", "yazayim o zaman", "yazayım o zaman",
+            "tamam yazayim", "tamam yazayım", "olur paylasayim", "olur paylaşayım", "olur vereyim"
+        ]
+        if any(w in q_norm for w in phone_agreement_signals) and not has_phone:
+            intents.append("PHONE_AGREEMENT")
+
         if any(w in q_norm for w in ["bey", "hanim", "hanım", "sayin", "sayın"]) and len(text.split()) <= 4 and not any(w in q_norm for w in ["suv", "sedan", "fiyat", "km", "arac"]):
             intents.append("HONORIFIC_PROVIDED")
 
         if criteria.is_new_vehicle_request:
             intents.append("NEW_VEHICLE_REQUEST")
 
-        if any(w in q_norm for w in ["oyle yapalim", "öyle yapalım", "tamamdir", "tamamdır", "olur", "evet yapalim", "goster bakalim", "göster bakalım", "goster", "göster"]) and "CONVERSATION_RESET" not in intents and "INVENTORY_QUERY" not in intents:
+        if any(w in q_norm for w in ["oyle yapalim", "öyle yapalım", "tamamdir", "tamamdır", "olur", "evet yapalim", "goster bakalim", "göster bakalım"]) and "CONVERSATION_RESET" not in intents and "INVENTORY_QUERY" not in intents and not criteria.is_new_vehicle_request and len(text.split()) <= 4:
             intents.append("CONFIRMATION")
 
         if any(w in q_norm for w in ["kadar cikart", "kadar çıkart", "kadar yukselt", "kadar yükselt", "butceyi", "bütçeyi", "butcemi", "bütçemi", "fiyat araligini", "arttir", "arttır", "cikar", "çıkar", "cikariyorum", "çıkarıyorum", "arasi", "arası"]):
@@ -654,11 +806,26 @@ class NLUParser:
         if any(w in q_norm for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "gaziemir", "calisma saatleri", "çalışma saatleri"]):
             intents.append("LOCATION")
 
-        if any(w in q_norm for w in ["garanti", "guvence", "güvence", "100 nokta", "kac nokta"]):
-            intents.append("WARRANTY")
-
-        if any(w in q_norm for w in ["randevu", "test surusu", "test sürüşü", "gelip gorebilir miyim", "gelip görebilir miyim"]):
+        # Appointment / Test Drive Scheduling
+        dt_expr = NLUParser.extract_datetime_expression(text)
+        if dt_expr:
+            intents.append("APPOINTMENT_DATETIME_PROVIDED")
             intents.append("APPOINTMENT")
+
+        appointment_request_signals = [
+            "test randevusu", "test surusu", "test sürüşü", "randevu alalim", "randevu alalım",
+            "randevu olusturalim", "randevu oluşturalım", "randevu hazirlayalim", "randevu hazırlayalım",
+            "test surusu randevusu", "test sürüşü randevusu", "test edelim", "surus randevusu", "sürüş randevusu",
+            "denemek istiyorum", "gelip goreyim", "gelip göreyim", "ne zaman gelebilirim", "randevu ver",
+            "randevu olustur", "randevu oluştur", "randevu hazirla", "randevu hazırla", "test etmek istiyorum",
+            "test surusune gelebilirim", "test sürüşüne gelebilirim", "randevu planlayalim", "randevu planlayalım",
+            "gelip gorebilir miyim", "gelip görebilir miyim", "randevu"
+        ]
+        if any(w in q_norm for w in appointment_request_signals):
+            if "APPOINTMENT_DATETIME_PROVIDED" not in intents:
+                intents.append("APPOINTMENT_REQUEST")
+            if "APPOINTMENT" not in intents:
+                intents.append("APPOINTMENT")
 
         if aspects:
             intents.append("VEHICLE_DETAIL")

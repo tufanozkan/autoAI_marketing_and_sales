@@ -56,16 +56,18 @@
 * Bildirim (Toast) Konumlandırması ve UX Çakışma Düzeltmesi: `docs/2026-08-20_bildirim_konumlandirmasi_ve_ux_cakisma_duzeltmesi.md`
 * AI Chatbot "Teşekkür Ederim" Nezaket Kapanışı & Sayfa Filtresi Temizliği: `docs/2026-08-20_chatbot_tesekkur_ve_sayfa_filtresi_temizligi.md`
 * AI Satış Danışmanı Kapsamlı Araç Tanıtım & Anlatım Mimarisi: `docs/2026-08-20_ai_danisman_arac_kapsamli_tanitim_ve_anlatim_mimarisi.md`
+* Test Sürüşü & Showroom Randevu Mimarisi (test_drives Tablosu & Uçtan Uca Rezervasyon): `docs/2026-08-20_test_surusu_randevu_tablosu_ve_uctan_uca_rezervasyon_mimarisi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
 * **Mevcut Durum:** 
-  - AI Satış Danışmanına `VEHICLE_OVERVIEW` intent'i ve `generate_vehicle_executive_presentation` metodu eklenmiştir. Kullanıcı belirli bir araç hakkında bilgi istediğinde (*"3008 hakkında bilgi alabilir miyim"*, *"detaylı anlatır mısın bana"*, *"bu araç nasıl"*), bot tek satırlık liste formatı veya karşılama reset'i yerine; aracın fiyatını, kilometresini, vites/motorunu, öne çıkan donanımlarını, ekspertiz hatasızlık durumunu, Arkas Spoticar 100+ nokta kontrolü & 12 ay garantisini ve test sürüşü davetini içeren kapsamlı bir yönetici sunumu yapar.
+  - PostgreSQL 17 veritabanına `test_drives` tablosu eklenmiş; `customer_leads` ve `vehicles` tablolarıyla 1-N yabancı anahtar ilişkisi kurulmuştur.
+  - Bilişsel AI Satış Danışmanına Türkçe tarih/saat ayrıştırma motoru (`NLUParser.extract_datetime_expression`) ve `APPOINTMENT_REQUEST` / `APPOINTMENT_DATETIME_PROVIDED` niyetleri entegre edilmiştir.
+  - **Test Sürüşünde Zorunlu Telefon Kontrolü & Karar Değiştirme:** Sohbetin başında telefon paylaşımı isteğe bağlıdır; ancak test sürüşü planlanacağı zaman aracı rezerve etmek ve danışmanın teyit sağlayabilmesi için telefon numarası **kesinlikle zorunludur**. Müşteri tarih verip ilk başta telefon vermek istemediğinde sistem randevu tarihini hafızada tutar. Müşteri sonradan *"tamam paylaşayım o zaman telefon numaramı"* diyerek karar değiştirdiğinde (`PHONE_AGREEMENT`) bot randevu tarihini hatırlatarak numarasını ister; numara verildiği an `test_drives` tablosuna `CONFIRMED` statüsüyle kaydeder.
+  - REST API'ye `GET /api/test-drives` ve `GET /api/leads` uç noktaları eklenmiş; `/api/stats` endpoint'ine `total_test_drives` metriği dahil edilmiştir.
+  - AI Satış Danışmanına `VEHICLE_OVERVIEW` intent'i ve `generate_vehicle_executive_presentation` metodu eklenmiştir. Kullanıcı belirli bir araç hakkında bilgi istediğinde (*"3008 hakkında bilgi alabilir miyim"*, *"detaylı anlatır mısın bana"*), bot aracın fiyatını, kilometresini, vites/motorunu, öne çıkan donanımlarını, ekspertiz hatasızlık durumunu, 100+ nokta kontrolü & 12 ay garantisini ve test sürüşü davetini içeren kapsamlı bir yönetici sunumu yapar.
   - AI Chatbot'a `GRATITUDE` intent ve nezaket kapanış akışı eklenmiş ("Teşekkür ederim", "Sağolun" vb. sonrasında robotik selamlama tekrarı engellenmiştir).
   - Chatbot yanıtlarındaki "Sayfayı filtreledim" ibareleri ve otomatik sayfa filtre manipülasyonu kaldırılmış; filtreleme tamamen kullanıcı kontrolüne bırakılmıştır.
   - Sayfa bildirimleri (toast pop-up) sağ alttan ekranın üst orta bölgesine (`top-6 left-1/2 -translate-x-1/2`) taşınmış ve 3.5 sn otomatik kapanma ile chatbot girdi kutusu çakışması tamamen çözülmüştür.
-  - Kök dizindeki eski `static/` klasörü ve eski statik dosyalar tamamen kaldırılmış; araç görselleri modern Next.js mimarisine uygun olarak `frontend/public/vehicle_images/` altına taşınmıştır.
-  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve 75 birim/entegrasyon testinin tamamı başarıyla koşmaktadır.
-  - AI Satış Danışmanı monolitik yapıdan modüler `backend/agent/chatbot/` bilişsel mimarisine (`state.py`, `nlu.py`, `search_engine.py`, `tools.py`, `planner.py`, `agent.py`) dönüştürülmüştür.
-  - PostgreSQL 17 `CustomerLead` tablosuna `phone_declined`, `honorific_preference`, `budget_min`, `budget_max`, `active_filters`, `conversation_state_json` sütunları eklenmiş ve otomatik migrasyon devreye alınmıştır.
+  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve **81 birim/entegrasyon testinin tamamı (%100)** başarıyla koşmaktadır.
   - Next.js 15 prodüksiyon derlemesi (`npm run build` / `frontend/out`) başarıyla tamamlanmıştır.
 * **Kural:** Her mimari ve işlevsel güncellemeden sonra `PROJECT_MEMORY.md`, `.antigravity_rules.md`, `.cursorrules.md`, `.github/copilot-instructions.md`, `README.md` ve ilgili `docs/` belgesi eksiksiz güncellenmek zorundadır.

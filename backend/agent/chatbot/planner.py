@@ -2,7 +2,7 @@ import logging
 import datetime
 from typing import Dict, Any, List, Optional, Tuple
 from sqlalchemy.orm import Session
-from backend.db.models import Vehicle, CustomerLead
+from backend.db.models import Vehicle, CustomerLead, TestDrive
 from .state import ConversationState, CustomerContext, VehicleQueryCriteria, ActionOffer
 from .nlu import NLUParser, norm
 from .search_engine import VehicleSearchEngine
@@ -288,10 +288,14 @@ class ResponsePlanner:
         action = None
         matched_vehicles_data = []
 
-        # Check follow-up confirmation ("Öyle yapalım")
-        is_confirmation = "CONFIRMATION" in intents
+        # Check follow-up confirmation ("Öyle yapalım", "Olur", "Evet", "İsterim", "Tamamdır")
+        is_confirmation = "CONFIRMATION" in intents or (
+            any(w in q_norm for w in ["olur", "evet", "isterim", "istiyorum", "tabi", "tabii", "tabiki", "tamamdir", "tamamdır", "tamam", "yapalim", "yapalım", "ayarlayalim", "ayarlayalım", "olusturalim", "oluşturalım", "harika olur", "super olur", "süper olur"])
+            and len(msg_clean.split()) <= 4
+            and not any(w in q_norm for w in ["nedir", "kac", "kaç", "fiyat", "km", "suv", "sedan", "benzin", "dizel", "nerede"])
+        )
         if is_confirmation and state.last_offer:
-            if state.last_offer.criteria:
+            if state.last_offer.action_type == "FILTER_VEHICLES" and state.last_offer.criteria:
                 for k, v in state.last_offer.criteria.items():
                     if k == "features" and isinstance(v, list):
                         for f in v:
@@ -327,6 +331,29 @@ class ResponsePlanner:
                 or (len(new_crit.features) > 0 and (new_crit.body_type or new_crit.transmission or new_crit.fuel_type or new_crit.min_price or new_crit.max_price))
             )
         )
+
+        # Check if confirmation is accepting a test drive offer
+        is_filter_offer = state.last_offer is not None and state.last_offer.action_type == "FILTER_VEHICLES"
+        is_test_drive_confirmed = (
+            is_confirmation
+            and not is_filter_offer
+            and not new_crit.is_new_vehicle_request
+            and not is_explicit_search
+            and (
+                (state.last_offer and state.last_offer.action_type == "SCHEDULE_TEST_DRIVE")
+                or state.pending_clarification == "TEST_DRIVE_OFFER"
+            )
+        )
+
+        # Check datetime expressions & appointment requests
+        dt_expr = NLUParser.extract_datetime_expression(msg_clean)
+        is_appointment_datetime = "APPOINTMENT_DATETIME_PROVIDED" in intents or (state.appointment_pending and bool(dt_expr))
+        is_appointment_request = (
+            "APPOINTMENT_REQUEST" in intents
+            or is_test_drive_confirmed
+            or ("APPOINTMENT" in intents and not dt_expr and not ("VEHICLE_SEARCH" in intents and (new_crit.brand or new_crit.model)))
+        )
+        is_phone_declined_in_appointment = (state.appointment_pending or is_appointment_request or is_appointment_datetime) and ("PHONE_DECLINED" in intents or any(w in q_norm for w in ["vermek istemiyorum", "paylasamam", "paylaşamam", "vermeyegim", "vermicem", "vermiyorum", "numara yok", "telefon yok", "gizli", "veremem"]))
 
         # --- RESPONSE BRANCHING ---
 
@@ -379,7 +406,7 @@ class ResponsePlanner:
             }
 
         # 1. Unisex Clarification
-        elif state.customer.unisex_pending and len(lead.chat_history or []) <= 4 and not ("VEHICLE_DETAIL" in intents or "VEHICLE_SEARCH" in intents):
+        elif state.customer.unisex_pending and len(lead.chat_history or []) <= 4 and not ("VEHICLE_DETAIL" in intents or "VEHICLE_SEARCH" in intents or is_appointment_datetime or is_appointment_request):
             phone_note = f" (İletişim Numaranız: {state.customer.phone})" if state.customer.phone else (" (Telefon paylaşımı tercih edilmedi)" if state.customer.phone_declined else "")
             reply_text = (
                 f"Çok memnun oldum {state.customer.first_name}{phone_note}! Bilgilerinizi Arkas güvencesiyle kaydettim.\n\n"
@@ -396,13 +423,202 @@ class ResponsePlanner:
                 f"kasa tipi (SUV, Sedan) ya da belirlediğiniz bir bütçe aralığı var mı?"
             )
 
+        # 2.3. Phone Policy Explanation / Direct Walk-in Showroom Visit without Phone
+        elif "PHONE_POLICY_EXPLANATION" in intents:
+            target_vehicle = focused_v
+            if not target_vehicle and state.active_vehicle_id:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.active_vehicle_id).first()
+            v_context = f"**{target_vehicle.brand} {target_vehicle.model}** veya " if target_vehicle else ""
+
+            reply_text = (
+                f"{salutation}, sistem üzerinden belirli bir gün ve saat için adınıza özel araç rezerve edebilmemiz, geçici kasko/sigorta hazırlıkları ve danışmanımızın randevu saatinde aracı sadece size hazır tutabilmesi adına resmi kayıtlarda telefon numarası zorunludur.\n\n"
+                f"**Ancak telefon numaranızı paylaşmadan da test sürüşü yapabilirsiniz!** Bunun için önceden randevu oluşturmadan doğrudan **Arkas Spoticar Gaziemir Showroomumuzu (Akçay Cad. No: 284 Gaziemir / İZMİR)** ziyaret edebilirsiniz. Showroom satış danışmanlarımız {v_context}o sırada müsait olan araçlarımızla sizi kahvemiz eşliğinde ağırlamaktan ve test sürüşü imkanı sunmaktan memnuniyet duyacaktır. 😊🚗\n\n"
+                f"Showroom ziyareti öncesinde araçlarımızın donanım, ekspertiz veya fiyat detaylarıyla ilgili merak ettiğiniz tüm soruları doğrudan bana sormaya devam edebilirsiniz!"
+            )
+
+        # 2.4. Phone Declined specifically during Test Drive Appointment Flow
+        elif is_phone_declined_in_appointment:
+            state.appointment_pending = True
+            if dt_expr:
+                state.appointment_datetime_text = dt_expr["formatted_text"]
+            date_note = f"tercih ettiğiniz tarihi (**{dt_expr['formatted_text']}**) memnuniyetle not aldım. Ancak " if dt_expr else ""
+            reply_text = (
+                f"{salutation}, {date_note}Arkas Spoticar güvencesiyle adınıza özel test aracı rezerve edebilmemiz, plaka/kasko hazırlıkları ve satış danışmanımızın randevu teyidi sağlayabilmesi için iletişim numarası zorunludur.\n\n"
+                f"Telefon numaranızı paylaşmak istememenizi gayet iyi anlıyorum. Dilerseniz önceden telefonla randevu kaydı oluşturmadan da doğrudan **Gaziemir Showroomumuzu (Akçay Cad. No: 284 Gaziemir / İZMİR)** ziyaret edebilirsiniz! Danışmanlarımız o an müsait olan araçlarımızla size test sürüşü yaptırmaktan memnuniyet duyacaktır. 🚗✨\n\n"
+                f"Bu esnada araçlarımızın donanım, ekspertiz durumu veya fiyat koşullarıyla ilgili merak ettiğiniz soruları buradan yanıtlamaya devam edebilirim."
+            )
+
+        # 2.45. User Agrees / Decides to Share Phone Number
+        elif "PHONE_AGREEMENT" in intents:
+            state.appointment_pending = True
+            state.customer.phone_declined = False
+            target_vehicle = focused_v
+            if not target_vehicle and state.active_vehicle_id:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.active_vehicle_id).first()
+            if not target_vehicle and state.last_search_result_ids:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
+
+            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "Arkas Spoticar aracımız"
+            dt_title = f" (**{state.appointment_datetime_text}**)" if state.appointment_datetime_text else ""
+
+            reply_text = (
+                f"Harika {salutation}! {v_title} için test sürüşü randevunuzu{dt_title} tamamlamak üzere **telefon numaranızı rica edebilir miyim?** 📱\n\n"
+                f"Numaranızı ilettiğiniz anda randevunuzu showroom sistemimizde onaylayıp satış danışmanımıza ileteceğim."
+            )
+
+        # 2.5. Test Drive Appointment Scheduled (Date & Time Provided)
+        elif is_appointment_datetime:
+            parsed_date = dt_expr["date_obj"] if dt_expr else None
+            time_str = dt_expr["time_str"] if dt_expr else "14:00"
+            formatted_dt = dt_expr["formatted_text"] if dt_expr else msg_clean
+
+            target_vehicle = focused_v
+            if not target_vehicle and state.active_vehicle_id:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.active_vehicle_id).first()
+            if not target_vehicle and state.last_search_result_ids:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
+            if not target_vehicle:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.is_active == True).first()
+
+            v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Arkas Spoticar Showroom Aracı"
+            cust_name = state.customer.full_name or (f"{state.customer.first_name} {state.customer.last_name}" if state.customer.last_name else state.customer.first_name) or "Değerli Müşterimiz"
+
+            if target_vehicle:
+                state.active_vehicle_id = target_vehicle.id
+                lead.focused_vehicle_id = target_vehicle.id
+
+            if state.customer.phone:
+                test_drive = TestDrive(
+                    customer_lead_id=lead.id,
+                    vehicle_id=target_vehicle.id if target_vehicle else None,
+                    customer_name=cust_name,
+                    customer_phone=state.customer.phone,
+                    appointment_date=parsed_date,
+                    appointment_time=time_str,
+                    appointment_datetime_text=formatted_dt,
+                    showroom_location="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)",
+                    status="CONFIRMED",
+                    notes=f"AI Danışman üzerinden randevu oluşturuldu. İlgilenilen Araç: {v_title}"
+                )
+                db.add(test_drive)
+                db.commit()
+                db.refresh(test_drive)
+
+                state.appointment_pending = False
+                state.last_appointment_id = test_drive.id
+                state.appointment_datetime_text = formatted_dt
+                lead.conversation_summary = f"{lead.conversation_summary} | Randevu: {formatted_dt} ({v_title})"
+
+                reply_text = (
+                    f"Harika {salutation}! Test sürüşü randevunuzu başarıyla oluşturdum. 📅✨\n\n"
+                    f"📋 **Randevu Detayları:**\n"
+                    f"• 🚘 **Araç:** **{v_title}**\n"
+                    f"• 🕒 **Tarih & Saat:** **{formatted_dt}**\n"
+                    f"• 📍 **Lokasyon:** Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)\n"
+                    f"• 📱 **İletişim:** {state.customer.phone}\n\n"
+                    f"Satış danışmanımız randevu saatinizde aracınızı test sürüşüne hazır tutacaktır. İletişim numaranıza bilgilendirme kaydı iletilmiştir.\n\n"
+                    f"Showroom ziyareti öncesinde araç veya ekspertiz durumuyla ilgili sormak istediğiniz başka bir detay var mı?"
+                )
+            else:
+                state.appointment_pending = True
+                state.appointment_datetime_text = formatted_dt
+                reply_text = (
+                    f"Memnuniyetle {salutation}! **{v_title}** için **{formatted_dt}** test sürüşü talebinizi aldım. 📅✨\n\n"
+                    f"Showroomumuzda aracı adınıza rezerve edebilmemiz, plaka/sigorta hazırlıklarını yapabilmemiz ve satış danışmanımızın randevu teyidini gerçekleştirebilmesi için **telefon numaranızı paylaşabilir misiniz?** 📱"
+                )
+
+        # 2.6. Test Drive Appointment Requested (Awaiting Date/Time)
+        elif is_appointment_request:
+            state.appointment_pending = True
+            target_vehicle = focused_v
+            if not target_vehicle and state.active_vehicle_id:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.active_vehicle_id).first()
+            if not target_vehicle and state.last_search_result_ids:
+                target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
+
+            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "Arkas Spoticar portföyümüzdeki araçlarımız"
+            
+            if state.customer.phone:
+                reply_text = (
+                    f"Memnuniyetle {salutation}! {v_title} için test sürüşü ve danışman randevunuzu hemen planlayalım. 🚗✨\n\n"
+                    f"📅 Size en uygun **gün ve saat aralığını** iletebilir misiniz? (Örn: *Yarın saat 14:00* veya *21.08.2026 - 14:00*)\n\n"
+                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                )
+            else:
+                reply_text = (
+                    f"Memnuniyetle {salutation}! {v_title} için test sürüşü ve danışman randevunuzu hemen planlayalım. 🚗✨\n\n"
+                    f"📅 Size en uygun **gün ve saat aralığını** ve danışmanımızın aracı adınıza rezerve edip teyit sağlayabilmesi için **telefon numaranızı** iletebilir misiniz? 📱\n\n"
+                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                )
+
         # 3. Dedicated Phone Submission Acknowledgment
         elif "PHONE_PROVIDED" in intents and not aspects and not ("VEHICLE_SEARCH" in intents and (new_crit.brand or new_crit.model or new_crit.body_type)):
-            reply_text = (
-                f"İletişim numaranızı ({state.customer.phone}) başarıyla kaydettim {salutation}! 📱\n\n"
-                f"Arkas Spoticar satış danışmanımız en kısa sürede sizinle iletişime geçerek test sürüşü ve özel tekliflerimizi aktaracaktır.\n\n"
-                f"Bu esnada araçlarımızla ilgili merak ettiğiniz başka bir detay veya donanım sorusu var mı?"
-            )
+            # If appointment was pending with a saved datetime, complete booking now!
+            if state.appointment_pending and state.appointment_datetime_text:
+                target_vehicle = focused_v
+                if not target_vehicle and state.active_vehicle_id:
+                    target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.active_vehicle_id).first()
+                if not target_vehicle and state.last_search_result_ids:
+                    target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
+                if not target_vehicle:
+                    target_vehicle = db.query(Vehicle).filter(Vehicle.is_active == True).first()
+
+                v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Arkas Spoticar Showroom Aracı"
+                cust_name = state.customer.full_name or (f"{state.customer.first_name} {state.customer.last_name}" if state.customer.last_name else state.customer.first_name) or "Değerli Müşterimiz"
+
+                test_drive = TestDrive(
+                    customer_lead_id=lead.id,
+                    vehicle_id=target_vehicle.id if target_vehicle else None,
+                    customer_name=cust_name,
+                    customer_phone=state.customer.phone,
+                    appointment_date=None,
+                    appointment_time=None,
+                    appointment_datetime_text=state.appointment_datetime_text,
+                    showroom_location="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)",
+                    status="CONFIRMED",
+                    notes=f"AI Danışman üzerinden randevu oluşturuldu. İlgilenilen Araç: {v_title}"
+                )
+                db.add(test_drive)
+                db.commit()
+                db.refresh(test_drive)
+
+                state.appointment_pending = False
+                state.last_appointment_id = test_drive.id
+                formatted_dt = state.appointment_datetime_text
+                lead.conversation_summary = f"{lead.conversation_summary} | Randevu: {formatted_dt} ({v_title})"
+
+                reply_text = (
+                    f"Harika {salutation}! İletişim numaranızı ({state.customer.phone}) kaydettim ve test sürüşü randevunuzu başarıyla oluşturdum. 📅✨\n\n"
+                    f"📋 **Randevu Detayları:**\n"
+                    f"• 🚘 **Araç:** **{v_title}**\n"
+                    f"• 🕒 **Tarih & Saat:** **{formatted_dt}**\n"
+                    f"• 📍 **Lokasyon:** Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)\n"
+                    f"• 📱 **İletişim:** {state.customer.phone}\n\n"
+                    f"Satış danışmanımız randevu saatinizde aracınızı test sürüşüne hazır tutacaktır. İletişim numaranıza bilgilendirme kaydı iletilmiştir.\n\n"
+                    f"Showroom ziyareti öncesinde araç veya ekspertiz durumuyla ilgili sormak istediğiniz başka bir detay var mı?"
+                )
+            elif state.appointment_pending:
+                reply_text = (
+                    f"İletişim numaranızı ({state.customer.phone}) kaydettim {salutation}! 📱\n\n"
+                    f"Test sürüşü için size en uygun **gün ve saat aralığını** iletebilir misiniz? (Örn: *Yarın saat 14:00* veya *21.08.2026 - 14:00*)\n\n"
+                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                )
+            elif state.last_appointment_id:
+                td = db.query(TestDrive).filter(TestDrive.id == state.last_appointment_id).first()
+                if td and not td.customer_phone:
+                    td.customer_phone = state.customer.phone
+                    db.commit()
+                reply_text = (
+                    f"İletişim numaranızı ({state.customer.phone}) test sürüşü randevunuza başarıyla ekledim {salutation}! 📱\n\n"
+                    f"Satış danışmanımız randevu öncesinde sizinle iletişime geçerek hazırlıkları tamamlayacaktır.\n\n"
+                    f"Bu esnada araçlarımızla ilgili merak ettiğiniz başka bir detay veya donanım sorusu var mı?"
+                )
+            else:
+                reply_text = (
+                    f"İletişim numaranızı ({state.customer.phone}) başarıyla kaydettim {salutation}! 📱\n\n"
+                    f"Arkas Spoticar satış danışmanımız en kısa sürede sizinle iletişime geçerek test sürüşü ve özel tekliflerimizi aktaracaktır.\n\n"
+                    f"Bu esnada araçlarımızla ilgili merak ettiğiniz başka bir detay veya donanım sorusu var mı?"
+                )
 
         # 4. New Vehicle Request Handling
         elif state.vehicle_query.is_new_vehicle_request:
@@ -428,13 +644,21 @@ class ResponsePlanner:
                     description="Cam tavanlı araçları listele",
                     criteria={"features": ["sunroof"], "model": None, "brand": None}
                 )
+            else:
+                # Overview or general vehicle enquiry concluded with test drive CTA
+                state.last_offer = ActionOffer(
+                    action_type="SCHEDULE_TEST_DRIVE",
+                    description=f"{focused_v.brand} {focused_v.model} test sürüşü randevusu",
+                    criteria={}
+                )
+                state.pending_clarification = "TEST_DRIVE_OFFER"
 
         # 6. General FAQ
         elif any(it in intents for it in ["TRADE_IN", "FINANCE", "LOCATION", "WARRANTY", "APPOINTMENT"]):
             reply_text = ChatbotTools.answer_general_faq(msg_clean, salutation)
 
         # 7. Vehicle Search / Recommendation / Refinement / Budget
-        elif ("VEHICLE_SEARCH" in intents or "VEHICLE_RECOMMENDATION" in intents or "BUDGET_UPDATE" in intents or is_confirmation):
+        elif ("VEHICLE_SEARCH" in intents or "VEHICLE_RECOMMENDATION" in intents or "BUDGET_UPDATE" in intents or (is_confirmation and state.last_offer and state.last_offer.action_type == "FILTER_VEHICLES")):
             search_results = VehicleSearchEngine.search_inventory(db, state.vehicle_query)
             if search_results:
                 matched_vehicles_data = [v.to_dict() for v in search_results]

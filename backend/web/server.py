@@ -9,7 +9,7 @@ from sqlalchemy import func, or_
 
 from config import settings, FRONTEND_OUT_DIR, VEHICLE_IMAGES_DIR, FRONTEND_PUBLIC_DIR
 from backend.db.database import get_db, init_db
-from backend.db.models import Vehicle, VehicleImage, CreativeBrief, CustomerLead
+from backend.db.models import Vehicle, VehicleImage, CreativeBrief, CustomerLead, TestDrive
 from backend.scraper.arkas_scraper import ArkasScraper
 from backend.agent.marketing_agent import MarketingAgent
 from backend.agent.chatbot_agent import ChatbotAgent
@@ -65,6 +65,7 @@ def get_stats(db: Session = Depends(get_db)):
     total_briefs = db.query(CreativeBrief).count()
     total_images = db.query(VehicleImage).count()
     total_leads = db.query(CustomerLead).count()
+    total_test_drives = db.query(TestDrive).count()
     
     brands_count = db.query(Vehicle.brand, func.count(Vehicle.id)).group_by(Vehicle.brand).all()
     brands_stats = [{"brand": b, "count": c} for b, c in brands_count]
@@ -75,6 +76,7 @@ def get_stats(db: Session = Depends(get_db)):
         "total_briefs": total_briefs,
         "total_images": total_images,
         "total_leads": total_leads,
+        "total_test_drives": total_test_drives,
         "brands": brands_stats
     }
 
@@ -225,3 +227,34 @@ def reset_chat(req: ResetChatRequest, db: Session = Depends(get_db)):
         session_id=req.session_id
     )
     return response
+
+@app.get("/api/test-drives")
+def get_test_drives(
+    customer_id: Optional[int] = None,
+    session_id: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    List all test drive appointments or filter by customer/session.
+    """
+    query = db.query(TestDrive).order_by(TestDrive.created_at.desc())
+    if customer_id:
+        query = query.filter(TestDrive.customer_lead_id == customer_id)
+    elif session_id:
+        lead = db.query(CustomerLead).filter(CustomerLead.session_id == session_id).first()
+        if lead:
+            query = query.filter(TestDrive.customer_lead_id == lead.id)
+        else:
+            return []
+
+    results = query.all()
+    return [td.to_dict() for td in results]
+
+@app.get("/api/leads")
+def get_customer_leads(limit: int = 50, db: Session = Depends(get_db)):
+    """
+    List customer CRM leads with their test drives and conversation summary.
+    """
+    leads = db.query(CustomerLead).order_by(CustomerLead.updated_at.desc()).limit(limit).all()
+    return [lead.to_dict() for lead in leads]
+

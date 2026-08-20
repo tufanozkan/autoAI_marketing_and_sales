@@ -197,6 +197,9 @@ class CustomerLead(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Relationships
+    test_drives = relationship("TestDrive", back_populates="customer_lead", cascade="all, delete-orphan")
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
@@ -217,6 +220,58 @@ class CustomerLead(Base):
             "conversation_state_json": self.conversation_state_json or {},
             "chat_history": self.chat_history or [],
             "conversation_summary": self.conversation_summary,
+            "test_drives": [td.to_dict() for td in self.test_drives] if self.test_drives else [],
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+class TestDrive(Base):
+    """
+    Arkas Spoticar 2. El Test Sürüşü & Showroom Randevu Tablosu
+    """
+    __tablename__ = "test_drives"
+
+    id = Column(Integer, primary_key=True, index=True)
+    customer_lead_id = Column(Integer, ForeignKey("customer_leads.id", ondelete="CASCADE"), nullable=False, index=True)
+    vehicle_id = Column(Integer, ForeignKey("vehicles.id", ondelete="SET NULL"), nullable=True, index=True)
+
+    customer_name = Column(String(200), nullable=True)
+    customer_phone = Column(String(50), nullable=True)
+
+    appointment_date = Column(DateTime, nullable=True)
+    appointment_time = Column(String(50), nullable=True)
+    appointment_datetime_text = Column(String(150), nullable=False)
+    showroom_location = Column(String(250), default="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)")
+
+    status = Column(String(50), default="CONFIRMED")  # CONFIRMED, PENDING, COMPLETED, CANCELLED
+    notes = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    customer_lead = relationship("CustomerLead", back_populates="test_drives")
+    vehicle = relationship("Vehicle", backref="test_drives")
+
+    def to_dict(self) -> Dict[str, Any]:
+        vehicle_title = None
+        if self.vehicle:
+            vehicle_title = f"{self.vehicle.brand} {self.vehicle.model} {self.vehicle.package or ''} ({self.vehicle.year})".strip()
+
+        return {
+            "id": self.id,
+            "customer_lead_id": self.customer_lead_id,
+            "vehicle_id": self.vehicle_id,
+            "vehicle_title": vehicle_title,
+            "customer_name": self.customer_name,
+            "customer_phone": self.customer_phone,
+            "appointment_date": self.appointment_date.isoformat() if self.appointment_date else None,
+            "appointment_time": self.appointment_time,
+            "appointment_datetime_text": self.appointment_datetime_text,
+            "showroom_location": self.showroom_location,
+            "status": self.status,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
