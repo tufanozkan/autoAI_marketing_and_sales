@@ -348,7 +348,7 @@ class ResponsePlanner:
             reply_text = (
                 f"{salutation}, Arkas Spoticar showroomumuzda şu anda toplam **{total_count} adet** sertifikalı ve 100+ nokta kontrolünden geçmiş 2. el aracımız bulunmaktadır:\n\n"
                 f"{vehicles_text}\n\n"
-                f"Showroomumuzdaki tüm araçları ekranda görüntüleyebilirsiniz. Aklınızdaki kasa tipi (SUV, Sedan) veya bütçe aralığına göre hemen filtreleyebilirim!"
+                f"Aklınızdaki kasa tipi (SUV, Sedan), donanım veya bütçe aralığına göre istediğiniz aracı doğrudan bana sorabilirsiniz!"
             )
             action = {"type": "RESET_VEHICLE_FILTERS", "filters": {}}
             filter_action = {
@@ -484,7 +484,7 @@ class ResponsePlanner:
                     else:
                         target_budget_fmt = ""
                     reply_text = (
-                        f"{salutation}, bütçe filtrenizi **{target_budget_fmt}** seviyesine güncelledim ve sayfayı Arkas Spoticar araçlarımızla yeniledim:\n\n"
+                        f"{salutation}, belirttiğiniz bütçeye (**{target_budget_fmt}**) en uygun güncel Arkas Spoticar araçlarımız:\n\n"
                         f"{vehicles_text}\n\n"
                         f"İncelemek istediğiniz modelin donanım veya ekspertiz durumunu detaylandırabilirim!"
                     )
@@ -492,7 +492,7 @@ class ResponsePlanner:
                     reply_text = (
                         f"{salutation}, kriterlerinize{crit_str} en uygun güncel Arkas Spoticar araçlarımız:\n\n"
                         f"{vehicles_text}\n\n"
-                        f"👉 Sayfayı filtreledim. Araçların vitesini, kilometresini, ekspertiz durumunu veya donanım detaylarını doğrudan bana sorabilirsiniz!"
+                        f"Araçların vitesini, kilometresini, ekspertiz durumunu veya donanım detaylarını doğrudan bana sorabilirsiniz!"
                     )
             else:
                 filter_action = {
@@ -523,6 +523,19 @@ class ResponsePlanner:
                 f"Arkas Spoticar portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
                 f"kasa tipi (SUV, Sedan) ya da belirlediğiniz bir bütçe aralığı var mı?"
             )
+
+        # 8.5. Gratitude & Conversation Closing ("teşekkür ederim", "sağolun", "iyi günler")
+        elif "GRATITUDE" in intents and not aspects and not (new_crit.brand or new_crit.model or new_crit.body_type or new_crit.min_price or new_crit.max_price):
+            if any(w in q_norm for w in ["iyi gunler", "iyi günler", "iyi aksamlar", "iyi akşamlar", "iyi geceler", "hosca kal", "hoşça kal", "hoscakal", "hoşçakal", "gorusmek uzere", "görüşmek üzere"]):
+                reply_text = (
+                    f"İyi günler dilerim {salutation}! 😊\n\n"
+                    f"Aklınıza takılan başka bir soru veya incelemek istediğiniz bir araç olursa ben her zaman buradayım. Arkas Spoticar olarak keyifli ve güvenli sürüşler dileriz! 🚗✨"
+                )
+            else:
+                reply_text = (
+                    f"Rica ederim {salutation}! Yardımcı olabildiysem ne mutlu bana. 😊\n\n"
+                    f"Arkas Spoticar araçlarımız, ekspertiz güvencemiz veya kredi koşullarımızla ilgili aklınıza takılan bir konu olursa dilediğiniz zaman sorabilirsiniz. Keyifli ve güvenli sürüşler dilerim! 🚗✨"
+                )
 
         # 9. Fallback Greeting
         else:

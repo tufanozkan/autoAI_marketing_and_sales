@@ -122,13 +122,6 @@ export function ChatbotWidget({
         if (!res.customer_name) {
           setCustomerName("");
         }
-        showToast("🔄 Sohbet ve tüm filtreler sıfırlandı!");
-      } else if (res.action) {
-        onApplyFilter(res.action);
-        showToast("🎯 AI Danışman sayfadaki ilanları güncelledi!");
-      } else if (res.filter_action) {
-        onApplyFilter(res.filter_action);
-        showToast("🎯 AI Danışman sayfadaki ilanları güncelledi!");
       }
     } catch (err) {
       setMessages((prev) => [

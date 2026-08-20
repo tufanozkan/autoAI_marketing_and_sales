@@ -651,10 +651,24 @@ class NLUParser:
         if criteria.brand or criteria.model or criteria.body_type or criteria.min_price or criteria.max_price or criteria.features or criteria.transmission or criteria.fuel_type:
             intents.append("VEHICLE_SEARCH")
 
-        if any(w in q_norm for w in ["oner", "öner", "onerir misin", "önerir misin", "baska ne var", "başka ne var", "farkli bir arac", "farklı bir araç", "en ucuz", "en uygun", "ekonomik", "en dusuk km", "en düşük km"]):
-            intents.append("VEHICLE_RECOMMENDATION")
+        # Gratitude & Conversation Closing Signals
+        gratitude_signals = [
+            "tesekkur", "teşekkür", "tesekkurler", "teşekkürler", "tesekkur ederim", "teşekkür ederim",
+            "cok tesekkurler", "çok teşekkürler", "cok tesekkur ederim", "çok teşekkür ederim",
+            "sagol", "sağol", "sagolun", "sağolun", "eline saglik", "eline sağlık", "emegine saglik", "emeğine sağlık",
+            "harikasin", "harikasın", "super", "süper", "eyvallah", "eyv", "tamam tesekkurler", "tamamdır teşekkürler",
+            "tamamdir tesekkurler", "anladim tesekkurler", "anladım teşekkürler", "bilgi icin tesekkurler", "bilgi için teşekkürler",
+            "yardimlarin icin tesekkurler", "yardımların için teşekkürler"
+        ]
+        closing_signals = [
+            "iyi gunler", "iyi günler", "iyi aksamlar", "iyi akşamlar", "iyi geceler",
+            "hosca kal", "hoşça kal", "hoscakal", "hoşçakal", "gorusmek uzere", "görüşmek üzere",
+            "kolay gelsin", "gorusuruz", "görüşürüz", "bay bay", "bye bye"
+        ]
+        if any(w in q_norm for w in gratitude_signals) or any(w in q_norm for w in closing_signals):
+            intents.append("GRATITUDE")
 
-        if not intents and any(w in q_norm for w in ["merhaba", "selam", "gunaydin", "günaydın", "iyi gunler", "iyi günler", "hey"]):
+        if not intents and any(w in q_norm for w in ["merhaba", "selam", "gunaydin", "günaydın", "hey"]):
             intents.append("GREETING")
 
         return intents
