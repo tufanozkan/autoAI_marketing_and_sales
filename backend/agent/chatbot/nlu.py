@@ -562,17 +562,32 @@ class NLUParser:
         if any(w in q_norm for w in ["bagaj", "bagaji", "bagajı", "bagaj hacmi", "kac litre bagaj", "kaç litre bagaj"]):
             aspects.append("trunk")
 
-        if any(w in q_norm for w in ["cam tavan", "sunroof", "panoramik"]):
+        if any(w in q_norm for w in ["cam tavan var mi", "cam tavan var mı", "sunroof var mi", "sunroof var mı", "panoramik mi", "cam tavanli mi", "cam tavanlı mı", "sunrooflu mu", "cam tavan aciliyor mu", "cam tavan açılıyor mu"]):
+            aspects.append("sunroof")
+        elif any(w in q_norm for w in ["cam tavan", "sunroof", "panoramik"]) and not any(w in q_norm for w in ["cam tavanli", "cam tavanlı", "sunrooflu", "panoramik tavanli", "panoramik tavanlı"]):
             aspects.append("sunroof")
 
-        if any(w in q_norm for w in ["koltuk isitma", "koltuk ısıtma", "direksiyon isitma", "isitma", "ısıtma", "masaj"]):
+        if any(w in q_norm for w in ["koltuk isitma", "koltuk ısıtma", "direksiyon isitma", "isitma", "ısıtma", "masaj"]) and not any(w in q_norm for w in ["isitmalı", "ısıtmalı", "isitmalı koltuklu"]):
             aspects.append("heating")
 
-        if any(w in q_norm for w in ["ekspertiz", "hasar", "kaza", "boya", "boyali", "boyalı", "degisen", "değişen", "tramer", "trameri", "durum", "durumu"]):
+        if any(w in q_norm for w in ["ekspertiz", "hasar", "kaza", "boya", "boyali", "boyalı", "degisen", "değişen", "tramer", "trameri", "hasar durumu", "hasar durumu nedir", "ekspertiz durumu"]):
             aspects.append("expertise")
 
         if any(w in q_norm for w in ["donanim", "donanım", "donanimlar", "donanımları", "ozellik", "özellik", "ozellikler", "özellikleri", "paket"]):
             aspects.append("equipment")
+
+        # General Overview / Presentation / Details Aspect
+        overview_signals = [
+            "bilgi", "bilgisi", "bilgi ver", "bilgi alabilir miyim", "bilgi almak istiyorum",
+            "detayli bilgi", "detaylı bilgi", "detay", "detaylar", "detaylari", "detayları",
+            "detaylandir", "detaylandır", "anlat", "anlatir misin", "anlatır mısın", "bana anlat",
+            "tanit", "tanıt", "tanitir misin", "tanıtır mısın", "hakkinda", "hakkında",
+            "nasil bir arac", "nasıl bir araç", "nasil bir araba", "nasıl bir araba",
+            "neler var", "ozellikleri neler", "özellikleri neler", "araci inceleyelim", "aracı inceleyelim",
+            "durumu nedir", "nedir bu arac", "nedir bu araç", "genel durum", "ozet", "özet"
+        ]
+        if any(w in q_norm for w in overview_signals) and not any(w in q_norm for w in ["nerede", "adres", "kredi", "takas", "garanti suresi", "kac arac", "kac araba"]):
+            aspects.append("overview")
 
         return aspects
 
@@ -647,6 +662,9 @@ class NLUParser:
 
         if aspects:
             intents.append("VEHICLE_DETAIL")
+
+        if "overview" in aspects or any(w in q_norm for w in ["bilgi alabilir miyim", "bilgi almak istiyorum", "detayli anlat", "detaylı anlat", "anlatir misin", "anlatır mısın", "tanitir misin", "tanıtır mısın", "hakkinda bilgi", "hakkında bilgi", "araci anlat", "aracı anlat", "detayli bilgi", "detaylı bilgi"]):
+            intents.append("VEHICLE_OVERVIEW")
 
         if criteria.brand or criteria.model or criteria.body_type or criteria.min_price or criteria.max_price or criteria.features or criteria.transmission or criteria.fuel_type:
             intents.append("VEHICLE_SEARCH")

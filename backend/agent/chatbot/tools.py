@@ -53,7 +53,71 @@ class ChatbotTools:
         return None
 
     @staticmethod
+    def generate_vehicle_executive_presentation(vehicle: Vehicle, salutation: str, db: Session) -> str:
+        model_name = f"{vehicle.brand} {vehicle.model} {vehicle.package or vehicle.sub_model or ''}".strip()
+        km_str = f"{vehicle.km:,.0f} KM".replace(",", ".")
+        price_str = f"{vehicle.price:,.0f} {vehicle.currency}".replace(",", ".")
+        sal = f"{salutation}, " if salutation else "Değerli Müşterimiz, "
+
+        tech = vehicle.technical_specs or {}
+        damage = vehicle.damage_expertise or {}
+        ad_feat = vehicle.ad_features or {}
+
+        # Core specs
+        fuel = vehicle.fuel_type or ("Dizel" if "bluehdi" in norm(vehicle.package or "") else "Benzin")
+        trans = vehicle.transmission or tech.get("sanziman", "Tam Otomatik")
+        hp = tech.get("motor_gucu_hp") or vehicle.engine_power or "130 HP"
+        cons = tech.get("yakit_tuketimi_lt", "4.5 lt / 100 km")
+        bagaj = tech.get("bagaj_hacmi_lt", "500+ Litre")
+
+        # Highlights from equipment
+        highlights = []
+        for cat in ["konfor", "guvenlik", "multimedya", "dis_donanim", "ic_donanim"]:
+            items = ad_feat.get(cat, [])
+            if items:
+                highlights.append(items[0])
+                if len(items) > 1 and len(highlights) < 5:
+                    highlights.append(items[1])
+
+        feat_lines = "\n".join([f"  • {f}" for f in highlights[:5]]) if highlights else "  • Zengin konfor, güvenlik ve multimedya donanım paketi"
+
+        # Expertise details
+        boyali = damage.get("boyali_parcalar", [])
+        degisen = damage.get("degisen_parcalar", [])
+        tramer = damage.get("tramer_kaydi_tl", 0)
+        if not boyali and not degisen and (tramer == 0 or not tramer):
+            exp_text = "Hatasız, Boyasız ve Değişensiz (Tramer Hasar Kaydı: 0 TL)"
+        else:
+            b_cnt = f"{len(boyali)} parça boyalı" if boyali else "Boyasız"
+            d_cnt = f"{len(degisen)} parça değişen" if degisen else "Değişensiz"
+            t_val = f"Tramer: {tramer:,.0f} TL".replace(",", ".") if tramer else "Tramer: 0 TL"
+            exp_text = f"{b_cnt}, {d_cnt}, {t_val}"
+
+        note = vehicle.expertise_note or "Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup 12 Ay Mekanik & Elektronik Garantilidir."
+
+        return (
+            f"{sal}incelediğimiz **{model_name}** ({vehicle.year}) modelimiz hakkında kapsamlı ve detaylı bilgiler:\n\n"
+            f"📋 **Temel Özellikler & Performans:**\n"
+            f"• 💰 **Satış Fiyatı:** {price_str}\n"
+            f"• 📍 **Kilometre:** {km_str} (Orijinal Kilometre Garantili)\n"
+            f"• ⚙️ **Vites & Şanzıman:** {trans}\n"
+            f"• ⛽ **Motor & Yakıt:** {fuel} ({hp}) | Ortalama Tüketim: {cons}\n"
+            f"• 🧳 **Bagaj Hacmi:** {bagaj}\n\n"
+            f"✨ **Öne Çıkan Donanımlar & Konfor:**\n"
+            f"{feat_lines}\n\n"
+            f"🛡️ **Ekspertiz & Garanti Durumu:**\n"
+            f"• **Durum:** {exp_text}\n"
+            f"• **Güvence:** {note}\n\n"
+            f"Bu aracımız için Gaziemir showroomumuzda **test sürüşü randevusu** oluşturmamı veya takas/kredi teklifi hazırlamamı ister misiniz? 🚗✨"
+        )
+
+    @staticmethod
     def answer_vehicle_aspects(vehicle: Vehicle, aspects: List[str], salutation: str, db: Session) -> str:
+        concrete_aspects = [a for a in (aspects or []) if a != "overview"]
+        if not concrete_aspects:
+            return ChatbotTools.generate_vehicle_executive_presentation(vehicle, salutation, db)
+
+        aspects = concrete_aspects
         model_name = f"{vehicle.brand} {vehicle.model} {vehicle.package or vehicle.sub_model or ''}".strip()
         km_str = f"{vehicle.km:,.0f} KM".replace(",", ".")
         price_str = f"{vehicle.price:,.0f} {vehicle.currency}".replace(",", ".")

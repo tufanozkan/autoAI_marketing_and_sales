@@ -55,14 +55,16 @@
 * Proje Mimarisi Temizliği, Next.js Public Görsel Yapısı & Test/DB Reset: `docs/2026-08-20_proje_mimarisi_temizligi_ve_nextjs_public_gorsel_yapisi.md`
 * Bildirim (Toast) Konumlandırması ve UX Çakışma Düzeltmesi: `docs/2026-08-20_bildirim_konumlandirmasi_ve_ux_cakisma_duzeltmesi.md`
 * AI Chatbot "Teşekkür Ederim" Nezaket Kapanışı & Sayfa Filtresi Temizliği: `docs/2026-08-20_chatbot_tesekkur_ve_sayfa_filtresi_temizligi.md`
+* AI Satış Danışmanı Kapsamlı Araç Tanıtım & Anlatım Mimarisi: `docs/2026-08-20_ai_danisman_arac_kapsamli_tanitim_ve_anlatim_mimarisi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
 * **Mevcut Durum:** 
+  - AI Satış Danışmanına `VEHICLE_OVERVIEW` intent'i ve `generate_vehicle_executive_presentation` metodu eklenmiştir. Kullanıcı belirli bir araç hakkında bilgi istediğinde (*"3008 hakkında bilgi alabilir miyim"*, *"detaylı anlatır mısın bana"*, *"bu araç nasıl"*), bot tek satırlık liste formatı veya karşılama reset'i yerine; aracın fiyatını, kilometresini, vites/motorunu, öne çıkan donanımlarını, ekspertiz hatasızlık durumunu, Arkas Spoticar 100+ nokta kontrolü & 12 ay garantisini ve test sürüşü davetini içeren kapsamlı bir yönetici sunumu yapar.
   - AI Chatbot'a `GRATITUDE` intent ve nezaket kapanış akışı eklenmiş ("Teşekkür ederim", "Sağolun" vb. sonrasında robotik selamlama tekrarı engellenmiştir).
   - Chatbot yanıtlarındaki "Sayfayı filtreledim" ibareleri ve otomatik sayfa filtre manipülasyonu kaldırılmış; filtreleme tamamen kullanıcı kontrolüne bırakılmıştır.
   - Sayfa bildirimleri (toast pop-up) sağ alttan ekranın üst orta bölgesine (`top-6 left-1/2 -translate-x-1/2`) taşınmış ve 3.5 sn otomatik kapanma ile chatbot girdi kutusu çakışması tamamen çözülmüştür.
   - Kök dizindeki eski `static/` klasörü ve eski statik dosyalar tamamen kaldırılmış; araç görselleri modern Next.js mimarisine uygun olarak `frontend/public/vehicle_images/` altına taşınmıştır.
-  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve 74 birim/entegrasyon testinin tamamı başarıyla koşmaktadır.
+  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve 75 birim/entegrasyon testinin tamamı başarıyla koşmaktadır.
   - AI Satış Danışmanı monolitik yapıdan modüler `backend/agent/chatbot/` bilişsel mimarisine (`state.py`, `nlu.py`, `search_engine.py`, `tools.py`, `planner.py`, `agent.py`) dönüştürülmüştür.
   - PostgreSQL 17 `CustomerLead` tablosuna `phone_declined`, `honorific_preference`, `budget_min`, `budget_max`, `active_filters`, `conversation_state_json` sütunları eklenmiş ve otomatik migrasyon devreye alınmıştır.
   - Next.js 15 prodüksiyon derlemesi (`npm run build` / `frontend/out`) başarıyla tamamlanmıştır.

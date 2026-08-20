@@ -308,13 +308,23 @@ class ResponsePlanner:
                     elif k == "model":
                         state.vehicle_query.model = v
 
-        # Check if query is an explicit catalog search vs aspect inquiry
+        # Check if query is asking for information/aspects/overview vs an explicit catalog search
+        concrete_aspects = [a for a in (aspects or []) if a != "overview"]
+        is_asking_info = (
+            "VEHICLE_OVERVIEW" in intents
+            or bool(concrete_aspects)
+            or any(w in q_norm for w in ["bilgi alabilir miyim", "bilgi almak istiyorum", "detayli anlat", "detaylı anlat", "anlatir misin", "anlatır mısın", "tanitir misin", "tanıtır mısın", "hakkinda bilgi", "hakkında bilgi", "araci anlat", "aracı anlat", "hakkinda", "hakkında", "detayli bilgi", "detaylı bilgi"])
+        )
         is_explicit_search = (
-            has_new_budget
-            or (new_crit.body_type is not None and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı"]))
-            or (
-                any(w in q_norm for w in ["goster", "göster", "listele", "filtrele", "bakiyorum", "bakıyorum", "istiyorum", "oner", "öner"])
-                and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı", "ne yakar", "beygir", "bagaj", "hasar", "tramer", "vitesi", "kilometresi"])
+            not is_asking_info
+            and (
+                has_new_budget
+                or (new_crit.body_type is not None and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı", "hakkinda", "hakkında", "bilgi", "anlat", "tanit"]))
+                or (
+                    any(w in q_norm for w in ["goster", "göster", "listele", "filtrele", "bakiyorum", "bakıyorum", "istiyorum", "oner", "öner"])
+                    and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı", "ne yakar", "beygir", "bagaj", "hasar", "tramer", "vitesi", "kilometresi", "bilgi", "hakkinda", "hakkında", "anlat", "tanit", "ozellik", "özellik"])
+                )
+                or (len(new_crit.features) > 0 and (new_crit.body_type or new_crit.transmission or new_crit.fuel_type or new_crit.min_price or new_crit.max_price))
             )
         )
 
@@ -407,8 +417,8 @@ class ResponsePlanner:
                     f"Portföyümüzdeki düşük kilometreli, detaylı ekspertizden geçmiş ve 12 ay Arkas Spoticar garantili 2. el araçlarımızı incelemek ister misiniz?"
                 )
 
-        # 5. Vehicle Specific Q&A (Aspects)
-        elif aspects and focused_v and not is_explicit_search:
+        # 5. Vehicle Specific Q&A and Comprehensive Overview Presentation
+        elif (aspects or "VEHICLE_OVERVIEW" in intents or "VEHICLE_DETAIL" in intents or is_asking_info) and focused_v and not is_explicit_search:
             reply_text = ChatbotTools.answer_vehicle_aspects(focused_v, aspects, salutation, db)
             
             # If user asked about sunroof and car doesn't have it, prepare action offer
