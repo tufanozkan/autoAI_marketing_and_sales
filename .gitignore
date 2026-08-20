@@ -52,5 +52,5 @@ Thumbs.db
 *.png
 *.jpg
 *.jpeg
-!static/
+!frontend/public/
 scratch/

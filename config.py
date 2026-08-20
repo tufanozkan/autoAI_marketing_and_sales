@@ -3,11 +3,13 @@ from pathlib import Path
 from pydantic_settings import BaseSettings
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
-FRONTEND_OUT_DIR = BASE_DIR / "frontend" / "out"
+FRONTEND_DIR = BASE_DIR / "frontend"
+FRONTEND_PUBLIC_DIR = FRONTEND_DIR / "public"
+FRONTEND_OUT_DIR = FRONTEND_DIR / "out"
+VEHICLE_IMAGES_DIR = FRONTEND_PUBLIC_DIR / "vehicle_images"
 
-# Ensure static directory exists
-STATIC_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure frontend vehicle images directory exists
+VEHICLE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 class Settings(BaseSettings):
     APP_NAME: str = "Arkas 2. El Pazarlama AI"

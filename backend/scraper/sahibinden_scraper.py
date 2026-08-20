@@ -6,7 +6,7 @@ import urllib.request
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
-from config import STATIC_DIR, settings
+from config import VEHICLE_IMAGES_DIR, settings
 from backend.db.models import Vehicle, VehicleImage
 
 logger = logging.getLogger(__name__)
@@ -16,17 +16,17 @@ class SahibindenScraper:
     Arkas Spoticar Öncelikli Scraper & Spoticar CT1444T001 5 Araçlık Doğrulanmış Test Seti:
     - 1. Kaynak (Öncelikli): Sahibinden.com Arkas Spoticar ilanları (Doğrulanmış KM, Fiyat, Donanım ve Ekspertiz)
     - 2. Kaynak (Görsel Eşleme): Spoticar CT1444T001 portalındaki 5 açılı HD showroom fotoğrafları
-    - 3. Eşleşen araçların 5 açısı 'static/vehicle_images/{id}/' altına indirilerek 'vehicle_images' tablosuna kaydedilir.
+    - 3. Eşleşen araçların 5 açısı 'frontend/public/vehicle_images/{id}/' altına indirilerek 'vehicle_images' tablosuna kaydedilir.
     """
 
     def __init__(self):
         self.spoticar_url = settings.SPOTI_CAR_URL
-        self.images_dir = STATIC_DIR / "vehicle_images"
+        self.images_dir = VEHICLE_IMAGES_DIR
         self.images_dir.mkdir(parents=True, exist_ok=True)
 
     def _download_and_sync_images(self, external_id: str, remote_urls: List[str]) -> List[str]:
         """
-        Görselleri yerel diske indirir ve /static/ URL'lerini döndürür.
+        Görselleri frontend/public/vehicle_images/ diske indirir ve /vehicle_images/ URL'lerini döndürür.
         """
         v_dir = self.images_dir / external_id
         v_dir.mkdir(parents=True, exist_ok=True)
@@ -38,7 +38,7 @@ class SahibindenScraper:
 
         for i, url in enumerate(remote_urls):
             target_path = v_dir / f"image_{i}.jpg"
-            local_web_url = f"/static/vehicle_images/{external_id}/image_{i}.jpg"
+            local_web_url = f"/vehicle_images/{external_id}/image_{i}.jpg"
 
             if target_path.exists() and target_path.stat().st_size > 1000:
                 local_urls.append(local_web_url)
@@ -323,7 +323,8 @@ class SahibindenScraper:
             "new_added": 0,
             "updated": 0,
             "matched_with_photos": 0,
-            "images_saved": 0
+            "images_saved": 0,
+            "skipped_duplicate": 0
         }
 
         captions = [

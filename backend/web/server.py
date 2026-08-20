@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 
-from config import settings, STATIC_DIR, FRONTEND_OUT_DIR
+from config import settings, FRONTEND_OUT_DIR, VEHICLE_IMAGES_DIR, FRONTEND_PUBLIC_DIR
 from backend.db.database import get_db, init_db
 from backend.db.models import Vehicle, VehicleImage, CreativeBrief, CustomerLead
 from backend.scraper.arkas_scraper import ArkasScraper
@@ -42,8 +42,9 @@ app.add_middleware(
 if FRONTEND_OUT_DIR.exists() and (FRONTEND_OUT_DIR / "_next").exists():
     app.mount("/_next", StaticFiles(directory=str(FRONTEND_OUT_DIR / "_next")), name="next_static")
 
-# Mount static directory for vehicle images and general assets
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+# Mount vehicle images directory from frontend/public/vehicle_images
+if VEHICLE_IMAGES_DIR.exists():
+    app.mount("/vehicle_images", StaticFiles(directory=str(VEHICLE_IMAGES_DIR)), name="vehicle_images")
 
 @app.on_event("startup")
 def startup_event():
@@ -55,11 +56,7 @@ def read_root():
         next_index = FRONTEND_OUT_DIR / "index.html"
         if next_index.exists():
             return FileResponse(str(next_index))
-    
-    index_file = STATIC_DIR / "index.html"
-    if index_file.exists():
-        return FileResponse(str(index_file))
-    return {"message": "Arkas 2. El Pazarlama AI Backend Aktif."}
+    return {"message": "Arkas 2. El Pazarlama AI Backend Aktif. Next.js arayüzü için: python main.py --build-frontend"}
 
 @app.get("/api/stats")
 def get_stats(db: Session = Depends(get_db)):

@@ -10,21 +10,13 @@ Yapay zeka destekli, 2. el araç verilerini toplayıp marka ve müşteri kimliğ
 arkas_2el_pazarlama_ai/
 ├── main.py                     # Ana orkestratör (Scraper -> AI Metin Ajanı -> Web Sunucusu)
 ├── config.py                   # Merkezi konfigürasyon, DB bağlantısı, port ve ortam ayarları
-├── requirements.txt            # Python bağımlılıkları (FastAPI, SQLAlchemy, psycopg2, BeautifulSoup4)
+├── requirements.txt            # Python bağımlılıkları (FastAPI, SQLAlchemy, psycopg2, httpx)
 ├── docker-compose.yml          # PostgreSQL 17 veritabanı konteyner yapılandırması
 ├── .env                        # Çevre değişkenleri ve DB bağlantı bilgileri
 ├── .env.example                # Örnek çevre değişkenleri şablonu
 ├── PROJECT_MEMORY.md           # Sürekli güncellenen mimari hafıza
 ├── README.md                   # Proje dokümantasyonu ve kullanım kılavuzu
 ├── docs/                       # Tarih bazlı detaylı mimari ve teknik geliştirme dokümanları
-│   ├── 2026-08-17_mvp_mimari_veri_akisi_ve_afis_motoru.md
-│   ├── 2026-08-17_canli_katalog_gorsel_cekimi_ve_coklu_aci_afisleri.md
-│   ├── 2026-08-18_nextjs_modern_vitrin_ve_studio_donusumu.md
-│   ├── 2026-08-18_quiet_luxury_afis_motoru_ve_3_arti_1_aci_guncellemesi.md
-│   ├── 2026-08-18_akilli_ai_danisman_ve_musteri_takip_mimarisi.md
-│   ├── 2026-08-18_bilissel_ai_satis_danismani_ve_dinamik_arac_onerisi.md
-│   ├── 2026-08-18_turkce_varlik_tanima_ve_dogru_hitap_sistemi.md
-│   └── 2026-08-18_gorsel_motoru_temizligi_ve_detayli_arac_semasi_hazirligi.md
 ├── backend/
 │   ├── agent/                  # AI Pazarlama Metin Motoru (MarketingAgent) & Bilişsel AI Danışman (ChatbotAgent)
 │   │   ├── brand_rules.py      # Marka arketip kuralları
@@ -45,11 +37,13 @@ arkas_2el_pazarlama_ai/
 │   │   ├── normalizer.py       # Donanım ve teknik alan temizliği
 │   │   └── sahibinden_scraper.py# Sahibinden mağaza kazıma & Spoticar S3 görsel eşleştirici
 │   └── web/                    # FastAPI REST API & Next.js Statik Mount
-│       └── server.py           # /api/chat, /api/leads, /api/vehicles, /api/stats, /static mount
-└── frontend/                   # Next.js 15 (React 19, TypeScript, Tailwind CSS v4) Vitrin & Studio
-    ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
-    ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
-    └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
+│       └── server.py           # /api/chat, /api/leads, /api/vehicles, /api/stats, /vehicle_images mount
+├── frontend/                   # Next.js 15 (React 19, TypeScript, Tailwind CSS v4) Vitrin & Studio
+│   ├── public/                 # Statik Varlıklar (vehicle_images/, placeholder.svg)
+│   ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
+│   ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
+│   └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
+└── tests/                      # 73 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
 ```
 
 ---

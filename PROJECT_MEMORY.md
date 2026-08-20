@@ -52,12 +52,14 @@
 * Chatbot Kapsamlı Testleri ve Bilişsel Danışman İyileştirmeleri: `docs/2026-08-19_chatbot_testleri_ve_akilli_danisman_hata_duzeltmeleri.md`
 * Türkçe Unisex ve Kapsamlı İsim Tanıma (NER) Mimarisi: `docs/2026-08-19_turkce_unisex_ve_genisletilmis_isim_tanima_mimarisi.md`
 * Production AI Satış Danışmanı & Bilişsel Mimari Raporu: `docs/2026-08-19_production_ai_satis_danismani_ve_bilissel_mimari.md`
+* Proje Mimarisi Temizliği, Next.js Public Görsel Yapısı & Test/DB Reset: `docs/2026-08-20_proje_mimarisi_temizligi_ve_nextjs_public_gorsel_yapisi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
 * **Mevcut Durum:** 
+  - Kök dizindeki eski `static/` klasörü ve eski statik dosyalar tamamen kaldırılmış; araç görselleri modern Next.js mimarisine uygun olarak `frontend/public/vehicle_images/` altına taşınmıştır.
+  - Test dosyaları `tests/` dizini altında modülerleştirilmiş (`test_chatbot.py`, `test_chatbot_suite.py`, `test_chat_reset_regression.py`, `test_architecture_and_assets.py`, `test_web_server.py`) ve 73 birim/entegrasyon testinin tamamı başarıyla koşmaktadır.
   - AI Satış Danışmanı monolitik yapıdan modüler `backend/agent/chatbot/` bilişsel mimarisine (`state.py`, `nlu.py`, `search_engine.py`, `tools.py`, `planner.py`, `agent.py`) dönüştürülmüştür.
   - PostgreSQL 17 `CustomerLead` tablosuna `phone_declined`, `honorific_preference`, `budget_min`, `budget_max`, `active_filters`, `conversation_state_json` sütunları eklenmiş ve otomatik migrasyon devreye alınmıştır.
   - Türkçe NER, Unisex hitap tercihi sorma/hatırlama, Bütçe alt/üst/aralık ayrıştırma, Olumsuzlama (negation) kontrolü, Sıfır/2. el ayrımı, Çapraz donanım önerisi ve Next.js `filter_action` senkronizasyonu tamamlanmıştır.
-  - 53 adet unittest ve konuşma akış testi ile %100 doğruluk sağlanmıştır (`tests_chatbot.py`, `tests_chatbot_suite.py`).
-  - Next.js 15 prodüksiyon derlemesi (`npm run build`) başarıyla tamamlanmıştır.
+  - Next.js 15 prodüksiyon derlemesi (`npm run build` / `frontend/out`) başarıyla tamamlanmıştır.
 * **Kural:** Her mimari ve işlevsel güncellemeden sonra `PROJECT_MEMORY.md`, `.antigravity_rules.md`, `.cursorrules.md`, `.github/copilot-instructions.md`, `README.md` ve ilgili `docs/` belgesi eksiksiz güncellenmek zorundadır.

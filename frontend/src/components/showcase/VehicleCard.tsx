@@ -14,7 +14,7 @@ interface VehicleCardProps {
 export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProps) {
   const images = vehicle.image_urls && vehicle.image_urls.length > 0
     ? vehicle.image_urls
-    : [vehicle.primary_image_url || "/static/placeholder.png"];
+    : [vehicle.primary_image_url || "/placeholder.svg"];
 
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const currentImageUrl = images[selectedPhotoIndex] || images[0];

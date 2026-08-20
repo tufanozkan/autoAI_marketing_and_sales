@@ -20,9 +20,10 @@ The system:
    - `backend/db/`: Database session management and SQLAlchemy ORM models.
    - `backend/scraper/`: Listing scrapers, hardware normalization and content hashing.
    - `backend/agent/`: Cognitive AI sales consultant (`ChatbotAgent`) and marketing copy generator (`MarketingAgent`).
-   - `backend/web/`: FastAPI REST endpoints and Next.js static asset mounts.
-   - `frontend/`: Next.js 15 UI showroom and floating AI assistant widget.
-6. Dispatches real-time page filter actions from the chatbot.
+   - `backend/web/`: FastAPI REST endpoints and `/vehicle_images` static asset mounts.
+   - `frontend/`: Next.js 15 UI showroom, floating AI assistant widget, and static vehicle assets (`frontend/public/vehicle_images/`).
+   - `tests/`: Modular test suite covering chatbot, NLU, API routes, and assets.
+4. Dispatches real-time page filter actions from the chatbot.
 
 ---
 

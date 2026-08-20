@@ -50,7 +50,7 @@ export function CreativeStudioModal({
     ? vehicle.image_urls
     : (vehicle.images && vehicle.images.length > 0
         ? vehicle.images.map(img => img.image_url)
-        : [vehicle.primary_image_url || "/static/placeholder.png"]);
+        : [vehicle.primary_image_url || "/placeholder.svg"]);
 
   const currentImageUrl = images[selectedPhotoIndex] || images[0];
   const brief = vehicle.brief;

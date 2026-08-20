@@ -47,7 +47,7 @@ def run_scraper(db, limit=settings.MAX_SCRAPE_ITEMS):
     print(f"\n[1/2] 🌐 Web Scraper Çalıştırılıyor ({settings.SCRAPER_BASE_URL})...")
     scraper = ArkasScraper()
     res = scraper.scrape_and_save(db, limit=limit)
-    print(f"      ✓ İşlenen: {res['total_processed']} | Yeni: {res['new_added']} | Güncellenen: {res['updated']} | Atlanan (Mükerrer): {res['skipped_duplicate']}")
+    print(f"      ✓ İşlenen: {res.get('total_processed', 0)} | Yeni: {res.get('new_added', 0)} | Güncellenen: {res.get('updated', 0)} | Fotoğraflı: {res.get('matched_with_photos', 0)} | Kaydedilen Görseller: {res.get('images_saved', 0)}")
     return res
 
 def run_marketing_agent(db, limit=settings.MAX_SCRAPE_ITEMS):
@@ -58,7 +58,7 @@ def run_marketing_agent(db, limit=settings.MAX_SCRAPE_ITEMS):
     return count
 
 def start_web_server(host=settings.WEB_HOST, port=settings.WEB_PORT):
-    ui_type = "Next.js 15 Modern Stüdyo (App Router)" if FRONTEND_OUT_DIR.exists() else "Standart Statik Görsel Vitrini"
+    ui_type = "Next.js 15 Modern Vitrin & Stüdyo (App Router)" if FRONTEND_OUT_DIR.exists() else "FastAPI REST API Modu"
     print(f"\n🚀 Web Görsel Vitrini Başlatılıyor: http://localhost:{port}")
     print(f"   ⚡ Arayüz Motoru: {ui_type}")
     print("   (Durdurmak için Ctrl+C tuşlarına basabilirsiniz)\n")
