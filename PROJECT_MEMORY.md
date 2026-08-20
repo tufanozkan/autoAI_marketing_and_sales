@@ -53,9 +53,11 @@
 * Türkçe Unisex ve Kapsamlı İsim Tanıma (NER) Mimarisi: `docs/2026-08-19_turkce_unisex_ve_genisletilmis_isim_tanima_mimarisi.md`
 * Production AI Satış Danışmanı & Bilişsel Mimari Raporu: `docs/2026-08-19_production_ai_satis_danismani_ve_bilissel_mimari.md`
 * Proje Mimarisi Temizliği, Next.js Public Görsel Yapısı & Test/DB Reset: `docs/2026-08-20_proje_mimarisi_temizligi_ve_nextjs_public_gorsel_yapisi.md`
+* Bildirim (Toast) Konumlandırması ve UX Çakışma Düzeltmesi: `docs/2026-08-20_bildirim_konumlandirmasi_ve_ux_cakisma_duzeltmesi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
 * **Mevcut Durum:** 
+  - Sayfa bildirimleri (toast pop-up) sağ alttan ekranın üst orta bölgesine (`top-6 left-1/2 -translate-x-1/2`) taşınmış ve 3.5 sn otomatik kapanma ile chatbot girdi kutusu çakışması tamamen çözülmüştür.
   - Kök dizindeki eski `static/` klasörü ve eski statik dosyalar tamamen kaldırılmış; araç görselleri modern Next.js mimarisine uygun olarak `frontend/public/vehicle_images/` altına taşınmıştır.
   - Test dosyaları `tests/` dizini altında modülerleştirilmiş (`test_chatbot.py`, `test_chatbot_suite.py`, `test_chat_reset_regression.py`, `test_architecture_and_assets.py`, `test_web_server.py`) ve 73 birim/entegrasyon testinin tamamı başarıyla koşmaktadır.
   - AI Satış Danışmanı monolitik yapıdan modüler `backend/agent/chatbot/` bilişsel mimarisine (`state.py`, `nlu.py`, `search_engine.py`, `tools.py`, `planner.py`, `agent.py`) dönüştürülmüştür.
