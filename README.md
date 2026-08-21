@@ -43,7 +43,7 @@ arkas_2el_pazarlama_ai/
 │   ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
 │   ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
 │   └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
-└── tests/                      # 84 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
+└── tests/                      # 85 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
 ```
 
 ---

@@ -340,25 +340,33 @@ class NLUParser:
             val = float(m_k.group(1).replace(",", "."))
             return val * 1_000.0 if val < 1000 else val
             
-        # 4. Standard digits e.g. '1.500.000', '2000000'
-        m_dig = re.search(r'(\d{1,3}(?:\.\d{3}){1,3}|\d{5,9})', s)
+        # 4. Standard formatted digits e.g. '1.500.000', '2000000'
+        m_dig = re.search(r'(\d{1,3}(?:\.\d{3}){2,3}|\d{6,9})', s)
         if m_dig:
             clean_num = m_dig.group(1).replace(".", "")
             return float(clean_num)
             
-        # 5. Raw decimal '1.5' or '2'
-        m_dec = re.search(r'(\d+(?:[.,]\d+)?)', s)
-        if m_dec:
-            val = float(m_dec.group(1).replace(",", "."))
-            if val < 100:
-                return val * 1_000_000.0
-            elif val >= 50_000:
-                return val
         return None
 
     @staticmethod
     def extract_budget(text: str) -> Tuple[Optional[float], Optional[float], bool]:
-        q_norm = norm(text)
+        if not text:
+            return None, None, False
+            
+        # Strip phones, dates, times before parsing budget to avoid false positives
+        t_clean = text
+        # Phone numbers
+        t_clean = re.sub(r'(?:0\s*)?5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}', ' ', t_clean)
+        t_clean = re.sub(r'\b0?5\d{9}\b', ' ', t_clean)
+        # Dates (e.g. 21.08.2026, 21-08-2026, 21/08/2026)
+        t_clean = re.sub(r'\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b', ' ', t_clean)
+        # Times (e.g. 14:00, 15:30)
+        t_clean = re.sub(r'\b\d{1,2}:\d{2}(?::\d{2})?\b', ' ', t_clean)
+        t_clean = re.sub(r'\bsaat\s*\d{1,2}(?::\d{2})?\b', ' ', t_clean, flags=re.IGNORECASE)
+        # KM & HP
+        t_clean = re.sub(r'\b\d+(?:[.,]\d+)?\s*(?:km|kilometre|hp|bg|beygir)\b', ' ', t_clean, flags=re.IGNORECASE)
+
+        q_norm = norm(t_clean)
         
         # 1. Composite Range: '1 milyon 500 bin ile 2 milyon (arası)'
         comp_range = re.search(
@@ -371,9 +379,9 @@ class NLUParser:
             if v1 and v2:
                 return min(v1, v2), max(v1, v2), True
 
-        # 2. General Range: 'NUM1 (- / ile / ila / ve) NUM2 (arası)'
+        # 2. General Range with explicit suffixes/units or price context: 'NUM1 (- / ile / ila / ve) NUM2 (arası)'
         range_m = re.search(
-            r'(\d{1,3}(?:\.\d{3}){1,3}|\d+(?:[.,]\d+)?\s*(?:milyon|m\b|bin|k\b)?)\s*(?:-|–|—|ile|ila|\s+ve\s+)\s*(\d{1,3}(?:\.\d{3}){1,3}|\d+(?:[.,]\d+)?\s*(?:milyon|m\b|bin|k\b)?)(?:\s*arası|\s*arasi)?',
+            r'(\d{1,3}(?:\.\d{3}){1,3}|\d+(?:[.,]\d+)?\s*(?:milyon|m\b|bin|k\b))\s*(?:-|–|—|ile|ila|\s+ve\s+)\s*(\d{1,3}(?:\.\d{3}){1,3}|\d+(?:[.,]\d+)?\s*(?:milyon|m\b|bin|k\b)?)(?:\s*arası|\s*arasi)?',
             q_norm
         )
         if range_m:
@@ -388,6 +396,19 @@ class NLUParser:
                     v2 = v2 * 1_000_000
                 if v1 >= 50_000 and v2 >= 50_000:
                     return min(v1, v2), max(v1, v2), True
+
+        # Handle '1.5 - 2 milyon' where suffix is on second part
+        range_m2 = re.search(
+            r'(\d+(?:[.,]\d+)?)\s*(?:-|–|—|ile|ila|\s+ve\s+)\s*(\d+(?:[.,]\d+)?)\s*(milyon|m\b|bin|k\b)(?:\s*arası|\s*arasi)?',
+            q_norm
+        )
+        if range_m2:
+            multiplier = 1_000_000.0 if range_m2.group(3) in ["milyon", "m"] else 1_000.0
+            n1 = float(range_m2.group(1).replace(",", "."))
+            n2 = float(range_m2.group(2).replace(",", "."))
+            v1 = n1 * multiplier
+            v2 = n2 * multiplier
+            return min(v1, v2), max(v1, v2), True
 
         # 3. Single Composite: '1 milyon 500 bin'
         m_comp = re.search(r'(\d+)\s*milyon\s*(\d+)\s*bin', q_norm)
@@ -407,13 +428,15 @@ class NLUParser:
             val = float(k_m.group(1).replace(",", ".")) * 1_000.0
             return NLUParser._resolve_single_bound(val, q_norm)
 
-        # 6. Digits: '1.500.000 TL', '1500000'
-        dig_m = re.search(r'(\d{1,3}(?:\.\d{3}){1,3}|\d{5,9})\s*(?:tl)?', text, re.IGNORECASE)
-        if dig_m:
-            raw_str = dig_m.group(1).replace(".", "").replace(",", "")
-            val = float(raw_str)
-            if val >= 50_000:
-                return NLUParser._resolve_single_bound(val, q_norm)
+        # 6. Digits with explicit TL or price/budget keyword: e.g. '1.500.000 TL', '1500000 TL', 'bütçem 1500000'
+        has_price_kw = any(w in q_norm for w in ["tl", "lira", "butce", "bütçe", "fiyat", "param", "limiti", "nakit", "kredi", "tutar"])
+        if has_price_kw:
+            dig_m = re.search(r'(\d{1,3}(?:\.\d{3}){1,3}|\d{5,9})', q_norm)
+            if dig_m:
+                raw_str = dig_m.group(1).replace(".", "").replace(",", "")
+                val = float(raw_str)
+                if val >= 50_000:
+                    return NLUParser._resolve_single_bound(val, q_norm)
 
         return None, None, False
 

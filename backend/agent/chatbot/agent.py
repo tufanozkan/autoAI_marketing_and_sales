@@ -66,10 +66,11 @@ class ChatbotAgent:
             extracted["first_name"] = first_name
             extracted["last_name"] = last_name or ""
             extracted["full_name"] = full_name or first_name
+        if crit.min_price is not None:
+            extracted["budget_min"] = crit.min_price
         if crit.max_price is not None:
             extracted["budget_max"] = crit.max_price
-        elif crit.min_price is not None:
-            extracted["budget_max"] = crit.min_price
         if crit.brand: extracted["interested_brand"] = crit.brand
+        if crit.model: extracted["interested_model"] = crit.model
         if crit.body_type: extracted["interested_body_type"] = crit.body_type
         return extracted

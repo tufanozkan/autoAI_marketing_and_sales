@@ -308,6 +308,12 @@ class ResponsePlanner:
         if focused_v:
             state.active_vehicle_id = focused_v.id
             lead.focused_vehicle_id = focused_v.id
+            if not lead.interested_brand:
+                lead.interested_brand = focused_v.brand
+            if not lead.interested_model:
+                lead.interested_model = focused_v.model
+            if not lead.interested_body_type:
+                lead.interested_body_type = focused_v.body_type
         else:
             state.active_vehicle_id = None
             lead.focused_vehicle_id = None
@@ -521,6 +527,9 @@ class ResponsePlanner:
             if target_vehicle:
                 state.active_vehicle_id = target_vehicle.id
                 lead.focused_vehicle_id = target_vehicle.id
+                lead.interested_brand = target_vehicle.brand
+                lead.interested_model = target_vehicle.model
+                lead.interested_body_type = target_vehicle.body_type
 
             if state.customer.phone:
                 test_drive = TestDrive(
@@ -571,6 +580,13 @@ class ResponsePlanner:
             if not target_vehicle and state.last_search_result_ids:
                 target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
 
+            if target_vehicle:
+                state.active_vehicle_id = target_vehicle.id
+                lead.focused_vehicle_id = target_vehicle.id
+                lead.interested_brand = target_vehicle.brand
+                lead.interested_model = target_vehicle.model
+                lead.interested_body_type = target_vehicle.body_type
+
             v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "Arkas Spoticar portföyümüzdeki araçlarımız"
             
             if state.customer.phone:
@@ -597,6 +613,13 @@ class ResponsePlanner:
                     target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
                 if not target_vehicle:
                     target_vehicle = db.query(Vehicle).filter(Vehicle.is_active == True).first()
+
+                if target_vehicle:
+                    state.active_vehicle_id = target_vehicle.id
+                    lead.focused_vehicle_id = target_vehicle.id
+                    lead.interested_brand = target_vehicle.brand
+                    lead.interested_model = target_vehicle.model
+                    lead.interested_body_type = target_vehicle.body_type
 
                 v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Arkas Spoticar Showroom Aracı"
                 cust_name = state.customer.full_name or (f"{state.customer.first_name} {state.customer.last_name}" if state.customer.last_name else state.customer.first_name) or "Değerli Müşterimiz"

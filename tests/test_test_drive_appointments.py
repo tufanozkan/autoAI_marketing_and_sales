@@ -233,5 +233,33 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         self.assertEqual(td.customer_phone, "05321112233")
         self.assertEqual(td.vehicle.model, "C5 Aircross")
 
+    def test_08_customer_leads_fields_and_no_budget_hallucination_on_test_drive(self):
+        sid = "test_td_leads_08"
+
+        # User provides vehicle model, date/time and phone number
+        r = self.agent.process_message("Peugeot 408 için yarın saat 15:00 randevu alabilir miyim numaram 05321112233", session_id=sid)
+        self.assertIn("Test sürüşü randevunuzu başarıyla oluşturdum", r["reply"])
+        self.assertIn("Peugeot 408", r["reply"])
+
+        # 1. Verify TestDrive table
+        td = self.db.query(TestDrive).first()
+        self.assertIsNotNone(td)
+        self.assertEqual(td.customer_phone, "05321112233")
+        self.assertEqual(td.vehicle.model, "408")
+        self.assertEqual(td.vehicle.brand, "Peugeot")
+
+        # 2. Verify CustomerLead table
+        lead = self.db.query(CustomerLead).filter(CustomerLead.session_id == sid).first()
+        self.assertIsNotNone(lead)
+        self.assertEqual(lead.interested_brand, "Peugeot")
+        self.assertEqual(lead.interested_model, "408")
+        self.assertEqual(lead.interested_body_type, "SUV")
+        self.assertEqual(lead.focused_vehicle_id, td.vehicle_id)
+        self.assertEqual(lead.phone, "05321112233")
+        
+        # 3. Verify ZERO Budget Hallucination (budget_min and budget_max must be None)
+        self.assertIsNone(lead.budget_min, "budget_min should be None since user did not specify budget")
+        self.assertIsNone(lead.budget_max, "budget_max should be None since user did not specify budget (must not extract phone/date as price)")
+
 if __name__ == "__main__":
     unittest.main()
