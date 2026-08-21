@@ -89,7 +89,7 @@ class ChatbotTools:
         note = vehicle.expertise_note or "Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup 12 Ay Mekanik & Elektronik Garantilidir."
 
         return (
-            f"{sal}incelediğimiz **{model_name}** ({vehicle.year}) modelimiz hakkında kapsamlı ve detaylı bilgiler:\n\n"
+            f"{sal}**{model_name}** ({vehicle.year}) modelimiz hakkında kapsamlı ve detaylı bilgiler:\n\n"
             f"📋 **Temel Özellikler & Performans:**\n"
             f"• 💰 **Satış Fiyatı:** {price_str}\n"
             f"• 📍 **Kilometre:** {km_str} (Orijinal Kilometre Garantili)\n"
@@ -159,7 +159,7 @@ class ChatbotTools:
                     bullets.append(f"• 🛡️ **Ekspertiz:** Boyalı: {len(boyali)} parça, Değişen: {len(degisen)} parça")
 
             return (
-                f"{sal}incelediğimiz **{model_name}** ({vehicle.year}) aracımız hakkında merak ettiğiniz detaylar:\n\n"
+                f"{sal}**{model_name}** ({vehicle.year}) aracımız hakkında merak ettiğiniz detaylar:\n\n"
                 + "\n".join(bullets)
                 + "\n\nAracımızı Gaziemir showroomumuzda test sürüşüyle deneyimlemek ister misiniz?"
             )
@@ -168,13 +168,13 @@ class ChatbotTools:
         if "transmission" in aspects:
             trans = vehicle.transmission or tech.get("sanziman", "Tam Otomatik")
             return (
-                f"{sal}incelediğimiz {vehicle.year} model **{model_name}** aracımız **{trans}** şanzımana sahiptir. "
+                f"{sal}{vehicle.year} model **{model_name}** aracımız **{trans}** şanzımana sahiptir. "
                 f"Vites geçişleri son derece pürüzsüz ve konforludur."
             )
 
         if "mileage" in aspects:
             return (
-                f"{sal}incelediğimiz **{model_name}** aracımız yalnızca **{km_str}**'dedir. "
+                f"{sal}**{model_name}** aracımız yalnızca **{km_str}**'dedir. "
                 f"Orijinal kilometre garantilidir ve Arkas Spoticar güvencesindedir."
             )
 
@@ -195,14 +195,14 @@ class ChatbotTools:
             has_sunroof = VehicleSearchEngine._vehicle_has_feature(vehicle, "sunroof")
             if has_sunroof:
                 return (
-                    f"{sal}evet! İncelediğimiz **{model_name}** aracımızda **Panoramik Açılabilir Cam Tavan & Elektrikli Güneşlik** mevcuttur. "
+                    f"{sal}evet! **{model_name}** aracımızda **Panoramik Açılabilir Cam Tavan & Elektrikli Güneşlik** mevcuttur. "
                     f"Ferah ve aydınlık bir sürüş deneyimi sunar."
                 )
             else:
                 alt = VehicleSearchEngine.find_cross_alternative_with_feature(db, vehicle.id, "sunroof")
                 alt_txt = f" Ancak portföyümüzdeki **{alt.brand} {alt.model} {alt.package or ''}** modelimizde Panoramik Açılabilir Cam Tavan mevcuttur." if alt else ""
                 return (
-                    f"{sal}incelediğimiz **{model_name}** modelimizde cam tavan bulunmamaktadır.{alt_txt} "
+                    f"{sal}**{model_name}** modelimizde cam tavan bulunmamaktadır.{alt_txt} "
                     f"Dilerseniz cam tavanlı alternatiflerimizi detaylandırabilirim!"
                 )
 
@@ -213,7 +213,7 @@ class ChatbotTools:
             else:
                 alt = VehicleSearchEngine.find_cross_alternative_with_feature(db, vehicle.id, "seat_heating")
                 alt_txt = f" Ancak stoklarımızdaki **{alt.brand} {alt.model}** modelimizde Advanced Comfort Masajlı & Isıtmalı Koltuklar mevcuttur." if alt else ""
-                return f"{sal}incelediğimiz **{model_name}** modelimizde koltuk ısıtma özelliği bulunmamaktadır.{alt_txt}"
+                return f"{sal}**{model_name}** modelimizde koltuk ısıtma özelliği bulunmamaktadır.{alt_txt}"
 
         if "fuel" in aspects or "engine" in aspects:
             fuel = vehicle.fuel_type or ("Dizel" if "bluehdi" in norm(vehicle.package or "") else "Benzin")
@@ -264,8 +264,8 @@ class ChatbotTools:
                     lines.append("")
 
             if lines:
-                return f"{sal}incelediğimiz **{model_name}** aracımızın öne çıkan donanımları:\n\n" + "\n".join(lines).strip()
+                return f"{sal}**{model_name}** aracımızın öne çıkan donanımları:\n\n" + "\n".join(lines).strip()
             else:
-                return f"{sal}incelediğimiz **{model_name}** aracımız zengin donanım paketi, dijital kokpiti ve güvenlik asistanlarıyla donatılmıştır."
+                return f"{sal}**{model_name}** aracımız zengin donanım paketi, dijital kokpiti ve güvenlik asistanlarıyla donatılmıştır."
 
         return f"{sal}**{model_name}** ({vehicle.year}) aracımız {km_str} mesafede olup güncel liste fiyatı {price_str}'dir."

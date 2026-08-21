@@ -60,6 +60,7 @@ Projenin ilk günden itibaren geçirdiği evrimsel aşamalar ve Git kayıtları:
 | **2026-08-20 14:26** | `feat: Enhance AI Chatbot with gratitude` | Nezaket/teşekkür (`GRATITUDE`) kapanış akışı eklendi, otomatik sayfa filtre manipülasyonu kaldırıldı. |
 | **2026-08-20 16:56** | `feat: Implement vehicle overview` | Kapsamlı araç yönetici brifingi (`VEHICLE_OVERVIEW`) devreye alındı. |
 | **2026-08-20 17:49** | `feat: Implement test drive appointment` | `test_drives` tablosu, tarih/saat NLU motoru, zorunlu telefon kuralı eklendi, testler 82'ye (%100) ulaştı. |
+| **2026-08-21 10:25** | `fix: Body type filtering, context reset & anti-hallucination shield` | Kasa tipi eşleşmesi (Sedan -> Honda City doğrudan sunum), bağlam sıfırlama, "incelediğimiz" kalıbının kaldırılması, testler 84'e (%100) ulaştı. |
 
 ---
 
@@ -70,7 +71,7 @@ Projenin ilk günden itibaren geçirdiği evrimsel aşamalar ve Git kayıtları:
 * **Veritabanı Katmanı:** PostgreSQL 17 (SQLAlchemy 2.0 ORM, JSONB / JSON alan desteği, Connection Pooling)
 * **Web Scraping:** BeautifulSoup4, Requests, Python Urllib (SHA-256 İçerik Hash Doğrulaması)
 * **Frontend Framework:** Next.js 15 (React 19, TypeScript, Tailwind CSS v4, Lucide React, Static Export `frontend/out`)
-* **Test Motoru:** Python `unittest` Framework (82/82 Birim, Entegrasyon ve Regresyon Testi)
+* **Test Motoru:** Python `unittest` Framework (84/84 Birim, Entegrasyon ve Regresyon Testi)
 * **Dizin Standartları:**
   - `backend/db/`: Veritabanı bağlantısı, modelleri ve oturum yönetimi.
   - `backend/scraper/`: Sahibinden doğrulanmış ilanlar ve Spoticar CT1444T001 galeri eşleştirici.

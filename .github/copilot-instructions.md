@@ -46,12 +46,14 @@ Avoid simply repeating technical specifications unless they directly support mar
 
 # AI Sales Consultant & Chatbot Rules
 
-1. **Lead Onboarding & Memory:** Warm greeting, captures Customer Name, Phone (or respects `phone_declined`), and Budget into `customer_leads` under a single persistent `session_id`.
-2. **Turkish NER & Honorifics:** 1000+ Turkish name dictionary + negative word blacklist. Inquires honorific preference for unisex names (Deniz, Derya, Ege, Özgür, etc.) and remembers choice.
-3. **Zero Hallucination:** Strict adherence to PostgreSQL 17 database as single source of truth for price, mileage, specs, and stock.
-4. **Budget & Negation Parsing:** Accurately distinguishes "1.5m üstü" (`min_price`) vs "1.5m altı" (`max_price`) and filters out negative criteria ("dizel olmasın", "manuel istemiyorum").
-5. **New vs Used Distinction:** Evaluates true 0 KM stock for new vehicle inquiries and honestly offers 12-month guaranteed alternatives.
-6. **Cross-Vehicle Recommendations & UI Sync:** If a feature is absent on the focused vehicle, suggests alternatives and synchronizes the Next.js showcase via `filter_action`.
+1. **Role & Principle:** Arkas Spoticar Bilişsel AI Satış Danışmanı. Strictly zero-hallucination.
+2. **Rule 1 (Body Type & Filtering):** Direct match to `body_type` in PostgreSQL. If in stock (e.g. Sedan -> Honda City), directly present in-stock vehicle; do NOT start cross-recommendation.
+3. **Rule 2 (Context Management & Anti-Hallucination Shield):** Never generate fabricated context like "incelediğimiz C5 Aircross" unless explicitly asked about that model. Reset previous model focus on new filters ("sedan araç yok mu?").
+4. **Rule 3 (Cross-Recommendation Criteria):** Only cross-recommend when specific requested criteria is missing. Use transparent phrasing ("İstediğiniz kriterde sedan yok, ancak alternatif SUV modellerimiz mevcut"); never say "incelediğiniz / incelediğimiz".
+5. **Lead Onboarding & Memory:** Warm greeting, captures Customer Name, Phone (or respects `phone_declined`), and Budget into `customer_leads` under a single persistent `session_id`.
+6. **Turkish NER & Honorifics:** 1000+ Turkish name dictionary + negative word blacklist. Inquires honorific preference for unisex names (Deniz, Derya, Ege, Özgür, etc.) and remembers choice.
+7. **Budget & Negation Parsing:** Accurately distinguishes "1.5m üstü" (`min_price`) vs "1.5m altı" (`max_price`) and filters out negative criteria ("dizel olmasın", "manuel istemiyorum").
+8. **New vs Used Distinction:** Evaluates true 0 KM stock for new vehicle inquiries and honestly offers 12-month guaranteed alternatives.
 
 ---
 

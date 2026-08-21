@@ -243,10 +243,25 @@ class ResponsePlanner:
             state.vehicle_query.max_price = new_crit.max_price
             lead.budget_min = new_crit.min_price
             lead.budget_max = new_crit.max_price
+            if not new_crit.model and not new_crit.brand:
+                state.vehicle_query.model = None
+                lead.interested_model = None
+                state.active_vehicle_id = None
+                lead.focused_vehicle_id = None
+                state.last_offer = None
+                state.pending_clarification = None
 
         if new_crit.brand:
             state.vehicle_query.brand = new_crit.brand
             lead.interested_brand = new_crit.brand
+            if not new_crit.model:
+                state.vehicle_query.model = None
+                lead.interested_model = None
+                state.active_vehicle_id = None
+                lead.focused_vehicle_id = None
+                state.last_offer = None
+                state.pending_clarification = None
+
         if new_crit.model:
             state.vehicle_query.model = new_crit.model
             lead.interested_model = new_crit.model
@@ -256,6 +271,17 @@ class ResponsePlanner:
         if new_crit.body_type:
             state.vehicle_query.body_type = new_crit.body_type
             lead.interested_body_type = new_crit.body_type
+            if not new_crit.model:
+                state.vehicle_query.model = None
+                lead.interested_model = None
+            if not new_crit.brand:
+                state.vehicle_query.brand = None
+                lead.interested_brand = None
+            state.active_vehicle_id = None
+            lead.focused_vehicle_id = None
+            state.last_offer = None
+            state.pending_clarification = None
+
         if new_crit.transmission:
             state.vehicle_query.transmission = new_crit.transmission
         if new_crit.transmission_excluded:
@@ -282,6 +308,9 @@ class ResponsePlanner:
         if focused_v:
             state.active_vehicle_id = focused_v.id
             lead.focused_vehicle_id = focused_v.id
+        else:
+            state.active_vehicle_id = None
+            lead.focused_vehicle_id = None
 
         reply_text = ""
         filter_action = None
@@ -319,14 +348,20 @@ class ResponsePlanner:
             or bool(concrete_aspects)
             or any(w in q_norm for w in ["bilgi alabilir miyim", "bilgi almak istiyorum", "detayli anlat", "detaylı anlat", "anlatir misin", "anlatır mısın", "tanitir misin", "tanıtır mısın", "hakkinda bilgi", "hakkında bilgi", "araci anlat", "aracı anlat", "hakkinda", "hakkında", "detayli bilgi", "detaylı bilgi"])
         )
+        
+        # If user asks for a body_type or brand without asking a specific aspect, it is always a catalog search
+        if (new_crit.body_type or new_crit.brand) and not new_crit.model and not concrete_aspects and "VEHICLE_OVERVIEW" not in intents:
+            is_asking_info = False
+
         is_explicit_search = (
             not is_asking_info
             and (
                 has_new_budget
-                or (new_crit.body_type is not None and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı", "hakkinda", "hakkında", "bilgi", "anlat", "tanit"]))
+                or new_crit.body_type is not None
+                or new_crit.brand is not None
                 or (
-                    any(w in q_norm for w in ["goster", "göster", "listele", "filtrele", "bakiyorum", "bakıyorum", "istiyorum", "oner", "öner"])
-                    and not any(w in q_norm for w in ["nedir", "kac", "kaç", "neler", "nasil", "nasıl", "var mi", "var mı", "ne yakar", "beygir", "bagaj", "hasar", "tramer", "vitesi", "kilometresi", "bilgi", "hakkinda", "hakkında", "anlat", "tanit", "ozellik", "özellik"])
+                    any(w in q_norm for w in ["goster", "göster", "listele", "filtrele", "bakiyorum", "bakıyorum", "istiyorum", "oner", "öner", "var mi", "var mı", "yok mu"])
+                    and not any(w in q_norm for w in ["ne yakar", "beygir", "bagaj", "hasar", "tramer", "vitesi", "kilometresi", "bilgi", "hakkinda", "hakkında", "anlat", "tanit", "ozellik", "özellik"])
                 )
                 or (len(new_crit.features) > 0 and (new_crit.body_type or new_crit.transmission or new_crit.fuel_type or new_crit.min_price or new_crit.max_price))
             )
@@ -744,10 +779,42 @@ class ResponsePlanner:
                     "reset": False,
                 }
                 action = {"type": "FILTER_VEHICLES", "filters": filter_action}
-                reply_text = (
-                    f"{salutation}, aradığınız kriterlere uygun güncel bir araç şu an stoklarımızda bulunmuyor.\n\n"
-                    f"Filtreleri esneterek alternatif modellerimizi incelemek ister misiniz?"
-                )
+                if state.vehicle_query.body_type and state.vehicle_query.body_type.lower() != "all":
+                    alt_vehicles = db.query(Vehicle).filter(Vehicle.is_active == True).order_by(Vehicle.price.desc()).all()
+                    if alt_vehicles:
+                        alt_desc_list = [f"**{v.brand} {v.model}** ({v.body_type})" for v in alt_vehicles[:3]]
+                        alt_str = ", ".join(alt_desc_list)
+                        reply_text = (
+                            f"{salutation}, istediğiniz kriterde **{state.vehicle_query.body_type}** araç şu anda stoklarımızda bulunmuyor. "
+                            f"Ancak filtreleri esnetirseniz portföyümüzdeki alternatif modellerimiz ({alt_str}) mevcuttur.\n\n"
+                            f"Dilerseniz bu alternatif modellerimizi inceleyebilir veya arama kriterlerinizi güncelleyebilirsiniz!"
+                        )
+                    else:
+                        reply_text = (
+                            f"{salutation}, istediğiniz kriterde **{state.vehicle_query.body_type}** araç şu anda stoklarımızda bulunmuyor.\n\n"
+                            f"Filtreleri esneterek alternatif modellerimizi incelemek ister misiniz?"
+                        )
+                elif "sunroof" in state.vehicle_query.features:
+                    alt_sunroof = VehicleSearchEngine.find_cross_alternative_with_feature(db, 0, "sunroof")
+                    alt_txt = f"Panoramik Açılabilir Cam Tavan donanımına sahip **{alt_sunroof.brand} {alt_sunroof.model} {alt_sunroof.package or ''}** ({alt_sunroof.year})" if alt_sunroof else "farklı donanım paketlerimiz"
+                    reply_text = (
+                        f"{salutation}, aradığınız kriterlerde cam tavanlı araç bulunamadı. "
+                        f"Ancak filtreleri esnetirseniz {alt_txt} modelimiz mevcuttur.\n\n"
+                        f"Dilerseniz bu alternatif modelimizi detaylandırabilirim!"
+                    )
+                elif state.vehicle_query.max_price:
+                    min_v = db.query(Vehicle).filter(Vehicle.is_active == True).order_by(Vehicle.price.asc()).first()
+                    min_txt = f"portföyümüzdeki en uygun fiyatlı aracımız **{min_v.brand} {min_v.model}** ({min_v.price:,.0f} {min_v.currency}) modelidir.".replace(",", ".") if min_v else ""
+                    reply_text = (
+                        f"{salutation}, belirttiğiniz bütçede ({state.vehicle_query.max_price:,.0f} TL altı) bir araç şu anda stoklarımızda bulunmuyor. "
+                        f"Ancak {min_txt}\n\n"
+                        f"Bütçenizi esneterek bu aracımızı veya avantajlı taşıt kredisi seçeneklerimizi değerlendirmek ister misiniz?"
+                    ).replace(",", ".")
+                else:
+                    reply_text = (
+                        f"{salutation}, aradığınız kriterlere uygun güncel bir araç şu an stoklarımızda bulunmuyor.\n\n"
+                        f"Filtreleri esneterek alternatif modellerimizi incelemek ister misiniz?"
+                    )
 
         # 8. Introduction Only
         elif ("CUSTOMER_IDENTIFICATION" in intents or "PHONE_DECLINED" in intents) and len(lead.chat_history or []) <= 4:

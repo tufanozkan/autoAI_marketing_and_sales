@@ -169,18 +169,48 @@ class VehicleSearchEngine:
 
         # 2. Brand requested
         if criteria.brand:
-            v = db.query(Vehicle).filter(Vehicle.is_active == True, Vehicle.brand.ilike(f"%{criteria.brand}%")).first()
+            q = db.query(Vehicle).filter(Vehicle.is_active == True, Vehicle.brand.ilike(f"%{criteria.brand}%"))
+            if criteria.body_type:
+                if criteria.body_type.upper() == "SUV":
+                    q = q.filter(or_(
+                        Vehicle.body_type.ilike("%SUV%"),
+                        Vehicle.body_type.ilike("%Crossover%"),
+                        Vehicle.model.ilike("%Cross%"),
+                        Vehicle.model.ilike("%3008%"),
+                        Vehicle.model.ilike("%C5%"),
+                        Vehicle.model.ilike("%408%")
+                    ))
+                else:
+                    q = q.filter(Vehicle.body_type.ilike(f"%{criteria.body_type}%"))
+            v = q.first()
             if v:
                 return v
 
-        # 3. Maintain current active vehicle if exists
-        if current_vehicle_id:
+        # 3. Body type requested
+        if criteria.body_type:
+            q = db.query(Vehicle).filter(Vehicle.is_active == True)
+            if criteria.body_type.upper() == "SUV":
+                q = q.filter(or_(
+                    Vehicle.body_type.ilike("%SUV%"),
+                    Vehicle.body_type.ilike("%Crossover%"),
+                    Vehicle.model.ilike("%Cross%"),
+                    Vehicle.model.ilike("%3008%"),
+                    Vehicle.model.ilike("%C5%"),
+                    Vehicle.model.ilike("%408%")
+                ))
+            else:
+                q = q.filter(Vehicle.body_type.ilike(f"%{criteria.body_type}%"))
+            v = q.first()
+            if v:
+                return v
+
+        # 4. Maintain current active vehicle if exists and no conflicting criteria
+        if current_vehicle_id and not criteria.body_type and not criteria.brand and not criteria.model:
             v = db.query(Vehicle).filter(Vehicle.is_active == True, Vehicle.id == current_vehicle_id).first()
             if v:
                 return v
 
-        # 4. Default to first active vehicle
-        return db.query(Vehicle).filter(Vehicle.is_active == True).order_by(Vehicle.price.desc()).first()
+        return None
 
     @classmethod
     def find_cross_alternative_with_feature(cls, db: Session, current_vehicle_id: int, feature_key: str) -> Optional[Vehicle]:

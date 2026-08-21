@@ -357,5 +357,37 @@ class ProductionChatbotTestSuite(unittest.TestCase):
         self.assertEqual(lead_final.first_name, "Ceren")
         self.assertEqual(len(lead_final.chat_history), 14)  # 7 user + 7 assistant
 
+    # TEST 33: Kasa Tipi Doğrudan Eşleşme (Sedan) & Çapraz Öneri Başlatmama Kuralı
+    def test_33_sedan_direct_match_no_cross_recommendation(self):
+        sid = "suite_s_33_sedan"
+        r1 = self.agent.process_message("sedan araç yok mu?", session_id=sid)
+        self.assertIn("Honda City", r1["reply"])
+        self.assertIn("Sedan", r1["reply"])
+        self.assertNotIn("incelediğimiz", r1["reply"].lower())
+        self.assertNotIn("C5 Aircross", r1["reply"])
+        lead = self.db.query(CustomerLead).filter(CustomerLead.session_id == sid).first()
+        self.assertEqual(lead.interested_body_type, "Sedan")
+
+    # TEST 34: Çok Turlu Bağlam Sıfırlama (SUV'dan Sedan'a Geçiş & Yoksa Şeffaf Çapraz Öneri)
+    def test_34_multi_turn_body_type_reset_from_suv_to_sedan(self):
+        sid = "suite_s_34_reset"
+        # Turn 1: C5 Aircross detay sor
+        r1 = self.agent.process_message("Citroën C5 Aircross hakkında bilgi verir misin?", session_id=sid)
+        self.assertIn("C5 Aircross", r1["reply"])
+        self.assertNotIn("incelediğimiz", r1["reply"].lower())
+
+        # Turn 2: Yeni filtre (Sedan araç yok mu?) -> C5 odağı sıfırlanmalı, doğrudan Honda City sunulmalı
+        r2 = self.agent.process_message("Sedan araç yok mu?", session_id=sid)
+        self.assertIn("Honda City", r2["reply"])
+        self.assertNotIn("C5 Aircross", r2["reply"])
+        self.assertNotIn("incelediğimiz", r2["reply"].lower())
+
+        # Turn 3: Stokta olmayan kasa tipi (Hatchback araç var mı?) -> Şeffaf çapraz öneri
+        r3 = self.agent.process_message("Hatchback araç var mı?", session_id=sid)
+        self.assertIn("stoklarımızda bulunmuyor", r3["reply"])
+        self.assertIn("alternatif modellerimiz", r3["reply"])
+        self.assertNotIn("incelediğimiz", r3["reply"].lower())
+
 if __name__ == "__main__":
     unittest.main()
+

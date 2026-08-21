@@ -58,17 +58,19 @@
 * AI Chatbot "Teşekkür Ederim" Nezaket Kapanışı & Sayfa Filtresi Temizliği: `docs/2026-08-20_chatbot_tesekkur_ve_sayfa_filtresi_temizligi.md`
 * AI Satış Danışmanı Kapsamlı Araç Tanıtım & Anlatım Mimarisi: `docs/2026-08-20_ai_danisman_arac_kapsamli_tanitim_ve_anlatim_mimarisi.md`
 * Test Sürüşü & Showroom Randevu Mimarisi (test_drives Tablosu & Uçtan Uca Rezervasyon): `docs/2026-08-20_test_surusu_randevu_tablosu_ve_uctan_uca_rezervasyon_mimarisi.md`
+* Kasa Tipi Filtreleme, Bağlam Yönetimi & Halüsinasyon Kalkanı: `docs/2026-08-21_kasa_tipi_filtreleme_ve_baglam_yonetimi_guncellemesi.md`
 
 ## 5. Güncel Durum ve Sürekli Hafıza Kuralları
 * **Mevcut Durum:** 
+  - **Kasa Tipi ve Doğrudan Filtreleme:** Kullanıcı "Sedan", "SUV", "Hatchback" gibi kasa tipi aradığında doğrudan `body_type` ile eşleştirilir. Kriterdeki araç stokta varsa (örn: Sedan -> Honda City), Çapraz Öneri başlatılmaz; doğrudan stoktaki araç sunulur.
+  - **Bağlam Yönetimi & Halüsinasyon Kalkanı:** Kullanıcı açıkça bir model ismi belirtmedikçe asla "incelediğimiz C5 Aircross" veya benzeri uydurma bağlam yaratılmaz. Yeni filtre geldiğinde önceki model odakları sıfırlanır.
+  - **Çapraz Öneri Şartları:** Çapraz öneri yalnızca aranan spesifik kriter stokta yoksa yapılır. Şeffaf ve dürüst dil kullanılır ("İstediğiniz kriterde sedan yok, ancak alternatif SUV modellerimiz mevcut"); asla "incelediğiniz" denmez.
   - PostgreSQL 17 veritabanına `test_drives` tablosu eklenmiş; `customer_leads` ve `vehicles` tablolarıyla 1-N yabancı anahtar ilişkisi kurulmuştur.
   - Bilişsel AI Satış Danışmanına Türkçe tarih/saat ayrıştırma motoru (`NLUParser.extract_datetime_expression`) ve `APPOINTMENT_REQUEST` / `APPOINTMENT_DATETIME_PROVIDED` niyetleri entegre edilmiştir.
   - **Test Sürüşünde Zorunlu Telefon Kontrolü & Karar Değiştirme:** Sohbetin başında telefon paylaşımı isteğe bağlıdır; ancak test sürüşü planlanacağı zaman aracı rezerve etmek ve danışmanın teyit sağlayabilmesi için telefon numarası **kesinlikle zorunludur**. Müşteri tarih verip ilk başta telefon vermek istemediğinde sistem randevu tarihini hafızada tutar. Müşteri sonradan *"tamam paylaşayım o zaman telefon numaramı"* diyerek karar değiştirdiğinde (`PHONE_AGREEMENT`) bot randevu tarihini hatırlatarak numarasını ister; numara verildiği an `test_drives` tablosuna `CONFIRMED` statüsüyle kaydeder.
   - REST API'ye `GET /api/test-drives` ve `GET /api/leads` uç noktaları eklenmiş; `/api/stats` endpoint'ine `total_test_drives` metriği dahil edilmiştir.
-  - AI Satış Danışmanına `VEHICLE_OVERVIEW` intent'i ve `generate_vehicle_executive_presentation` metodu eklenmiştir. Kullanıcı belirli bir araç hakkında bilgi istediğinde (*"3008 hakkında bilgi alabilir miyim"*, *"detaylı anlatır mısın bana"*), bot aracın fiyatını, kilometresini, vites/motorunu, öne çıkan donanımlarını, ekspertiz hatasızlık durumunu, 100+ nokta kontrolü & 12 ay garantisini ve test sürüşü davetini içeren kapsamlı bir yönetici sunumu yapar.
+  - AI Satış Danışmanına `VEHICLE_OVERVIEW` intent'i ve `generate_vehicle_executive_presentation` metodu eklenmiştir.
   - AI Chatbot'a `GRATITUDE` intent ve nezaket kapanış akışı eklenmiş ("Teşekkür ederim", "Sağolun" vb. sonrasında robotik selamlama tekrarı engellenmiştir).
-  - Chatbot yanıtlarındaki "Sayfayı filtreledim" ibareleri ve otomatik sayfa filtre manipülasyonu kaldırılmış; filtreleme tamamen kullanıcı kontrolüne bırakılmıştır.
-  - Sayfa bildirimleri (toast pop-up) sağ alttan ekranın üst orta bölgesine (`top-6 left-1/2 -translate-x-1/2`) taşınmış ve 3.5 sn otomatik kapanma ile chatbot girdi kutusu çakışması tamamen çözülmüştür.
-  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve **81 birim/entegrasyon testinin tamamı (%100)** başarıyla koşmaktadır.
+  - Test dosyaları `tests/` dizini altında modülerleştirilmiş ve **84 birim/entegrasyon testinin tamamı (%100)** başarıyla koşmaktadır.
   - Next.js 15 prodüksiyon derlemesi (`npm run build` / `frontend/out`) başarıyla tamamlanmıştır.
 * **Kural:** Her mimari ve işlevsel güncellemeden sonra `PROJECT_MEMORY.md`, `.antigravity_rules.md`, `.cursorrules.md`, `.github/copilot-instructions.md`, `README.md` ve ilgili `docs/` belgesi eksiksiz güncellenmek zorundadır.
