@@ -1,47 +1,73 @@
-# Arkas 2. El Pazarlama AI (Automotive AI Marketing & Sales Platform)
+# 🚗 AutoAI Showroom — AI-Powered Automotive Marketing & Sales Consultant Platform
 
-Yapay zeka destekli, 2. el araç verilerini toplayıp marka ve müşteri kimliğine uygun **yüksek dönüşümlü pazarlama metinleri, Safe & Bold reklam kreatifleri, orijinal zengin fotoğraf galerisi ve sayfayı dinamik kontrol eden Bilişsel AI Satış Danışmanı** sunan yeni nesil otomotiv platformu.
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015-black.svg?style=flat&logo=next.js)](https://nextjs.org)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL%2017-336791.svg?style=flat&logo=postgresql)](https://www.postgresql.org)
+[![Tailwind CSS v4](https://img.shields.io/badge/Styling-Tailwind%20CSS%20v4-38B2AC.svg?style=flat&logo=tailwind-css)](https://tailwindcss.com)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat&logo=python)](https://python.org)
+[![Tests Passing](https://img.shields.io/badge/Tests-85%20Passed-brightgreen.svg?style=flat)]()
+
+**AutoAI Showroom**, ikinci el otomotiv envanterini toplayan, her araç için **3 farklı reklam personası (Dengeli, Kurumsal, İlgi Çekici) ve sosyal medya afiş kancaları üreten**, 5 açılı yüksek çözünürlüklü vitrin sunan ve web vitrinini canlı olarak filtreleyip test sürüşü randevuları organize eden **Bilişsel Yapay Zeka Satış Danışmanı** içeren uçtan uca akıllı bir otomotiv pazarlama platformudur.
+
+---
+
+## ✨ Temel Özellikler
+
+### 1. 🤖 Bilişsel AI Satış Danışmanı (Cognitive AI Sales Consultant)
+* **Türkçe NER & Akıllı Hitap:** 1.000+ Türkçe isim veritabanı ile müşterinin adını, soyadını tanır. Unisex isimlerde (*Deniz, Derya, Özgür*) nezaketle hitap tercihini sorar ve oturum boyunca hatırlar.
+* **Akıllı Bütçe ve Olumsuzluk Ayrıştırma:** *"1.5m altı"*, *"2 milyon bütçem var"*, *"dizel olmasın"*, *"manuel istemiyorum"* gibi karmaşık bütçe ve olumsuz filtreleri hatasız olarak parametrik SQL sorgularına dönüştürür.
+* **Sıfır Halüsinasyon ve Sayfa Kontrolü:** Sadece stokta gerçekten bulunan araçları önerir. Sohbet sırasında arayüzdeki Next.js filtrelerini arka planda gerçek zamanlı günceller.
+* **Test Sürüşü & Randevu Yönetimi:** Tarih/saat tespit motoru (*"Yarın saat 14:00"* / *"21 Ağustos 15:00"*) ile randevuları PostgreSQL `test_drives` tablosuna kaydeder. Telefon paylaşımı istemeyen müşterilere randevusuz doğrudan showroom ziyaret alternatifleri sunar.
+
+### 2. 🎨 AI Kreatif Pazarlama Motoru (Marketing Copy Generator)
+* **3 Farklı Reklam Tonu:**
+  * **Safe (Dengeli):** Güven, ekspertiz güvencesi ve konfor odaklı klasik reklam kurgusu.
+  * **Professional (Kurumsal):** Finansman, TCO ve teknik verimlilik odaklı net metin.
+  * **Bold (İlgi Çekici):** Sosyal medya, Instagram Reels ve TikTok için dinamik hooklar, emoji zenginliği ve doğrudan harekete geçirici mesajlar (CTA).
+* **Story & Post Akışları:** 5 açılı orijinal showroom fotoğraflarıyla uyumlu 3 adımlı Instagram Story senaryoları üretir.
+
+### 3. 🏎️ Modern Next.js 15 & Tailwind CSS v4 Dijital Showroom
+* **Quiet Luxury UI Tasarımı:** Sıcak keten/bej zemin, alabaster kartlar ve şampanya detaylarıyla modern tasarım.
+* **5 Açılı Orijinal Fotoğraf Galerisi:** Her araç için ön, arka, kokpit, yan profil ve konsol fotoğrafları.
+* **Kreatif Stüdyo Modu:** Tek tıkla açılan modalda aracın tüm teknik detayları, 100+ nokta ekspertiz raporu ve üretilen AI reklam kreatifleri.
 
 ---
 
 ## 🏗️ Mimari ve Dizin Yapısı
 
 ```
-arkas_2el_pazarlama_ai/
+auto_ai_showroom/
 ├── main.py                     # Ana orkestratör (Scraper -> AI Metin Ajanı -> Web Sunucusu)
 ├── config.py                   # Merkezi konfigürasyon, DB bağlantısı, port ve ortam ayarları
 ├── requirements.txt            # Python bağımlılıkları (FastAPI, SQLAlchemy, psycopg2, httpx)
-├── docker-compose.yml          # PostgreSQL 17 veritabanı konteyner yapılandırması
-├── .env                        # Çevre değişkenleri ve DB bağlantı bilgileri
+├── docker-compose.yml          # PostgreSQL veritabanı konteyner yapılandırması
 ├── .env.example                # Örnek çevre değişkenleri şablonu
-├── PROJECT_MEMORY.md           # Sürekli güncellenen mimari hafıza
 ├── README.md                   # Proje dokümantasyonu ve kullanım kılavuzu
-├── docs/                       # Tarih bazlı detaylı mimari ve teknik geliştirme dokümanları
 ├── backend/
-│   ├── agent/                  # AI Pazarlama Metin Motoru (MarketingAgent) & Bilişsel AI Danışman (ChatbotAgent)
-│   │   ├── brand_rules.py      # Marka arketip kuralları
+│   ├── agent/                  # AI Pazarlama Metin Motoru & Bilişsel AI Danışman
+│   │   ├── brand_rules.py      # Marka arketip kuralları ve tonlama şablonları
 │   │   ├── chatbot_agent.py    # Facade & Geriye dönük uyumluluk köprüsü
 │   │   ├── chatbot/            # Modüler Bilişsel AI Satış Danışmanı Motoru
 │   │   │   ├── state.py        # Pydantic State, Criteria, ActionOffer şemaları
-│   │   │   ├── nlu.py          # Türkçe NER, Unisex Hitap, Bütçe & Negation ayrıştırıcı
+│   │   │   ├── nlu.py          # Türkçe NER, Unisex Hitap, Bütçe & Tarih ayrıştırıcı
 │   │   │   ├── search_engine.py# Parametrik PostgreSQL & JSONB donanım arama motoru
 │   │   │   ├── tools.py        # Araç soru-cevap, SSS ve çapraz öneri araçları
 │   │   │   ├── planner.py      # Bilişsel niyet planlayıcı ve yanıt orkestratörü
 │   │   │   └── agent.py        # ChatbotAgent sınıfı
-│   │   └── marketing_agent.py  # 3-tonlu (Dengeli, Kurumsal, İlgi Çekici) metin & Story akışı motoru
+│   │   └── marketing_agent.py  # 3-tonlu pazarlama metni ve reklam brief motoru
 │   ├── db/                     # PostgreSQL bağlantısı & SQLAlchemy ORM modelleri
-│   │   ├── database.py         # SessionLocal & Otomatik migrasyon
+│   │   ├── database.py         # SessionLocal & Otomatik tablo başlatma
 │   │   └── models.py           # Vehicle, VehicleImage, CreativeBrief, CustomerLead, TestDrive ORM modelleri
 │   ├── scraper/                # Canlı ilan veri toplama & donanım normalizasyonu
-│   │   ├── arkas_scraper.py    # Temel web scraper
+│   │   ├── arkas_scraper.py    # Showroom veri toplayıcı
 │   │   ├── normalizer.py       # Donanım ve teknik alan temizliği
-│   │   └── sahibinden_scraper.py# Sahibinden mağaza kazıma & Spoticar S3 görsel eşleştirici
+│   │   └── sahibinden_scraper.py# Doğrulanmış test seti & görsel indirici
 │   └── web/                    # FastAPI REST API & Next.js Statik Mount
-│       └── server.py           # /api/chat, /api/leads, /api/test-drives, /api/vehicles, /api/stats, /vehicle_images mount
+│       └── server.py           # /api/chat, /api/leads, /api/test-drives, /api/vehicles, /api/stats
 ├── frontend/                   # Next.js 15 (React 19, TypeScript, Tailwind CSS v4) Vitrin & Studio
 │   ├── public/                 # Statik Varlıklar (vehicle_images/, placeholder.svg)
 │   ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
-│   ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
+│   ├── src/components/         # Navbar, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
 │   └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
 └── tests/                      # 85 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
 ```
@@ -50,80 +76,88 @@ arkas_2el_pazarlama_ai/
 
 ## 🚀 Hızlı Başlangıç
 
-### 1. Ortamı Hazırlayın ve Bağımlılıkları Yükleyin
+### 1. Depoyu Klonlayın ve Ortamı Hazırlayın
+
 ```bash
+git clone https://github.com/kullanici_adiniz/auto-ai-showroom.git
+cd auto-ai-showroom
+
+# Python sanal ortamı oluşturun ve aktifleştirin
 python3 -m venv .venv
 source .venv/bin/activate
+
+# Bağımlılıkları yükleyin
 pip install -r requirements.txt
 ```
 
-### 2. Tek Komutla Tüm Sistemi Çalıştırın
+### 2. Çevre Değişkenlerini Ayarlayın
+
 ```bash
+cp .env.example .env
+```
+
+`.env` dosyasındaki veritabanı bağlantı bilgilerini kendi ortamınıza göre güncelleyin. İsteğe bağlı olarak Gemini/OpenAI API anahtarınızı ekleyebilirsiniz (API anahtarı olmasa dahi yerleşik zengin şablon motoruyla %100 çevrimdışı çalışabilir).
+
+### 3. Veritabanını Başlatın (Docker)
+
+```bash
+docker-compose up -d
+```
+
+### 4. Tek Komutla Sistemi Çalıştırın
+
+```bash
+# Veritabanını kurar, araç verilerini işler, kreatifleri üretir ve vitrini açar:
 python main.py
 ```
-> Bu komut sırasıyla:
-> 1. Web Scraper'ı çalıştırıp araçları detaylı teknik özellikleri ve fotoğraflarıyla PostgreSQL'e kaydeder (`vehicles`).
-> 2. AI Marketing Agent ile reklam metinlerini üretir (`creative_briefs`, `marketing_copies`).
-> 3. Web Vitrinini ve Bilişsel AI Danışmanı **http://localhost:8000** adresinde başlatır.
+
+Web vitrinine tarayıcınızdan erişin:
+👉 **http://localhost:8000**
 
 ---
 
-## 🤖 Bilişsel AI Satış Danışmanı Özellikleri
+## 🖥️ CLI Kullanım Seçenekleri
 
-* **Sıfır Halüsinasyon Prensibi (Zero-Hallucination):** Fiyat, kilometre veya donanım uydurulmaz. PostgreSQL 17 tek ve mutlak gerçeklik kaynağıdır.
-* **Gelişmiş Türkçe Varlık Tanıma (NER):** 1000+ isim sözlüğü ve negatif kelime filtresi. "Ceren ben ama numaramı vermiyorum" gibi karmaşık cümleleri tek seferde çözer.
-* **Unisex İsim Hitap Yönetimi:** Deniz, Derya, Ege, Özgür gibi unisex isimlerde varsayım yapmaz; kullanıcıya Bey/Hanım tercihini sorar ve oturum boyunca hatırlar.
-* **Gelişmiş Bütçe ve Olumsuzlama:** "1.5m üstü" (`min_price`), "1.5m altı" (`max_price`), "dizel olmasın", "manuel istemiyorum" gibi karmaşık Türkçe niyetleri doğru ayrıştırır.
-* **Gerçek Sıfır / 2. El Ayrımı:** "Yeni/sıfır araç" talebinde gerçek 0 KM stok kontrolü yapar.
-* **Lead Yakalama & Tekil Oturum:** Tekil `session_id` ile `customer_leads` kaydını günceller.
-* **Dinamik Çapraz Öneri & Vitrin Filtreleme:** Eksik donanımlarda alternatif araç sunar, onaylandığında vitrini senkronize filtreler (`filter_action`).
+`main.py` dosyasını farklı ihtiyaçlarınıza göre parametrelerle çalıştırabilirsiniz:
 
----
-
-## 🗄️ DBeaver / PostgreSQL Bağlantı Bilgileri
-
-| Parametre | Değer |
+| Komut | Açıklama |
 | :--- | :--- |
-| **Host** | `localhost` veya `127.0.0.1` |
-| **Port** | `5432` |
-| **Database** | `arkas_marketing_db` |
-| **Username** | `postgres` |
-| **Password** | `postgres` |
-
-### PostgreSQL Tabloları
-* `vehicles` : İlan kimliği, marka, model, paket, yıl, km, fiyat, `technical_specs` (JSON), `ad_features` (JSON), `damage_expertise` (JSON), `image_urls` (JSON) ve SHA256 hash'i.
-* `customer_leads` : Müşteri iletişim bilgileri, telefon reddi, hitap tercihi, bütçe aralığı, aktif filtreler, JSON sohbet durumu ve AI özeti.
-* `creative_briefs` : Marka arketipi, hedef persona, duygusal satış noktaları ve kancalar.
-* `marketing_copies` : Instagram post/hikaye metinleri, başlıklar, CTA ve hashtagler (Safe & Bold).
+| `python main.py` | Standart Akış: Scraper -> AI Pazarlama Ajanı -> Web Sunucusu |
+| `python main.py --reset-db` | Veritabanı tablolarını sıfırlar ve test setini sıfırdan oluşturur |
+| `python main.py --scrape-only` | Yalnızca web veri toplayıcıyı çalıştırır |
+| `python main.py --generate-only` | Yalnızca AI pazarlama brief ve reklam metinlerini üretir |
+| `python main.py --web-only` | Yalnızca FastAPI & Next.js vitrin sunucusunu başlatır |
+| `python main.py --build-frontend` | Next.js arayüzünü derler (`frontend/out` klasörüne aktarır) |
+| `python main.py --limit 10` | İşlenecek araç sayısını sınırlar |
 
 ---
 
-## 📚 Dokümantasyon
+## 🧪 Testleri Çalıştırma
 
-Tüm mimari detaylar ve kronolojik kararlar `docs/` klasöründe saklanmaktadır:
-* [2026-08-17 MVP Mimari, Veri Akışı ve Afiş Motoru Dokümanı](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-17_mvp_mimari_veri_akisi_ve_afis_motoru.md)
-* [2026-08-17 Canlı Katalog Görsel Çekimi ve Çoklu Açı Afişleri](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-17_canli_katalog_gorsel_cekimi_ve_coklu_aci_afisleri.md)
-* [2026-08-18 Next.js 15 Modern Vitrin ve Stüdyo Dönüşümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_nextjs_modern_vitrin_ve_studio_donusumu.md)
-* [2026-08-18 Quiet Luxury Afiş Motoru ve 3+1 Odaklı Kamera Açıları](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_quiet_luxury_afis_motoru_ve_3_arti_1_aci_guncellemesi.md)
-* [2026-08-18 Akıllı AI Danışman ve Müşteri Takip Mimarisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_akilli_ai_danisman_ve_musteri_takip_mimarisi.md)
-* [2026-08-18 Bilişsel AI Satış Danışmanı ve Dinamik Araç Önerisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_bilissel_ai_satis_danismani_ve_dinamik_arac_onerisi.md)
-* [2026-08-18 Türkçe İsim & Varlık Tanıma (NER) ve Doğru Hitap Mimarisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_turkce_varlik_tanima_ve_dogru_hitap_sistemi.md)
-* [2026-08-18 Görsel Motoru Temizliği ve Kapsamlı Araç Şeması Hazırlığı](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_gorsel_motoru_temizligi_ve_detayli_arac_semasi_hazirligi.md)
-* [2026-08-18 Arkas Spoticar Veri Çıkarma (Parsing) & 3 Tonlu Metin Üretimi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_arkas_spoticar_veri_cikarma_ve_tonlu_metin_uretimi.md)
-* [2026-08-18 Donanımlar Sekmesi Kategorik Görünüm & İstemci Hatası Çözümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_donanimlar_kategorik_gosterim_ve_hata_cozumu.md)
-* [2026-08-18 Canlı Envanter, %100 Gerçek KM & Fiyat ve Orijinal Fotoğraf Kazıma](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_canli_envanter_gercek_km_fiyat_ve_orijinal_fotograf_kazima.md)
-* [2026-08-18 Sahibinden.com "Arkas Spoticar" Gerçek Canlı Veri Kazıma & 3-Tonlu Metin Üretimi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_arkas_spoticar_canli_kazima_ve_metin_uretimi.md)
-* [2026-08-18 Doğrudan Mağaza URL'si (arkasspoticar.sahibinden.com) 5 Araçlık Test & Görsel İyileştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_arkasspoticar_sahibinden_5_arac_testi_ve_gorsel_iyilestirmesi.md)
-* [2026-08-18 Yerel Görsel İndirme & Ekspertiz Düzeltmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_yerel_gorsel_indirme_ve_ekspertiz_duzeltmesi.md)
-* [2026-08-18 4 Tablolu Yeni Şema, Vehicle Images Tablosu & Hafif Kazıma](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_4_tablolu_yeni_sema_ve_vehicle_images_tablosu.md)
-* [2026-08-18 Spoticar.com.tr Arkas İzmir 5 Açılı Orijinal Galeri Entegrasyonu](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_spoticar_com_tr_5_acili_orijinal_galeri_entegrasyonu.md)
-* [2026-08-18 Sahibinden Öncelikli Canlı Envanter & Spoticar CT1444T001 Görsel Eşleştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_oncelikli_spoticar_ct1444t001_eslestirmesi.md)
-* [2026-08-18 Spoticar CT1444T001 — Peugeot 408, Honda City & Fiat Egea Orijinal Görsel Yenilemesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_spoticar_408_city_egea_gorsel_yenilemesi.md)
-* [2026-08-18 Sahibinden %100 Doğrulanmış Canlı İlan Verileri & Spoticar Görsel Eşleştirmesi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_sahibinden_kesin_dogrulanmis_5_arac_ve_spoticar_eslesmesi.md)
-* [2026-08-18 Mimari Refactor — src Dizininden backend Dizinine Geçiş](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_src_dizininin_backend_olarak_yeniden_yapilandirilmasi.md)
-* [2026-08-18 Müşteri Odaklı Lüks Showroom Arayüzü Dönüşümü](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_musteri_odakli_showroom_arayuzu_donusumu.md)
-* [2026-08-18 Yapay Zeka Satış Danışmanı Beyaz LED Işıklı Buton & Üst Menü Temizliği](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-18_yapay_zeka_danismani_led_isikli_buton_ve_ust_menu_temizligi.md)
-* [2026-08-19 Chatbot Kapsamlı Testleri ve Bilişsel Danışman İyileştirmeleri](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_chatbot_testleri_ve_akilli_danisman_hata_duzeltmeleri.md)
-* [2026-08-19 Türkçe Unisex ve Kapsamlı İsim Tanıma Mimarisi](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_turkce_unisex_ve_genisletilmis_isim_tanima_mimarisi.md)
-* [2026-08-19 Production AI Satış Danışmanı & Bilişsel Mimari Raporu](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/2026-08-19_production_ai_satis_danismani_ve_bilissel_mimari.md)
-* [🌟 Arkas AI Yönetim Kurulu & Yatırımcı Sunumu (Pitch Deck & Script)](file:///Users/tufanozkan/Documents/arkas_projects/arkas_2el_pazarlama_ai/docs/ARKAS_AI_PROJE_SUNUMU.md)
+Projede NLU ayrıştırıcı, diyalog akışları, randevu motoru, REST API ve statik varlıkları doğrulayan **85 adet kapsamlı birim ve entegrasyon testi** bulunmaktadır.
+
+```bash
+# Tüm testleri çalıştırmak için:
+.venv/bin/python -m unittest discover tests
+```
+
+---
+
+## 🌐 REST API Uç Noktaları
+
+| Metot | Uç Nokta | Açıklama |
+| :--- | :--- | :--- |
+| `POST` | `/api/chat` | Bilişsel AI Danışman ile diyalog ve filtreleme yanıtı |
+| `POST` | `/api/chat/reset` | Sohbet oturumunu ve aktif araç filtrelerini sıfırlama |
+| `GET` | `/api/vehicles` | Filtrelenebilir araç listesi ve galeri bilgisi |
+| `GET` | `/api/vehicles/{id}` | Tek bir aracın teknik, ekspertiz ve kreatif detayları |
+| `GET` | `/api/leads` | Müşteri ad, telefon ve tercih özeti listesi |
+| `GET` | `/api/test-drives` | Onaylanan test sürüşü randevuları |
+| `GET` | `/api/stats` | Envanter, marka dağılımı ve lead istatistikleri |
+| `POST` | `/api/pipeline/run` | Veri toplama ve kreatif üretim döngüsünü tetikleme |
+
+---
+
+## 📄 Lisans
+
+Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak sunulmaktadır.

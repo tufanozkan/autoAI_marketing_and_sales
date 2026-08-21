@@ -125,12 +125,12 @@ class ComprehensiveTestChatbotAgent(unittest.TestCase):
         self.assertTrue(any(w in res["reply"].lower() for w in ["kredi", "finansman", "taksit"]))
 
     def test_showroom_location_and_hours(self):
-        res = self.agent.process_message("İzmir showroomunuz nerede ve saat kaça kadar açık?", session_id="test_s_loc")
-        self.assertTrue(any(w in res["reply"].lower() for w in ["gaziemir", "izmir", "akçay caddesi"]))
+        res = self.agent.process_message("Showroomunuz nerede ve saat kaça kadar açık?", session_id="test_s_loc")
+        self.assertTrue(any(w in res["reply"].lower() for w in ["showroom", "plaza", "merkez", "adres"]))
 
     def test_warranty_and_inspection(self):
         res = self.agent.process_message("Araçlarınızda garanti var mı, kaç nokta kontrol yapılıyor?", session_id="test_s_warranty")
-        self.assertTrue(any(w in res["reply"].lower() for w in ["100+", "garanti", "spoticar"]))
+        self.assertTrue(any(w in res["reply"].lower() for w in ["100+", "garanti", "ekspertiz"]))
 
     def test_multi_turn_session_flow(self):
         sid = "test_s_multi_turn_flow"

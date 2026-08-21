@@ -16,30 +16,30 @@ class ChatbotTools:
         # 1. Trade-in (Takas)
         if any(w in q for w in ["takas", "eski arac", "aracimi vermek", "takasa", "degerleme", "değerleme"]):
             return (
-                f"{sal}Arkas Spoticar olarak mevcut aracınız için şeffaf, hızlı ve güvenilir **takas desteği** sunuyoruz.\n\n"
-                f"🔄 Dilerseniz aracınızın **marka, model, yıl, kilometre ve hasar durumunu** buradan paylaşırsanız anında ön değerlendirme yapabilir veya sizi Gaziemir showroomumuzda ücretsiz ekspertiz için ağırlayabiliriz!"
+                f"{sal}Showroomumuzda mevcut aracınız için şeffaf, hızlı ve güvenilir **takas desteği** sunuyoruz.\n\n"
+                f"🔄 Dilerseniz aracınızın **marka, model, yıl, kilometre ve hasar durumunu** buradan paylaşırsanız anında ön değerlendirme yapabilir veya sizi merkez showroomumuzda ücretsiz ekspertiz için ağırlayabiliriz!"
             )
 
         # 2. Credit / Financing (Kredi & Taksit)
         if any(w in q for w in ["kredi", "finansman", "taksit", "pesinat", "peşinat", "faiz", "oran", "vade", "banka"]):
             return (
-                f"{sal}Arkas Otomotiv güvencesi ve anlaşmalı bankalarımızla ikinci el araçlarımızda cazip faizli **taşıt kredisi ve esnek finansman çözümleri** sağlıyoruz.\n\n"
+                f"{sal}Anlaşmalı finans kuruluşlarımız ve bankalarımızla ikinci el araçlarımızda cazip faizli **taşıt kredisi ve esnek finansman çözümleri** sağlıyoruz.\n\n"
                 f"💳 Araç bedelinin model yılına göre %70'ine kadar kredi kullandırabilmekteyiz. İlgilendiğiniz model için peşinat ve aylık taksit planı çıkarmamı ister misiniz?"
             )
 
         # 3. Location / Hours
-        if any(w in q for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "gaziemir", "izmir", "saat kacta", "saat kaçta", "calisma saatleri", "çalışma saatleri", "acik mi", "açık mı"]):
+        if any(w in q for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "showroom", "galeri", "saat kacta", "saat kaçta", "calisma saatleri", "çalışma saatleri", "acik mi", "açık mı"]):
             return (
-                f"{sal}Arkas Spoticar Showroomumuz **İzmir Gaziemir** lokasyonunda hizmet vermektedir.\n\n"
-                f"📍 **Adres:** Akçay Caddesi No: 284 Gaziemir / İZMİR\n"
+                f"{sal}Merkez Showroomumuz haftanın 7 günü hizmet vermektedir.\n\n"
+                f"📍 **Adres:** Otomotiv Plaza No: 100 Showroom Alanı\n"
                 f"🕒 **Çalışma Saatleri:** Pazartesi - Cumartesi: 08:30 - 18:30 | Pazar: 11:00 - 17:00\n\n"
                 f"Araçlarımızı yakından incelemek ve kahvemiz eşliğinde test sürüşü yapmak için dilediğiniz zaman bekleriz!"
             )
 
         # 4. Warranty & Inspection
-        if any(w in q for w in ["garanti suresi", "garanti süresi", "kac ay garanti", "guvence", "güvence", "100 nokta", "kac nokta"]):
+        if any(w in q for w in ["garanti", "garanti suresi", "garanti süresi", "kac ay garanti", "kaç ay garanti", "guvence", "güvence", "100 nokta", "kac nokta", "kaç nokta", "ekspertiz"]):
             return (
-                f"{sal}Arkas Spoticar bünyesindeki tüm araçlarımız **100+ Nokta Kapsamlı Teknik Kontrolden** geçmektedir.\n\n"
+                f"{sal}Bünyemizdeki tüm araçlarımız **100+ Nokta Kapsamlı Teknik Kontrolden** geçmektedir.\n\n"
                 f"🛡️ Araçlarımız **12 Aya Kadar Sınırsız Kilometre Garantisi**, 7/24 Yol Yardımı ve Şeffaf Ekspertiz Raporu güvencesiyle teslim edilmektedir."
             )
 
@@ -86,7 +86,7 @@ class ChatbotTools:
             t_val = f"Tramer: {tramer:,.0f} TL".replace(",", ".") if tramer else "Tramer: 0 TL"
             exp_text = f"{b_cnt}, {d_cnt}, {t_val}"
 
-        note = vehicle.expertise_note or "Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup 12 Ay Mekanik & Elektronik Garantilidir."
+        note = vehicle.expertise_note or "100+ Nokta Kontrolünden geçmiş olup 12 Ay Mekanik & Elektronik Garantilidir."
 
         return (
             f"{sal}**{model_name}** ({vehicle.year}) modelimiz hakkında kapsamlı ve detaylı bilgiler:\n\n"
@@ -101,7 +101,7 @@ class ChatbotTools:
             f"🛡️ **Ekspertiz & Garanti Durumu:**\n"
             f"• **Durum:** {exp_text}\n"
             f"• **Güvence:** {note}\n\n"
-            f"Bu aracımız için Gaziemir showroomumuzda **test sürüşü randevusu** oluşturmamı veya takas/kredi teklifi hazırlamamı ister misiniz? 🚗✨"
+            f"Bu aracımız için showroomumuzda **test sürüşü randevusu** oluşturmamı veya takas/kredi teklifi hazırlamamı ister misiniz? 🚗✨"
         )
 
     @staticmethod
@@ -161,7 +161,7 @@ class ChatbotTools:
             return (
                 f"{sal}**{model_name}** ({vehicle.year}) aracımız hakkında merak ettiğiniz detaylar:\n\n"
                 + "\n".join(bullets)
-                + "\n\nAracımızı Gaziemir showroomumuzda test sürüşüyle deneyimlemek ister misiniz?"
+                + "\n\nAracımızı showroomumuzda test sürüşüyle deneyimlemek ister misiniz?"
             )
 
         # Single aspect details
@@ -175,13 +175,13 @@ class ChatbotTools:
         if "mileage" in aspects:
             return (
                 f"{sal}**{model_name}** aracımız yalnızca **{km_str}**'dedir. "
-                f"Orijinal kilometre garantilidir ve Arkas Spoticar güvencesindedir."
+                f"Orijinal kilometre garantilidir ve ekspertiz güvencesindedir."
             )
 
         if "price" in aspects:
             return (
                 f"{sal}**{model_name}** aracımızın güncel satış fiyatı **{price_str}**'dir. "
-                f"Arkas Spoticar güvencesiyle takas, kredi ve avantajlı finansman seçeneklerimiz mevcuttur."
+                f"Showroom güvencesiyle takas, kredi ve avantajlı finansman seçeneklerimiz mevcuttur."
             )
 
         if "trunk" in aspects:
@@ -241,7 +241,7 @@ class ChatbotTools:
                 t_str = f"{tramer:,.0f} TL".replace(",", ".") if tramer else "0 TL"
                 exp_detail = f"• Boyalı Parçalar: **{b_str}**\n• Değişen Parçalar: **{d_str}**\n• Tramer Hasar Kaydı: **{t_str}**"
 
-            note = vehicle.expertise_note or "Arkas Spoticar 100+ Nokta Kontrolü ve 12 Ay Garantisi Kapsamındadır."
+            note = vehicle.expertise_note or "100+ Nokta Kontrolü ve 12 Ay Garantisi Kapsamındadır."
             return (
                 f"{sal}**{model_name}** ekspertiz durumu:\n\n"
                 f"{exp_detail}\n\n"

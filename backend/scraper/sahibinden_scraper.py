@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 class SahibindenScraper:
     """
-    Arkas Spoticar Öncelikli Scraper & Spoticar CT1444T001 5 Araçlık Doğrulanmış Test Seti:
-    - 1. Kaynak (Öncelikli): Sahibinden.com Arkas Spoticar ilanları (Doğrulanmış KM, Fiyat, Donanım ve Ekspertiz)
-    - 2. Kaynak (Görsel Eşleme): Spoticar CT1444T001 portalındaki 5 açılı HD showroom fotoğrafları
+    Doğrulanmış Showroom Scraper & 5 Araçlık Test Seti:
+    - 1. Kaynak (Öncelikli): Doğrulanmış KM, Fiyat, Donanım ve Ekspertiz verileri
+    - 2. Kaynak (Görsel Eşleme): 5 açılı HD showroom fotoğrafları
     - 3. Eşleşen araçların 5 açısı 'frontend/public/vehicle_images/{id}/' altına indirilerek 'vehicle_images' tablosuna kaydedilir.
     """
 
@@ -61,14 +61,13 @@ class SahibindenScraper:
 
     def get_sahibinden_verified_vehicles(self) -> List[Dict[str, Any]]:
         """
-        Sahibinden.com Arkas Spoticar canlı ilanlarından %100 doğrulanan 5 araçlık test seti
-        ve Spoticar CT1444T001 Marka/Model/Paket/Fiyat S3 görsel eşleşmeleri.
+        Doğrulanmış 5 araçlık test seti ve HD görsel eşleşmeleri.
         """
         return [
             {
                 "external_id": "SHBDN-1328660469",
-                "source": "Sahibinden Arkas Spoticar",
-                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-citroen-50-kredi-36-ay-vade-arkas-peugeot-dan-c5-aircross-1.5-dizel-ov-1328660469/detay",
+                "source": "Sahibinden Showroom",
+                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-citroen-c5-aircross-1.5-dizel-ov-1328660469/detay",
                 "brand": "Citroën",
                 "model": "C5 Aircross",
                 "package": "1.5 BlueHDi Shine EAT8",
@@ -104,7 +103,7 @@ class SahibindenScraper:
                     "degisen_parcalar": [],
                     "tramer_kaydi_tl": 0
                 },
-                "expertise_note": "Yalnızca 25.000 KM'de. Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup 12 Ay Garantilidir.",
+                "expertise_note": "Yalnızca 25.000 KM'de. Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. 100+ Nokta Kontrolünden geçmiş olup 12 Ay Garantilidir.",
                 # Matched with Spoticar CT1444T001 CITROEN-C5-AIRCROSS-33032
                 "matched_spoticar_s3_photos": [
                     "https://s3.eu-central-1.amazonaws.com/uvpictures-eu-central-1/368/SP/TR/CITROEN-C5-AIRCROSS-33032_1.JPG",
@@ -116,8 +115,8 @@ class SahibindenScraper:
             },
             {
                 "external_id": "SHBDN-1323035198",
-                "source": "Sahibinden Arkas Spoticar",
-                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-peugeot-50-kredi-36-ay-vade-ile-arkas-peugeot-dan-2025-408-allure-1323035198/detay",
+                "source": "Sahibinden Showroom",
+                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-peugeot-408-allure-1323035198/detay",
                 "brand": "Peugeot",
                 "model": "408",
                 "package": "1.2 PureTech Allure EAT8",
@@ -142,18 +141,18 @@ class SahibindenScraper:
                     "bagaj_hacmi_lt": "536 lt"
                 },
                 "ad_features": {
-                    "konfor": ["Çift Bölgeli Dijital Otomatik Klima", "Anahtarsız Giriş ve Çalıştırma", "F1 Vites Kulakçıkları", "Elektrikli Isıtmalı Katlanır Yan Aynalar"],
-                    "guvenlik": ["Aktif Şerit Takip Sistemi", "Otomatik Acil Durum Fren Sistemi", "180° Geri Görüş Kamerası & Park Sensörleri", "Sürücü Dikkat Uyarısı", "Trafik Levhaları Tanıma"],
-                    "multimedya": ["10 inç Dokunmatik HD Bilgi-Eğlence Ekranı", "Kablosuz Apple CarPlay & Android Auto", "i-Toggles Kişiselleştirilebilir Kısayol Tuşları", "Kablosuz Şarj"],
-                    "ic_donanim": ["Peugeot i-Cockpit 10 inç Dijital Gösterge", "Yarı Deri Kumaş Spor Koltuklar", "8 Renkli Ambiyans Aydınlatma", "Kompakt Deri Direksiyon"],
-                    "dis_donanim": ["Peugeot Full LED Matrix Farlar", "19 inç JASPE Alaşım Jantlar", "Aslan Dişi LED Gündüz Aydınlatması", "Karartılmış Arka Camlar"]
+                    "konfor": ["Peugeot i-Cockpit Tasarım", "Anahtarsız Giriş & Çalıştırma", "Çift Bölgeli Otomatik Klima", "Elektrokrom Dikiz Aynası", "Kablosuz Şarj"],
+                    "guvenlik": ["Otomatik Acil Durum Freni (Kamera + Radar)", "Aktif Şerit Takip Sistemi", "Hız Sabitleyici & Sınırlayıcı", "Geri Görüş Kamerası (180° VisioPark)", "Trafik İşareti Tanıma"],
+                    "multimedya": ["10 inç Kapasitif Dokunmatik Ekran", "Kablosuz Mirror Screen (Apple CarPlay / Android Auto)", "Bluetooth & USB-C Girişleri"],
+                    "ic_donanim": ["Kumaş/Deri Kombinasyonu Koltuklar", "Çok Fonksiyonlu Kompakt Deri Direksiyon", "LED Ambiyans Aydınlatması"],
+                    "dis_donanim": ["Peugeot LED Matrix Farlar", "19 inç Jaspe Alüminyum Alaşım Jantlar", "Gövde Rengi Ön Izgara", "Karartılmış Arka Camlar"]
                 },
                 "damage_expertise": {
                     "boyali_parcalar": [],
                     "degisen_parcalar": [],
                     "tramer_kaydi_tl": 0
                 },
-                "expertise_note": "Yalnızca 9.000 KM'de. Hatasız, boyasız ve değişensizdir. Fabrika garantisi ve Arkas Spoticar güvencesi altındadır.",
+                "expertise_note": "Yalnızca 9.000 KM'de. Hatasız, boyasız ve değişensizdir. Fabrika garantisi ve 100+ nokta kontrolü güvencesi altındadır.",
                 # Matched with Spoticar CT1444T001 PEUGEOT-408-32154
                 "matched_spoticar_s3_photos": [
                     "https://s3.eu-central-1.amazonaws.com/uvpictures-eu-central-1/368/SP/TR/PEUGEOT-408-32154_1.JPG",
@@ -165,8 +164,8 @@ class SahibindenScraper:
             },
             {
                 "external_id": "SHBDN-1323033792",
-                "source": "Sahibinden Arkas Spoticar",
-                "url": "https://sahibinden.com/ilan/vasita-otomobil-honda-50-kredi-36-ay-vade-ile-arkas-peugeot-dan-honda-city-hatasiz-1323033792/detay",
+                "source": "Sahibinden Showroom",
+                "url": "https://sahibinden.com/ilan/vasita-otomobil-honda-city-hatasiz-1323033792/detay",
                 "brand": "Honda",
                 "model": "City",
                 "package": "1.5 i-VTEC Executive CVT",
@@ -214,8 +213,8 @@ class SahibindenScraper:
             },
             {
                 "external_id": "SHBDN-1323156086",
-                "source": "Sahibinden Arkas Spoticar",
-                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-fiat-50-kredi-36-ay-vade-ile-arkas-peugeot-dan-egea-cross-urban-1323156086/detay",
+                "source": "Sahibinden Showroom",
+                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-fiat-egea-cross-urban-1323156086/detay",
                 "brand": "Fiat",
                 "model": "Egea Cross",
                 "package": "1.6 Multijet Urban DCT",
@@ -251,7 +250,7 @@ class SahibindenScraper:
                     "degisen_parcalar": [],
                     "tramer_kaydi_tl": 0
                 },
-                "expertise_note": "Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. 12 Ay Spoticar Mekanik Garantilidir.",
+                "expertise_note": "Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. 12 Ay Mekanik Garantilidir.",
                 # Matched with Spoticar CT1444T001 FIAT-EGEA-32156
                 "matched_spoticar_s3_photos": [
                     "https://s3.eu-central-1.amazonaws.com/uvpictures-eu-central-1/368/SP/TR/FIAT-EGEA-32156_1.JPG",
@@ -263,8 +262,8 @@ class SahibindenScraper:
             },
             {
                 "external_id": "SHBDN-1328662422",
-                "source": "Sahibinden Arkas Spoticar",
-                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-peugeot-50-kredi-36-ay-vade-ile-arkas-peugeot-dan-3008-1.5-dizel-1328662422/detay",
+                "source": "Sahibinden Showroom",
+                "url": "https://sahibinden.com/ilan/vasita-arazi-suv-pickup-peugeot-3008-1.5-dizel-1328662422/detay",
                 "brand": "Peugeot",
                 "model": "3008",
                 "package": "1.5 BlueHDi Active Prime EAT8",
@@ -300,7 +299,7 @@ class SahibindenScraper:
                     "degisen_parcalar": [],
                     "tramer_kaydi_tl": 0
                 },
-                "expertise_note": "Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. Arkas Spoticar 100+ Nokta Kontrolü ve 12 Ay Garantisi kapsamındadır.",
+                "expertise_note": "Aracın tüm parçaları orijinaldir. Değişen ve boyalı parçası bulunmamaktadır. Tramer: 0 TL. 100+ Nokta Kontrolü ve 12 Ay Garantisi kapsamındadır.",
                 # Matched with Spoticar CT1444T001 PEUGEOT-3008-33562
                 "matched_spoticar_s3_photos": [
                     "https://s3.eu-central-1.amazonaws.com/uvpictures-eu-central-1/368/SP/TR/PEUGEOT-3008-33562_1.JPG",
@@ -377,7 +376,7 @@ class SahibindenScraper:
             else:
                 vehicle_obj = Vehicle(
                     external_id=ext_id,
-                    source=item.get("source", "Sahibinden Arkas Spoticar"),
+                    source=item.get("source", "Sahibinden Showroom"),
                     url=item.get("url"),
                     brand=item["brand"],
                     model=item["model"],

@@ -44,7 +44,7 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         self.assertIn("Test sürüşü randevunuzu başarıyla oluşturdum", r4["reply"])
         self.assertIn("Peugeot 408", r4["reply"])
         self.assertIn("21 Ağustos 2026 - 14:00", r4["reply"])
-        self.assertIn("Gaziemir Showroom", r4["reply"])
+        self.assertIn("Merkez Showroom", r4["reply"])
         self.assertIn("05321234567", r4["reply"])
 
         # Step 5: Verify database record in test_drives table
@@ -53,7 +53,7 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         self.assertEqual(td.customer_phone, "05321234567")
         self.assertEqual(td.appointment_datetime_text, "21 Ağustos 2026 - 14:00")
         self.assertEqual(td.status, "CONFIRMED")
-        self.assertIn("Gaziemir", td.showroom_location)
+        self.assertIn("Merkez", td.showroom_location)
         self.assertEqual(td.vehicle.model, "408")
 
         # Step 6: Verify API endpoint GET /api/test-drives
@@ -108,7 +108,7 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         # Step 3: User explicitly refuses to give phone
         r3 = self.agent.process_message("Telefon numaramı vermek istemiyorum", session_id=sid)
         self.assertIn("iletişim numarası zorunludur", r3["reply"])
-        self.assertIn("Gaziemir Showroom", r3["reply"])
+        self.assertIn("Merkez Showroom", r3["reply"])
         self.assertNotIn("Anlayışınız için teşekkür ederiz", r3["reply"])
 
         # Verify no test drive appointment was saved
@@ -140,18 +140,18 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         self.assertIn("21 Ağustos", r2["reply"])
         self.assertIn("15:00", r2["reply"])
         self.assertIn("iletişim numarası zorunludur", r2["reply"])
-        self.assertIn("Gaziemir Showroom", r2["reply"])
+        self.assertIn("Merkez Showroom", r2["reply"])
         self.assertNotIn("Anlayışınız için teşekkür ederiz", r2["reply"]) # No robotic cliché
 
         # Turn 3: User follows up asking why phone is needed / if they can visit showroom directly
         r3 = self.agent.process_message("illa telefon numaramı vermem mi lazım", session_id=sid)
         self.assertIn("telefon numarası zorunludur", r3["reply"])
-        self.assertIn("Gaziemir Showroom", r3["reply"])
+        self.assertIn("Merkez Showroom", r3["reply"])
         self.assertNotIn("Merhaba İrem Hanım! Size nasıl yardımcı olabilirim", r3["reply"]) # No reset!
 
         # Turn 4: User asks alternative direct walk-in question
         r4 = self.agent.process_message("telefonumu vermeden direkt showrooma gelsem olur mu", session_id=sid)
-        self.assertIn("Gaziemir Showroom", r4["reply"])
+        self.assertIn("Merkez Showroom", r4["reply"])
         self.assertIn("test sürüşü", r4["reply"])
         self.assertNotIn("Merhaba İrem Hanım! Size nasıl yardımcı olabilirim", r4["reply"])
 
@@ -176,7 +176,7 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         r3 = self.agent.process_message("21.08.2026 saat 14.00, telefonumu paylaşmak istemiyorum", session_id=sid)
         self.assertIn("21 Ağustos 2026 - 14:00", r3["reply"])
         self.assertIn("iletişim numarası zorunludur", r3["reply"])
-        self.assertIn("Gaziemir Showroom", r3["reply"])
+        self.assertIn("Merkez Showroom", r3["reply"])
         self.assertNotIn("Anlayışınız için teşekkür ederiz", r3["reply"])
 
         # Verify DB record is NOT yet created
@@ -195,7 +195,7 @@ class TestDriveAppointmentsTestSuite(unittest.TestCase):
         self.assertIn("C5 Aircross", r5["reply"])
         self.assertIn("21 Ağustos 2026 - 14:00", r5["reply"])
         self.assertIn("05321112233", r5["reply"])
-        self.assertIn("Gaziemir Showroom", r5["reply"])
+        self.assertIn("Merkez Showroom", r5["reply"])
 
         # Verify DB record is now created with status CONFIRMED and correct vehicle & phone
         td = self.db.query(TestDrive).first()

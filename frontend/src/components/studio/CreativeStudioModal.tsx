@@ -171,10 +171,10 @@ export function CreativeStudioModal({
         <div className="rounded-xl border border-[#D1E7DD] bg-[#F0FDF4] p-4 text-[#0F5132]">
           <div className="flex items-center gap-2 font-bold text-sm">
             <FileCheck2 className="h-4 w-4 text-[#15803D]" />
-            <span>Arkas Spoticar 100+ Nokta Kontrolü ve Garanti</span>
+            <span>100+ Nokta Kontrolü ve Kapsamlı Garanti</span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#146C43]">
-            {vehicle.expertise_note || "Arkas Spoticar 100+ Nokta Kontrolünden geçmiştir. Kilometre ve mekanik garantisi altındadır."}
+            {vehicle.expertise_note || "100+ Nokta Kontrolünden geçmiştir. Kilometre ve mekanik garantisi altındadır."}
           </p>
         </div>
 
@@ -253,7 +253,7 @@ export function CreativeStudioModal({
 
                 <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-lg bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-[#18181B] backdrop-blur-md border border-[#E6E2D8] shadow-xs">
                   <span className="h-2 w-2 rounded-full bg-[#15803D]" />
-                  <span>Arkas Spoticar Sertifikalı Fotoğraf</span>
+                  <span>Sertifikalı Showroom Fotoğrafı</span>
                 </div>
               </>
             ) : (
@@ -265,7 +265,7 @@ export function CreativeStudioModal({
                   Bu aracın görseli bulunmamaktadır
                 </h4>
                 <p className="mt-1.5 max-w-xs text-xs text-[#716D65] leading-relaxed">
-                  Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup detaylı teknik ve ekspertiz bilgileri sağ tarafta yer almaktadır.
+                  100+ Nokta Kontrolünden geçmiş olup detaylı teknik ve ekspertiz bilgileri sağ tarafta yer almaktadır.
                 </p>
               </div>
             )}

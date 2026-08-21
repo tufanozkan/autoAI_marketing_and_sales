@@ -9,7 +9,7 @@ from .database import Base
 
 class Vehicle(Base):
     """
-    Arkas Spoticar 2. El Araç Modeli:
+    2. El Araç Modeli:
     - Teknik Özellikler, Donanımlar (5 Boyutlu), Ekspertiz & Hasar Raporu
     - 'images' ilişkisi ile VehicleImage tablosuna bağlanır (1-to-N)
     - 'brief' ilişkisi ile CreativeBrief tablosuna bağlanır (1-to-1)
@@ -18,7 +18,7 @@ class Vehicle(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     external_id = Column(String(100), unique=True, index=True, nullable=False)
-    source = Column(String(100), default="Sahibinden Arkas Spoticar")
+    source = Column(String(100), default="Showroom Catalog")
     url = Column(String(500), nullable=True)
 
     # Core specs
@@ -227,7 +227,7 @@ class CustomerLead(Base):
 
 class TestDrive(Base):
     """
-    Arkas Spoticar 2. El Test Sürüşü & Showroom Randevu Tablosu
+    2. El Test Sürüşü & Showroom Randevu Tablosu
     """
     __tablename__ = "test_drives"
 
@@ -241,7 +241,7 @@ class TestDrive(Base):
     appointment_date = Column(DateTime, nullable=True)
     appointment_time = Column(String(50), nullable=True)
     appointment_datetime_text = Column(String(150), nullable=False)
-    showroom_location = Column(String(250), default="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)")
+    showroom_location = Column(String(250), default="Merkez Showroom (Otomotiv Plaza No: 100)")
 
     status = Column(String(50), default="CONFIRMED")  # CONFIRMED, PENDING, COMPLETED, CANCELLED
     notes = Column(Text, nullable=True)

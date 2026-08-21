@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class MarketingAgent:
     """
-    Arkas Spoticar Otomotiv Pazarlama & Metin Üretim Ajanı:
+    Otomotiv Pazarlama & Metin Üretim Ajanı:
     - 1. Dengeli (Balanced / Safe): Şeffaf, net, teknik ve ekspertiz detaylarını içeren objektif ton.
     - 2. Profesyonel (Professional): Kurumsal, saygın, filo ve premium alıcılara hitap eden ton.
     - 3. İlgi Çekici (Engaging / Bold): Sosyal medya ve B2C müşteriler için enerjik, emojili pazarlama tonu.
@@ -55,25 +55,25 @@ class MarketingAgent:
             f"100 km'de ortalama {tech.get('yakit_tuketimi_lt', '4.9 lt')} yakıt tüketimi sunmaktadır.\n\n"
             f"Ekspertiz ve Kondisyon Durumu:\n"
             f"• {exp_status_str}\n"
-            f"• {vehicle.expertise_note or 'Arkas Spoticar 100+ Nokta Kontrolünden geçmiş olup 12 Ay Garantilidir.'}\n\n"
+            f"• {vehicle.expertise_note or '100+ Nokta Kontrolünden geçmiş olup 12 Ay Garantilidir.'}\n\n"
             f"Öne Çıkan Donanımlar: {', '.join((ad_feat.get('konfor', []) + ad_feat.get('guvenlik', []))[:4])}.\n"
-            f"Aracımız {price_fmt} liste fiyatı ve Arkas güvencesiyle satışa sunulmuştur."
+            f"Aracımız {price_fmt} liste fiyatı ve sertifikalı showroom güvencesiyle satışa sunulmuştur."
         )
 
         # 2. PROFESYONEL (PROFESSIONAL)
         professional_copy = (
-            f"Arkas Otomotiv kurumsal portföyünde yer alan {vehicle.year} {pkg_name}, segmentinin en verimli modelleri arasında yer almaktadır. "
+            f"Kurumsal showroom portföyümüzde yer alan {vehicle.year} {pkg_name}, segmentinin en verimli modelleri arasında yer almaktadır. "
             f"{tech.get('tork_nm', '230 Nm')} tork değeri ve {tech.get('bagaj_hacmi_lt', '350 lt')} bagaj hacmi ile hem kurumsal filo operasyonları hem de bireysel üst düzey kullanım için ideal bir tercihtir.\n\n"
             f"Kurumsal Güvence Standartları:\n"
-            f"• Spoticar 100+ Nokta Kapsamlı Mekanik ve Elektronik Ekspertiz Onayı\n"
-            f"• 12 Ay Spoticar Premium Mekanik Garanti Kapsamı\n"
+            f"• 100+ Nokta Kapsamlı Mekanik ve Elektronik Ekspertiz Onayı\n"
+            f"• 12 Ay Premium Mekanik Garanti Kapsamı\n"
             f"• Şeffaf Ekspertiz: {exp_status_str}\n\n"
-            f"Kurumsal fatura, takas desteği ve avantajlı taşıt kredisi imkanlarıyla Arkas showroomlarında incelenebilir."
+            f"Kurumsal fatura, takas desteği ve avantajlı taşıt kredisi imkanlarıyla showroomumuzda incelenebilir."
         )
 
         # 3. İLGİ ÇEKİCİ (ENGAGING)
         engaging_copy = (
-            f"✨ Hayalinizdeki otomobil Arkas Spoticar ayrıcalığıyla karşınızda! {vehicle.year} model {pkg_name}! 🚗💨\n\n"
+            f"✨ Hayalinizdeki otomobil showroom ayrıcalığıyla karşınızda! {vehicle.year} model {pkg_name}! 🚗💨\n\n"
             f"🔥 Neden Bu Araç?\n"
             f"• {tech.get('motor_gucu_hp', '130 HP')} gücünde seri performans & 100 km'de yalnızca {tech.get('yakit_tuketimi_lt', '4.9 lt')} tüketim! ⚡\n"
             f"• {', '.join(ad_feat.get('konfor', [])[:3])} gibi üst düzey konfor donanımları! 🛋️\n"
@@ -93,7 +93,7 @@ class MarketingAgent:
         hashtags = [
             f"#{vehicle.brand.replace('-', '').replace(' ', '')}",
             f"#{vehicle.model.replace(' ', '')}",
-            "#ArkasSpoticar",
+            "#AutoShowroom",
             "#IkinciEl",
             "#GarantiliAraba",
             "#OtomobilDunyasi"

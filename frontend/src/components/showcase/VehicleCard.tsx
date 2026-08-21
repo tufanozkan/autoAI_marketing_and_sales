@@ -71,7 +71,7 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
             </div>
             <div className="text-[10px] text-[#15803D] font-medium flex items-center justify-end gap-1">
               <ShieldCheck className="h-3 w-3" />
-              <span>Arkas Güvenceli</span>
+              <span>Ekspertiz Onaylı</span>
             </div>
           </div>
 
@@ -112,7 +112,7 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
               </div>
 
               <div className="flex items-center gap-1 rounded-md bg-[#18181B]/90 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white uppercase backdrop-blur-md">
-                <span>ARKAS 2. EL</span>
+                <span>PREMIUM 2. EL</span>
               </div>
             </div>
 
@@ -146,7 +146,7 @@ export function VehicleCard({ vehicle, onOpenStudio, viewMode }: VehicleCardProp
               Bu aracın görseli bulunmamaktadır
             </span>
             <span className="mt-1 text-[10px] text-[#716D65]">
-              Arkas Spoticar 100+ Nokta Kontrollü
+              100+ Nokta Kontrollü & Garantili
             </span>
           </div>
         )}

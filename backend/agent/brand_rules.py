@@ -5,17 +5,17 @@ class BrandRules:
         "Volvo": {
             "archetype": "Koruyucu & Güvenilir (The Caregiver / Sage)",
             "tone": "Sakin, prestijli, güven veren, aile ve güvenlik odaklı",
-            "keywords": ["Güvenlik", "İskandinav Lüksü", "Aile Koruması", "Huzurlu Yolculuk", "Arkas Güvencesi"],
+            "keywords": ["Güvenlik", "İskandinav Lüksü", "Aile Koruması", "Huzurlu Yolculuk", "Showroom Güvencesi"],
             "target_persona": "Ailesinin güvenliğini her şeyin üstünde tutan, konfor ve uzun ömürlü kalite arayan profesyoneller",
             "emotional_points": [
                 "Her kilometrede sevdikleriniz için tavizsiz güvenlik kalkanı",
                 "İskandinav tasarımının sunduğu dingin ve lüks yaşam alanı",
-                "Arkas 2. El garantisiyle sıfır risk, kusursuz huzur"
+                "Sertifikalı 2. El garantisiyle sıfır risk, kusursuz huzur"
             ],
             "accent_color": "#003057",  # Volvo Blue
             "badge_icon": "🛡️",
             "hooks": [
-                "Ailenizin güvenliği için tasarlandı: Volvo konforu Arkas 2. El'de.",
+                "Ailenizin güvenliği için tasarlandı: Volvo konforu showroomumuzda.",
                 "Yollardaki en güvenli sığınağınız. Kusursuz kondisyonda Volvo.",
                 "İskandinav zarafeti ve üst düzey güvenlik şimdi yeni sahibini bekliyor."
             ]
@@ -28,7 +28,7 @@ class BrandRules:
             "emotional_points": [
                 "Her virajda kalbinizi hızlandıran saf sürüş keyfi",
                 "İkonik M tasarım ve yollarda bakışları üzerine çeken duruş",
-                "Arkas 2. El yetkili servis geçmişiyle tam güven"
+                "Yetkili servis geçmişi ve 100+ nokta kontrolüyle tam güven"
             ],
             "accent_color": "#0066B1",  # BMW Blue
             "badge_icon": "⚡",
@@ -52,7 +52,7 @@ class BrandRules:
             "badge_icon": "⭐",
             "hooks": [
                 "Başarınızı yollara yansıtın: Eşsiz Mercedes-Benz konforu.",
-                "Yıldızın prestiji Arkas 2. El ayrıcalığı ile yollarınızda.",
+                "Yıldızın prestiji ve showroom ayrıcalığı ile yollarınızda.",
                 "Her detayında birinci sınıf işçilik ve kusursuz asalet."
             ]
         },
@@ -70,7 +70,7 @@ class BrandRules:
             "badge_icon": "🔬",
             "hooks": [
                 "Teknolojiyle bir adım önde: Audi akıllı sürüş deneyimi.",
-                "Yarınların sürüş teknolojisi bugün Arkas 2. El'de sizi bekliyor.",
+                "Yarınların sürüş teknolojisi bugün showroomumuzda sizi bekliyor.",
                 "Zeka, estetik ve üstün mühendisliğin kusursuz buluşması."
             ]
         },
@@ -89,7 +89,7 @@ class BrandRules:
             "hooks": [
                 "Sıradanlığı geride bırakın: Peugeot'nun göz alıcı tasarımı.",
                 "Her sürüşte büyüleyen i-Cockpit dünyasına adım atın.",
-                "Cesur stil, yüksek konfor ve Arkas 2. El güvencesi bir arada."
+                "Cesur stil, yüksek konfor ve sertifikalı ekspertiz güvencesi bir arada."
             ]
         },
         "Opel": {
@@ -106,7 +106,7 @@ class BrandRules:
             "badge_icon": "⚡",
             "hooks": [
                 "Alman mühendisliği, akılcı teknoloji ve tam güvenilirlik.",
-                "Aileniz için en doğru ve en sağlam seçim Arkas 2. El'de.",
+                "Aileniz için en doğru ve en sağlam seçim showroomumuzda.",
                 "Pratik zeka ve modern konforun buluştuğu nokta."
             ]
         },
@@ -118,14 +118,14 @@ class BrandRules:
             "emotional_points": [
                 "Yıllar geçse de değerini ve konforunu koruyan zamansız kalite",
                 "Hassas sürüş dinamikleri ve sessiz kabin konforu",
-                "Arkas 2. El ekspertiziyle garantili huzur"
+                "Kapsamlı ekspertiz güvencesiyle garantili huzur"
             ],
             "accent_color": "#001E50",  # VW Navy
             "badge_icon": "💎",
             "hooks": [
                 "Değerini her zaman koruyan zamansız Alman kalitesi.",
                 "Yollarda güven ve prestijin simgesi: Volkswagen.",
-                "Kusursuz işçilik ve sorunsuz sürüş keyfi Arkas 2. El'de."
+                "Kusursuz işçilik ve sorunsuz sürüş keyfi showroomumuzda."
             ]
         },
         "Renault": {
@@ -142,7 +142,7 @@ class BrandRules:
             "badge_icon": "🌟",
             "hooks": [
                 "Şehrin ritmini yakalayın: Enerjik ve ekonomik.",
-                "Akılcı bütçe, modern donanım ve Arkas 2. El garantisi.",
+                "Akılcı bütçe, modern donanım ve 12 ay showroom garantisi.",
                 "Hayata renk katan pratik sürüş deneyimi."
             ]
         },
@@ -154,14 +154,14 @@ class BrandRules:
             "emotional_points": [
                 "Her yolculukta tüm aileniz için maksimum ferahlık ve konfor",
                 "Simply Clever akılcı detaylarla hayatı kolaylaştıran tasarım",
-                "Arkas 2. El ekspertiziyle tam şeffaflık ve sıfır risk"
+                "Detaylı 100+ nokta ekspertiziyle tam şeffaflık ve sıfır risk"
             ],
             "accent_color": "#4BA82E",  # Skoda Green
             "badge_icon": "🍀",
             "hooks": [
                 "Akılcı çözümler ve geniş konfor: Skoda ayrıcalığı.",
                 "Ailenizin tüm ihtiyaçlarına tek araçla mükemmel yanıt.",
-                "Zeka dolu donanımlar ve Arkas 2. El güvencesi bir arada."
+                "Zeka dolu donanımlar ve sertifikalı ekspertiz güvencesi bir arada."
             ]
         },
         "Ford": {
@@ -179,7 +179,7 @@ class BrandRules:
             "hooks": [
                 "Yollarda sağlamlık ve güven: Efsanevi Ford performansı.",
                 "Her yolculukta üstün yol tutuş ve tavizsiz dayanıklılık.",
-                "Güçlü yol arkadaşınız Arkas 2. El güvencesiyle sizi bekliyor."
+                "Güçlü yol arkadaşınız sertifikalı showroom güvencesiyle sizi bekliyor."
             ]
         }
     }
@@ -216,17 +216,17 @@ class BrandRules:
         return cls.BRAND_CONFIG.get(brand_norm, {
             "archetype": "Güvenilir & Kaliteli Otomotiv",
             "tone": "Profesyonel, güven veren, net ve fayda odaklı",
-            "keywords": ["Arkas Güvencesi", "Ekspertiz Garantisi", "Konfor", "Yol Arkadaşı"],
+            "keywords": ["Showroom Güvencesi", "Ekspertiz Garantisi", "Konfor", "Yol Arkadaşı"],
             "target_persona": "Aracında güvenlik, bütçe dengesi ve satış sonrası huzur arayan otomobil sahipleri",
             "emotional_points": [
-                "Arkas 2. El güvencesiyle sıfır riskli satın alma deneyimi",
+                "Sertifikalı 2. El güvencesiyle sıfır riskli satın alma deneyimi",
                 "Titizlikle kontrol edilmiş ekspertiz ve teknik kondisyon",
                 "Yolculuklarınızı keyfe dönüştüren konforlu detaylar"
             ],
             "accent_color": "#E30613",
             "badge_icon": "🚗",
             "hooks": [
-                "Hayalinizdeki otomobil Arkas 2. El güvencesiyle sizi bekliyor.",
+                "Hayalinizdeki otomobil sertifikalı showroom güvencesiyle sizi bekliyor.",
                 "Kusursuz kondisyonda, ekspertiz garantili güvenli sürüş.",
                 "Aradığınız konfor ve kalite en uygun avantajlarla burada."
             ]

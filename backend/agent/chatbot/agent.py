@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ChatbotAgent:
     """
-    Arkas Spoticar Bilişsel AI Satış Danışmanı & Otomotiv Asistanı:
+    Bilişsel AI Satış Danışmanı & Otomotiv Asistanı:
     - Türkçe Varlık Tanıma (NER: Hanım/Bey/Unisex/Sayın)
     - Çift Cinsiyetli (Unisex) İsimleri Tespit Edip Tercih Sorabilme
     - Çoklu Niyet (Multi-Intent) & Olumsuzlama (Negation) Çıkarımı

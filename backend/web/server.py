@@ -27,7 +27,7 @@ class ResetChatRequest(BaseModel):
 app = FastAPI(
     title=settings.APP_NAME,
     version="3.0.0",
-    description="Arkas 2. El Pazarlama AI - Web Scraper, AI Metin Ajanı, Bilişsel AI Danışman & Modern Next.js Vitrini"
+    description="AutoAI Showroom - Web Scraper, AI Marketing Agent, Cognitive AI Consultant & Modern Next.js Vitrin"
 )
 
 app.add_middleware(
@@ -56,7 +56,7 @@ def read_root():
         next_index = FRONTEND_OUT_DIR / "index.html"
         if next_index.exists():
             return FileResponse(str(next_index))
-    return {"message": "Arkas 2. El Pazarlama AI Backend Aktif. Next.js arayüzü için: python main.py --build-frontend"}
+    return {"message": "AutoAI Showroom Backend Aktif. Next.js arayüzü için: python main.py --build-frontend"}
 
 @app.get("/api/stats")
 def get_stats(db: Session = Depends(get_db)):

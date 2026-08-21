@@ -3,12 +3,12 @@ version: '3.8'
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: arkas_postgres
+    container_name: auto_postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: arkas_marketing_db
+      POSTGRES_DB: auto_marketing_db
     ports:
       - "5432:5432"
     volumes:

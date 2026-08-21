@@ -40,10 +40,10 @@ export function ChatbotWidget({
   
   const [sessionId, setSessionId] = useState<string>(() => {
     if (typeof window !== "undefined") {
-      const saved = sessionStorage.getItem("arkas_ai_session_id");
+      const saved = sessionStorage.getItem("auto_ai_session_id");
       if (saved) return saved;
       const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      sessionStorage.setItem("arkas_ai_session_id", newId);
+      sessionStorage.setItem("auto_ai_session_id", newId);
       return newId;
     }
     return `session_${Date.now()}`;
@@ -60,7 +60,7 @@ export function ChatbotWidget({
           id: "welcome-1",
           role: "assistant",
           content:
-            "Merhaba! Arkas 2. El AI Danışmanına hoş geldiniz. 🚗✨\n\nSize nasıl hitap etmemizi istersiniz? Ad ve soyadınızı paylaşabilir misiniz?\nAyrıca aradığınız kriterlerde yeni bir araç stoğumuza girdiğinde ilk sizin haberiniz olması için telefon numaranızı da yazabilirsiniz.",
+            "Merhaba! Yapay Zeka Otomotiv Satış Danışmanına hoş geldiniz. 🚗✨\n\nSize nasıl hitap etmemizi istersiniz? Ad ve soyadınızı paylaşabilir misiniz?\nAyrıca aradığınız kriterlerde yeni bir araç stoğumuza girdiğinde ilk sizin haberiniz olması için telefon numaranızı da yazabilirsiniz.",
         },
       ]);
     }
@@ -147,7 +147,7 @@ export function ChatbotWidget({
     // 2. Clear local chat state & new session
     const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("arkas_ai_session_id", newId);
+      sessionStorage.setItem("auto_ai_session_id", newId);
     }
     setSessionId(newId);
     setCustomerId(null);
@@ -232,7 +232,7 @@ export function ChatbotWidget({
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-extrabold text-[#18181B]">Arkas AI Danışman</span>
+                  <span className="text-xs font-extrabold text-[#18181B]">AI Satış Danışmanı</span>
                   <span className="h-1.5 w-1.5 rounded-full bg-[#15803D] animate-pulse" />
                 </div>
                 <span className="text-[10px] text-[#716D65]">
@@ -288,7 +288,7 @@ export function ChatbotWidget({
             {isLoading && (
               <div className="flex items-center gap-2 rounded-xl bg-[#F7F5F0] p-3 text-xs text-[#716D65] border border-[#E6E2D8] w-fit">
                 <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#9C8262]" />
-                <span>Arkas veritabanı taranıyor...</span>
+                <span>Veritabanı taranıyor...</span>
               </div>
             )}
 

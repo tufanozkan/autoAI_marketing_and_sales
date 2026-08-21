@@ -20,18 +20,18 @@ export function Navbar({
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 items-center justify-center rounded-xl bg-[#18181B] px-4 shadow-sm">
-              <span className="font-black tracking-widest text-[#F7F5F0] text-sm uppercase">ARKAS</span>
+              <span className="font-black tracking-widest text-[#F7F5F0] text-sm uppercase">AUTO AI</span>
             </div>
             <div className="hidden sm:block h-6 w-px bg-[#D5CFC2]" />
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-extrabold tracking-tight text-[#18181B]">SPOTICAR SHOWROOM</span>
+                <span className="text-sm font-extrabold tracking-tight text-[#18181B]">SMART SHOWROOM</span>
                 <span className="rounded-full bg-[#EAE6DD] px-2 py-0.5 text-[10px] font-bold text-[#716D65] border border-[#D5CFC2]">
-                  İZMİR
+                  DİJİTAL VİTRİN
                 </span>
               </div>
               <span className="text-[11px] text-[#716D65] font-medium">
-                Sertifikalı 2. El Otomotiv Vitrini
+                Sertifikalı & Garantili Otomotiv Vitrini
               </span>
             </div>
           </div>
@@ -45,7 +45,7 @@ export function Navbar({
           </div>
           <div className="flex items-center gap-1.5">
             <Award className="h-4 w-4 text-[#9C8262]" />
-            <span>12 Ay Spoticar Garantisi</span>
+            <span>12 Ay Kapsamlı Garanti</span>
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="h-4 w-4 text-[#1E40AF]" />

@@ -12,24 +12,24 @@ VEHICLE_IMAGES_DIR = FRONTEND_PUBLIC_DIR / "vehicle_images"
 VEHICLE_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
 
 class Settings(BaseSettings):
-    APP_NAME: str = "Arkas 2. El Pazarlama AI"
+    APP_NAME: str = "AutoAI Showroom - Automotive Marketing & Sales AI"
     APP_ENV: str = os.getenv("APP_ENV", "development")
     
     # Database Settings (PostgreSQL - DBeaver Connection)
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
-    DB_NAME: str = os.getenv("DB_NAME", "arkas_marketing_db")
+    DB_NAME: str = os.getenv("DB_NAME", "auto_marketing_db")
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")
     
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'arkas_marketing_db')}"
+        f"postgresql://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'localhost')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'auto_marketing_db')}"
     )
     
     # Scraper Settings
-    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://arkasspoticar.sahibinden.com")
-    SPOTI_CAR_URL: str = os.getenv("SPOTI_CAR_URL", "https://www.spoticar.com.tr/ikinci-el-araclar?filters[3][pointofsale]=CT1444T001")
+    SCRAPER_BASE_URL: str = os.getenv("SCRAPER_BASE_URL", "https://sahibinden.com")
+    SPOTI_CAR_URL: str = os.getenv("SPOTI_CAR_URL", "https://www.spoticar.com.tr")
     SCRAPER_TIMEOUT: int = int(os.getenv("SCRAPER_TIMEOUT", "10"))
     MAX_SCRAPE_ITEMS: int = int(os.getenv("MAX_SCRAPE_ITEMS", "50"))
     

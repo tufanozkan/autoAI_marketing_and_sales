@@ -826,8 +826,11 @@ class NLUParser:
         if any(w in q_norm for w in ["kredi", "finansman", "taksit", "pesinat", "peşinat", "faiz", "vade", "banka"]):
             intents.append("FINANCE")
 
-        if any(w in q_norm for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "gaziemir", "calisma saatleri", "çalışma saatleri"]):
+        if any(w in q_norm for w in ["nerede", "neredesiniz", "adres", "lokasyon", "konum", "merkez", "plaza", "calisma saatleri", "çalışma saatleri"]):
             intents.append("LOCATION")
+
+        if any(w in q_norm for w in ["garanti", "guvence", "güvence", "100 nokta", "kac nokta", "kaç nokta", "ekspertiz"]):
+            intents.append("WARRANTY")
 
         # Appointment / Test Drive Scheduling
         dt_expr = NLUParser.extract_datetime_expression(text)

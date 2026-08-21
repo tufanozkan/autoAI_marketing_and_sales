@@ -26,12 +26,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.arkasotomotiv2.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "arkasotomotiv2.com",
+        hostname: "**.amazonaws.com",
         pathname: "/**",
       },
     ],

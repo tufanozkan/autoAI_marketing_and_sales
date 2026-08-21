@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Arkas 2. El Pazarlama AI - Ana Orkestratör (Main Orchestrator)
+AutoAI Showroom - Ana Orkestratör (Main Orchestrator)
 
 Kullanım:
     python main.py                # Scraper -> AI Pazarlama Ajanı -> Web Sunucusu
@@ -26,12 +26,12 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%H:%M:%S"
 )
-logger = logging.getLogger("ArkasAI")
+logger = logging.getLogger("AutoAI")
 
 def print_banner():
     banner = r"""
   ╔════════════════════════════════════════════════════════════════╗
-  ║                 ARKAS 2. EL PAZARLAMA AI                       ║
+  ║                 AUTO AI SHOWROOM & MARKETING AI                ║
   ║     Web Scraper • AI Metin Ajanı • Bilişsel AI Asistan & Vitrin║
   ╚════════════════════════════════════════════════════════════════╝
     """
@@ -76,7 +76,7 @@ def build_frontend():
             print(f"      ❌ Frontend derleme hatası:\n{res.stderr}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Arkas 2. El Pazarlama AI Orchestrator")
+    parser = argparse.ArgumentParser(description="AutoAI Showroom Orchestrator")
     parser.add_argument("--reset-db", action="store_true", help="Tüm veritabanı tablolarını sıfırlar")
     parser.add_argument("--scrape-only", action="store_true", help="Yalnızca scraper çalıştırır")
     parser.add_argument("--generate-only", action="store_true", help="Yalnızca AI reklam metinlerini üretir")

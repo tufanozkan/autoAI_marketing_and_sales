@@ -187,13 +187,13 @@ export default function Home() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D5CFC2] bg-[#EAE6DD] px-3.5 py-1 text-xs font-bold text-[#716D65] mb-3">
               <ShieldCheck className="h-3.5 w-3.5 text-[#15803D]" />
-              <span>Arkas Spoticar Güvencesiyle 100+ Nokta Kontrollü Araçlar</span>
+              <span>Sertifikalı Ekspertiz Güvencesiyle 100+ Nokta Kontrollü Araçlar</span>
             </div>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-[#18181B] leading-tight">
               Sertifikalı 2. El Otomobil Showroomu
             </h1>
             <p className="mt-2.5 text-xs sm:text-sm text-[#716D65] leading-relaxed">
-              Arkas Otomotiv güvencesiyle detaylı ekspertiz kontrolünden geçmiş, 12 ay garantili ve hemen teslime hazır ikinci el araçlarımızı çok açılı orijinal showroom fotoğraflarıyla inceleyin.
+              Kapsamlı ekspertiz kontrolünden geçmiş, 12 ay garantili ve hemen teslime hazır ikinci el araçlarımızı çok açılı orijinal showroom fotoğraflarıyla inceleyin.
             </p>
           </div>
 

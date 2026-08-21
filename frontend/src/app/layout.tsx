@@ -10,8 +10,8 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Arkas 2. El Pazarlama AI — Minimalist Kreatif Stüdyo",
-  description: "Duygusal satış noktaları ve 5 açılı yüksek çözünürlüklü afişlerle donatılmış minimalist ve modern 2. el pazarlama vitrini.",
+  title: "AutoAI Showroom — Yeni Nesil Bilişsel AI Otomotiv & Kreatif Vitrin",
+  description: "Duygusal satış noktaları, 5 açılı yüksek çözünürlüklü afişler ve bilişsel AI satış danışmanıyla donatılmış yeni nesil dijital otomotiv vitrini.",
   icons: {
     icon: "/favicon.ico",
   },

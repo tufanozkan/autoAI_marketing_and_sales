@@ -44,7 +44,7 @@ class TestVehicleOverviewConsultantFlow(unittest.TestCase):
         self.assertIn("Peugeot 3008", r4["reply"])
         self.assertIn("Satış Fiyatı", r4["reply"])
         # Must NOT be a generic greeting reset
-        self.assertNotIn("Size nasıl yardımcı olabilirim? Arkas Spoticar portföyümüzdeki araçlarımızın donanım", r4["reply"])
+        self.assertNotIn("Size nasıl yardımcı olabilirim? Showroom portföyümüzdeki araçlarımızın donanım", r4["reply"])
 
         # Step 5: User asks about another vehicle ("Citroen C5 Aircross'u anlatır mısın")
         r5 = self.agent.process_message("Citroen C5 Aircross'u anlatır mısın", session_id=sid)

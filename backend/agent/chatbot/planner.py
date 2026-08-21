@@ -166,7 +166,7 @@ class ResponsePlanner:
 
             reply_text = (
                 "Sohbet ve tüm araç filtreleri sıfırlandı. 🔄✨\n\n"
-                "Merhaba! Arkas Spoticar Showroomuna hoş geldiniz. Tüm güncel araçlarımız yeniden listelendi.\n\n"
+                "Merhaba! Showroomumuza hoş geldiniz. Tüm güncel araçlarımız yeniden listelendi.\n\n"
                 "Size nasıl hitap etmemizi istersiniz? Aklınızdaki model (Peugeot 408, Citroën C5 Aircross, Honda City, Fiat Egea vb.), kasa tipi veya bütçenizi iletebilirsiniz."
             )
             reset_action = {
@@ -424,7 +424,7 @@ class ResponsePlanner:
 
             vehicles_text = "\n".join(lines)
             reply_text = (
-                f"{salutation}, Arkas Spoticar showroomumuzda şu anda toplam **{total_count} adet** sertifikalı ve 100+ nokta kontrolünden geçmiş 2. el aracımız bulunmaktadır:\n\n"
+                f"{salutation}, showroomumuzda şu anda toplam **{total_count} adet** sertifikalı ve 100+ nokta kontrolünden geçmiş 2. el aracımız bulunmaktadır:\n\n"
                 f"{vehicles_text}\n\n"
                 f"Aklınızdaki kasa tipi (SUV, Sedan), donanım veya bütçe aralığına göre istediğiniz aracı doğrudan bana sorabilirsiniz!"
             )
@@ -450,9 +450,9 @@ class ResponsePlanner:
         elif state.customer.unisex_pending and len(lead.chat_history or []) <= 4 and not ("VEHICLE_DETAIL" in intents or "VEHICLE_SEARCH" in intents or is_appointment_datetime or is_appointment_request):
             phone_note = f" (İletişim Numaranız: {state.customer.phone})" if state.customer.phone else (" (Telefon paylaşımı tercih edilmedi)" if state.customer.phone_declined else "")
             reply_text = (
-                f"Çok memnun oldum {state.customer.first_name}{phone_note}! Bilgilerinizi Arkas güvencesiyle kaydettim.\n\n"
+                f"Çok memnun oldum {state.customer.first_name}{phone_note}! Bilgilerinizi güvenle kaydettim.\n\n"
                 f"Size nasıl hitap etmemi arzu edersiniz; **{state.customer.first_name} Bey** mi yoksa **{state.customer.first_name} Hanım** mı? 😊\n\n"
-                f"Arkas Spoticar portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
+                f"Showroom portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
                 f"kasa tipi (SUV, Sedan) ya da belirlediğiniz bir bütçe aralığı var mı?"
             )
 
@@ -460,7 +460,7 @@ class ResponsePlanner:
         elif "HONORIFIC_PROVIDED" in intents and len(msg_clean.split()) <= 4:
             reply_text = (
                 f"Memnuniyetle {salutation}! Tercihinizi not aldım. ✨\n\n"
-                f"Arkas Spoticar portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
+                f"Showroom portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
                 f"kasa tipi (SUV, Sedan) ya da belirlediğiniz bir bütçe aralığı var mı?"
             )
 
@@ -473,7 +473,7 @@ class ResponsePlanner:
 
             reply_text = (
                 f"{salutation}, sistem üzerinden belirli bir gün ve saat için adınıza özel araç rezerve edebilmemiz, geçici kasko/sigorta hazırlıkları ve danışmanımızın randevu saatinde aracı sadece size hazır tutabilmesi adına resmi kayıtlarda telefon numarası zorunludur.\n\n"
-                f"**Ancak telefon numaranızı paylaşmadan da test sürüşü yapabilirsiniz!** Bunun için önceden randevu oluşturmadan doğrudan **Arkas Spoticar Gaziemir Showroomumuzu (Akçay Cad. No: 284 Gaziemir / İZMİR)** ziyaret edebilirsiniz. Showroom satış danışmanlarımız {v_context}o sırada müsait olan araçlarımızla sizi kahvemiz eşliğinde ağırlamaktan ve test sürüşü imkanı sunmaktan memnuniyet duyacaktır. 😊🚗\n\n"
+                f"**Ancak telefon numaranızı paylaşmadan da test sürüşü yapabilirsiniz!** Bunun için önceden randevu oluşturmadan doğrudan **Merkez Showroomumuzu (Otomotiv Plaza No: 100)** ziyaret edebilirsiniz. Showroom satış danışmanlarımız {v_context}o sırada müsait olan araçlarımızla sizi kahvemiz eşliğinde ağırlamaktan ve test sürüşü imkanı sunmaktan memnuniyet duyacaktır. 😊🚗\n\n"
                 f"Showroom ziyareti öncesinde araçlarımızın donanım, ekspertiz veya fiyat detaylarıyla ilgili merak ettiğiniz tüm soruları doğrudan bana sormaya devam edebilirsiniz!"
             )
 
@@ -484,8 +484,8 @@ class ResponsePlanner:
                 state.appointment_datetime_text = dt_expr["formatted_text"]
             date_note = f"tercih ettiğiniz tarihi (**{dt_expr['formatted_text']}**) memnuniyetle not aldım. Ancak " if dt_expr else ""
             reply_text = (
-                f"{salutation}, {date_note}Arkas Spoticar güvencesiyle adınıza özel test aracı rezerve edebilmemiz, plaka/kasko hazırlıkları ve satış danışmanımızın randevu teyidi sağlayabilmesi için iletişim numarası zorunludur.\n\n"
-                f"Telefon numaranızı paylaşmak istememenizi gayet iyi anlıyorum. Dilerseniz önceden telefonla randevu kaydı oluşturmadan da doğrudan **Gaziemir Showroomumuzu (Akçay Cad. No: 284 Gaziemir / İZMİR)** ziyaret edebilirsiniz! Danışmanlarımız o an müsait olan araçlarımızla size test sürüşü yaptırmaktan memnuniyet duyacaktır. 🚗✨\n\n"
+                f"{salutation}, {date_note}adınıza özel test aracı rezerve edebilmemiz, plaka/kasko hazırlıkları ve satış danışmanımızın randevu teyidi sağlayabilmesi için iletişim numarası zorunludur.\n\n"
+                f"Telefon numaranızı paylaşmak istememenizi gayet iyi anlıyorum. Dilerseniz önceden telefonla randevu kaydı oluşturmadan da doğrudan **Merkez Showroomumuzu (Otomotiv Plaza No: 100)** ziyaret edebilirsiniz! Danışmanlarımız o an müsait olan araçlarımızla size test sürüşü yaptırmaktan memnuniyet duyacaktır. 🚗✨\n\n"
                 f"Bu esnada araçlarımızın donanım, ekspertiz durumu veya fiyat koşullarıyla ilgili merak ettiğiniz soruları buradan yanıtlamaya devam edebilirim."
             )
 
@@ -499,7 +499,7 @@ class ResponsePlanner:
             if not target_vehicle and state.last_search_result_ids:
                 target_vehicle = db.query(Vehicle).filter(Vehicle.id == state.last_search_result_ids[0]).first()
 
-            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "Arkas Spoticar aracımız"
+            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "showroom aracımız"
             dt_title = f" (**{state.appointment_datetime_text}**)" if state.appointment_datetime_text else ""
 
             reply_text = (
@@ -521,7 +521,7 @@ class ResponsePlanner:
             if not target_vehicle:
                 target_vehicle = db.query(Vehicle).filter(Vehicle.is_active == True).first()
 
-            v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Arkas Spoticar Showroom Aracı"
+            v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Showroom Aracı"
             cust_name = state.customer.full_name or (f"{state.customer.first_name} {state.customer.last_name}" if state.customer.last_name else state.customer.first_name) or "Değerli Müşterimiz"
 
             if target_vehicle:
@@ -540,7 +540,7 @@ class ResponsePlanner:
                     appointment_date=parsed_date,
                     appointment_time=time_str,
                     appointment_datetime_text=formatted_dt,
-                    showroom_location="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)",
+                    showroom_location="Merkez Showroom (Otomotiv Plaza No: 100)",
                     status="CONFIRMED",
                     notes=f"AI Danışman üzerinden randevu oluşturuldu. İlgilenilen Araç: {v_title}"
                 )
@@ -558,7 +558,7 @@ class ResponsePlanner:
                     f"📋 **Randevu Detayları:**\n"
                     f"• 🚘 **Araç:** **{v_title}**\n"
                     f"• 🕒 **Tarih & Saat:** **{formatted_dt}**\n"
-                    f"• 📍 **Lokasyon:** Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)\n"
+                    f"• 📍 **Lokasyon:** Merkez Showroom (Otomotiv Plaza No: 100)\n"
                     f"• 📱 **İletişim:** {state.customer.phone}\n\n"
                     f"Satış danışmanımız randevu saatinizde aracınızı test sürüşüne hazır tutacaktır. İletişim numaranıza bilgilendirme kaydı iletilmiştir.\n\n"
                     f"Showroom ziyareti öncesinde araç veya ekspertiz durumuyla ilgili sormak istediğiniz başka bir detay var mı?"
@@ -587,19 +587,19 @@ class ResponsePlanner:
                 lead.interested_model = target_vehicle.model
                 lead.interested_body_type = target_vehicle.body_type
 
-            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "Arkas Spoticar portföyümüzdeki araçlarımız"
+            v_title = f"**{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''}**" if target_vehicle else "showroom portföyümüzdeki araçlarımız"
             
             if state.customer.phone:
                 reply_text = (
                     f"Memnuniyetle {salutation}! {v_title} için test sürüşü ve danışman randevunuzu hemen planlayalım. 🚗✨\n\n"
                     f"📅 Size en uygun **gün ve saat aralığını** iletebilir misiniz? (Örn: *Yarın saat 14:00* veya *21.08.2026 - 14:00*)\n\n"
-                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                    f"Merkez showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
                 )
             else:
                 reply_text = (
                     f"Memnuniyetle {salutation}! {v_title} için test sürüşü ve danışman randevunuzu hemen planlayalım. 🚗✨\n\n"
                     f"📅 Size en uygun **gün ve saat aralığını** ve danışmanımızın aracı adınıza rezerve edip teyit sağlayabilmesi için **telefon numaranızı** iletebilir misiniz? 📱\n\n"
-                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                    f"Merkez showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
                 )
 
         # 3. Dedicated Phone Submission Acknowledgment
@@ -621,7 +621,7 @@ class ResponsePlanner:
                     lead.interested_model = target_vehicle.model
                     lead.interested_body_type = target_vehicle.body_type
 
-                v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Arkas Spoticar Showroom Aracı"
+                v_title = f"{target_vehicle.brand} {target_vehicle.model} {target_vehicle.package or ''} ({target_vehicle.year})".strip() if target_vehicle else "Showroom Aracı"
                 cust_name = state.customer.full_name or (f"{state.customer.first_name} {state.customer.last_name}" if state.customer.last_name else state.customer.first_name) or "Değerli Müşterimiz"
 
                 test_drive = TestDrive(
@@ -632,7 +632,7 @@ class ResponsePlanner:
                     appointment_date=None,
                     appointment_time=None,
                     appointment_datetime_text=state.appointment_datetime_text,
-                    showroom_location="Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)",
+                    showroom_location="Merkez Showroom (Otomotiv Plaza No: 100)",
                     status="CONFIRMED",
                     notes=f"AI Danışman üzerinden randevu oluşturuldu. İlgilenilen Araç: {v_title}"
                 )
@@ -650,7 +650,7 @@ class ResponsePlanner:
                     f"📋 **Randevu Detayları:**\n"
                     f"• 🚘 **Araç:** **{v_title}**\n"
                     f"• 🕒 **Tarih & Saat:** **{formatted_dt}**\n"
-                    f"• 📍 **Lokasyon:** Arkas Spoticar Gaziemir Showroom (Akçay Cad. No: 284 Gaziemir / İZMİR)\n"
+                    f"• 📍 **Lokasyon:** Merkez Showroom (Otomotiv Plaza No: 100)\n"
                     f"• 📱 **İletişim:** {state.customer.phone}\n\n"
                     f"Satış danışmanımız randevu saatinizde aracınızı test sürüşüne hazır tutacaktır. İletişim numaranıza bilgilendirme kaydı iletilmiştir.\n\n"
                     f"Showroom ziyareti öncesinde araç veya ekspertiz durumuyla ilgili sormak istediğiniz başka bir detay var mı?"
@@ -659,7 +659,7 @@ class ResponsePlanner:
                 reply_text = (
                     f"İletişim numaranızı ({state.customer.phone}) kaydettim {salutation}! 📱\n\n"
                     f"Test sürüşü için size en uygun **gün ve saat aralığını** iletebilir misiniz? (Örn: *Yarın saat 14:00* veya *21.08.2026 - 14:00*)\n\n"
-                    f"Gaziemir showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
+                    f"Merkez showroomumuzda satış danışmanımız aracınızı hazır ederek sizi kahvemiz eşliğinde ağırlayacaktır."
                 )
             elif state.last_appointment_id:
                 td = db.query(TestDrive).filter(TestDrive.id == state.last_appointment_id).first()
@@ -674,7 +674,7 @@ class ResponsePlanner:
             else:
                 reply_text = (
                     f"İletişim numaranızı ({state.customer.phone}) başarıyla kaydettim {salutation}! 📱\n\n"
-                    f"Arkas Spoticar satış danışmanımız en kısa sürede sizinle iletişime geçerek test sürüşü ve özel tekliflerimizi aktaracaktır.\n\n"
+                    f"Satış danışmanımız en kısa sürede sizinle iletişime geçerek test sürüşü ve özel tekliflerimizi aktaracaktır.\n\n"
                     f"Bu esnada araçlarımızla ilgili merak ettiğiniz başka bir detay veya donanım sorusu var mı?"
                 )
 
@@ -688,7 +688,7 @@ class ResponsePlanner:
             else:
                 reply_text = (
                     f"{salutation}, şu anda stok veritabanımızda **sıfır kilometre / yeni araç** bulunmamaktadır.\n\n"
-                    f"Portföyümüzdeki düşük kilometreli, detaylı ekspertizden geçmiş ve 12 ay Arkas Spoticar garantili 2. el araçlarımızı incelemek ister misiniz?"
+                    f"Portföyümüzdeki düşük kilometreli, detaylı ekspertizden geçmiş ve 12 ay garantili 2. el araçlarımızı incelemek ister misiniz?"
                 )
 
         # 5. Vehicle Specific Q&A and Comprehensive Overview Presentation
@@ -776,13 +776,13 @@ class ResponsePlanner:
                     else:
                         target_budget_fmt = ""
                     reply_text = (
-                        f"{salutation}, belirttiğiniz bütçeye (**{target_budget_fmt}**) en uygun güncel Arkas Spoticar araçlarımız:\n\n"
+                        f"{salutation}, belirttiğiniz bütçeye (**{target_budget_fmt}**) en uygun güncel araçlarımız:\n\n"
                         f"{vehicles_text}\n\n"
                         f"İncelemek istediğiniz modelin donanım veya ekspertiz durumunu detaylandırabilirim!"
                     )
                 else:
                     reply_text = (
-                        f"{salutation}, kriterlerinize{crit_str} en uygun güncel Arkas Spoticar araçlarımız:\n\n"
+                        f"{salutation}, kriterlerinize{crit_str} en uygun güncel araçlarımız:\n\n"
                         f"{vehicles_text}\n\n"
                         f"Araçların vitesini, kilometresini, ekspertiz durumunu veya donanım detaylarını doğrudan bana sorabilirsiniz!"
                     )
@@ -843,8 +843,8 @@ class ResponsePlanner:
         elif ("CUSTOMER_IDENTIFICATION" in intents or "PHONE_DECLINED" in intents) and len(lead.chat_history or []) <= 4:
             phone_note = f" (İletişim Numaranız: {state.customer.phone})" if state.customer.phone else (" (Telefon paylaşımı tercih edilmedi)" if state.customer.phone_declined else "")
             reply_text = (
-                f"Çok memnun oldum {salutation}{phone_note}! Bilgilerinizi Arkas güvencesiyle kaydettim.\n\n"
-                f"Arkas Spoticar portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
+                f"Çok memnun oldum {salutation}{phone_note}! Bilgilerinizi güvenle kaydettim.\n\n"
+                f"Showroom portföyümüzde sizin için nasıl bir araç bakalım? Aklınızda belirli bir model (Peugeot 408, Citroën C5 Aircross, Honda City vb.), "
                 f"kasa tipi (SUV, Sedan) ya da belirlediğiniz bir bütçe aralığı var mı?"
             )
 
@@ -853,26 +853,26 @@ class ResponsePlanner:
             if any(w in q_norm for w in ["iyi gunler", "iyi günler", "iyi aksamlar", "iyi akşamlar", "iyi geceler", "hosca kal", "hoşça kal", "hoscakal", "hoşçakal", "gorusmek uzere", "görüşmek üzere"]):
                 reply_text = (
                     f"İyi günler dilerim {salutation}! 😊\n\n"
-                    f"Aklınıza takılan başka bir soru veya incelemek istediğiniz bir araç olursa ben her zaman buradayım. Arkas Spoticar olarak keyifli ve güvenli sürüşler dileriz! 🚗✨"
+                    f"Aklınıza takılan başka bir soru veya incelemek istediğiniz bir araç olursa ben her zaman buradayım. Keyifli ve güvenli sürüşler dileriz! 🚗✨"
                 )
             else:
                 reply_text = (
                     f"Rica ederim {salutation}! Yardımcı olabildiysem ne mutlu bana. 😊\n\n"
-                    f"Arkas Spoticar araçlarımız, ekspertiz güvencemiz veya kredi koşullarımızla ilgili aklınıza takılan bir konu olursa dilediğiniz zaman sorabilirsiniz. Keyifli ve güvenli sürüşler dilerim! 🚗✨"
+                    f"Araçlarımız, ekspertiz güvencemiz veya kredi koşullarımızla ilgili aklınıza takılan bir konu olursa dilediğiniz zaman sorabilirsiniz. Keyifli ve güvenli sürüşler dilerim! 🚗✨"
                 )
 
         # 9. Fallback Greeting
         else:
             if not state.customer.first_name:
                 reply_text = (
-                    "Merhaba! Arkas Spoticar Yapay Zeka Satış Danışmanına hoş geldiniz. 🚗✨\n\n"
+                    "Merhaba! Yapay Zeka Satış Danışmanına hoş geldiniz. 🚗✨\n\n"
                     "Size en doğru araçları önerebilmem ve nasıl hitap edeceğimi bilmem için adınızı paylaşabilir misiniz?\n"
                     "Ayrıca aradığınız kriterlerde yeni bir araç stoğumuza girdiğinde ilk sizin haberiniz olması için telefon numaranızı da yazabilirsiniz."
                 )
             else:
                 reply_text = (
                     f"Merhaba {salutation}! Size nasıl yardımcı olabilirim? "
-                    f"Arkas Spoticar portföyümüzdeki araçlarımızın donanım, ekspertiz, takas ve kredi koşullarını sorabilirsiniz."
+                    f"Showroom portföyümüzdeki araçlarımızın donanım, ekspertiz, takas ve kredi koşullarını sorabilirsiniz."
                 )
 
         # Append chat history
