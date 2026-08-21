@@ -16,8 +16,9 @@
 
 ## 3. Mimari ve Modüler İş Akışı
 1. **Veritabanı Katmanı (`backend/db/` & PostgreSQL 5432):**
-   - 4 Tablolu Temiz Mimari: `vehicles`, `vehicle_images`, `creative_briefs`, `customer_leads`.
+   - 5 Tablolu Temiz Mimari: `vehicles`, `vehicle_images`, `creative_briefs`, `customer_leads`, `test_drives`.
    - `VehicleImage`: Araç detay fotoğrafları (`image_url`, `is_primary`, `display_order`, `caption`).
+   - `TestDrive`: Test sürüşü ve showroom randevu kayıtları (`appointment_datetime_text`, `customer_phone`, `status`).
 2. **Kreatif & Metin Motoru (`backend/agent/marketing_agent.py`):**
    - Marka personasına göre 3-tonlu metinler (`balanced_copy`, `professional_copy`, `engaging_copy`), 3 sahneli Instagram Story akışları ve etiketler doğrudan `creative_briefs` tablosuna yazılır.
 3. **Bilişsel AI Satış Danışmanı & Chatbot (`backend/agent/chatbot_agent.py` & `/api/chat`):**

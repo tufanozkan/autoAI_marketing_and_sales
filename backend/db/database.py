@@ -32,7 +32,7 @@ def get_db():
         db.close()
 
 def init_db():
-    from .models import Base
+    from .models import Base, Vehicle, VehicleImage, CreativeBrief, CustomerLead, TestDrive
     try:
         Base.metadata.create_all(bind=engine)
         # Ensure new columns exist on customer_leads table
@@ -42,6 +42,7 @@ def init_db():
                 ("phone_declined", "BOOLEAN DEFAULT FALSE"),
                 ("honorific_preference", "VARCHAR(20)"),
                 ("budget_min", "DOUBLE PRECISION"),
+                ("budget_max", "DOUBLE PRECISION"),
                 ("active_filters", "JSON DEFAULT '{}'::json"),
                 ("conversation_state_json", "JSON DEFAULT '{}'::json"),
             ]

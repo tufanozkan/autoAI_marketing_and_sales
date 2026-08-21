@@ -31,19 +31,19 @@ arkas_2el_pazarlama_ai/
 │   │   └── marketing_agent.py  # 3-tonlu (Dengeli, Kurumsal, İlgi Çekici) metin & Story akışı motoru
 │   ├── db/                     # PostgreSQL bağlantısı & SQLAlchemy ORM modelleri
 │   │   ├── database.py         # SessionLocal & Otomatik migrasyon
-│   │   └── models.py           # Vehicle, VehicleImage, CreativeBrief, CustomerLead ORM modelleri
+│   │   └── models.py           # Vehicle, VehicleImage, CreativeBrief, CustomerLead, TestDrive ORM modelleri
 │   ├── scraper/                # Canlı ilan veri toplama & donanım normalizasyonu
 │   │   ├── arkas_scraper.py    # Temel web scraper
 │   │   ├── normalizer.py       # Donanım ve teknik alan temizliği
 │   │   └── sahibinden_scraper.py# Sahibinden mağaza kazıma & Spoticar S3 görsel eşleştirici
 │   └── web/                    # FastAPI REST API & Next.js Statik Mount
-│       └── server.py           # /api/chat, /api/leads, /api/vehicles, /api/stats, /vehicle_images mount
+│       └── server.py           # /api/chat, /api/leads, /api/test-drives, /api/vehicles, /api/stats, /vehicle_images mount
 ├── frontend/                   # Next.js 15 (React 19, TypeScript, Tailwind CSS v4) Vitrin & Studio
 │   ├── public/                 # Statik Varlıklar (vehicle_images/, placeholder.svg)
 │   ├── src/app/                # Next.js App Router (globals.css, layout.tsx, page.tsx)
 │   ├── src/components/         # Navbar, StatsSection, FilterToolbar, VehicleCard, ChatbotWidget, CreativeStudioModal
 │   └── out/                    # Next.js statik export derlemesi (FastAPI tarafından sunulur)
-└── tests/                      # 73 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
+└── tests/                      # 82 Kapsamlı Birim ve Entegrasyon Testi (Unittest Suite)
 ```
 
 ---

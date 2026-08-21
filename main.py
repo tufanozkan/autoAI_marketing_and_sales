@@ -17,7 +17,7 @@ import logging
 import uvicorn
 from config import settings, BASE_DIR, FRONTEND_OUT_DIR
 from backend.db.database import SessionLocal, init_db, engine
-from backend.db.models import Base, Vehicle, VehicleImage, CreativeBrief, CustomerLead
+from backend.db.models import Base, Vehicle, VehicleImage, CreativeBrief, CustomerLead, TestDrive
 from backend.scraper.arkas_scraper import ArkasScraper
 from backend.agent.marketing_agent import MarketingAgent
 
@@ -41,7 +41,7 @@ def reset_database(db):
     print("\n🧹 Veritabanı sıfırlanıyor...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    print("      ✓ PostgreSQL tabloları (vehicles, vehicle_images, creative_briefs, customer_leads) başarıyla sıfırlandı.")
+    print("      ✓ PostgreSQL tabloları (vehicles, vehicle_images, creative_briefs, customer_leads, test_drives) başarıyla sıfırlandı.")
 
 def run_scraper(db, limit=settings.MAX_SCRAPE_ITEMS):
     print(f"\n[1/2] 🌐 Web Scraper Çalıştırılıyor ({settings.SCRAPER_BASE_URL})...")
